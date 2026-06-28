@@ -18,7 +18,7 @@ Web interface for Granboard electronic dartboards. Connects via WebBluetooth and
 ## Games
 
 - **X01**
-  - 2 players, manual player switch (board BTN button or UI)
+  - 2 players
   - Bust reverts entire turn, locks remaining darts
   - Settings remembered between sessions
   - Options:
@@ -29,7 +29,7 @@ Web interface for Granboard electronic dartboards. Connects via WebBluetooth and
     - Max rounds (default: 20, 0 for no limit)
 - **Around the Clock**
   - Hit 1 through 20 in order, optionally finishing on bull
-  - 2 players, manual player switch
+  - 2 players
   - LED highlights target number, voice calls next target on hit
   - Wrong number plays miss sound
   - Options:
@@ -40,7 +40,7 @@ Web interface for Granboard electronic dartboards. Connects via WebBluetooth and
 - **Cat and Mouse**
   - Mouse runs clockwise around the board, cat chases
   - Mouse starts at 20, cat starts at 5 — mouse wins by reaching 5, cat wins by catching up
-  - 2 players, manual player switch
+  - 2 players
   - Options:
     - Head start — 1 to 5 positions (default: 1)
     - Hit mode — any / doubles only / triples only (default: any)
