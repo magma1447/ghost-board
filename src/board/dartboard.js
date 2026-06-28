@@ -19,7 +19,7 @@ export function createDartboard(container) {
   const bg = document.createElementNS(SVG_NS, 'circle');
   bg.setAttribute('cx', cx);
   bg.setAttribute('cy', cy);
-  bg.setAttribute('r', RADII.BOARD + 20);
+  bg.setAttribute('r', RADII.BOARD + 24);
   bg.setAttribute('fill', '#2d2d2d');
   svg.appendChild(bg);
 

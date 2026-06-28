@@ -139,7 +139,7 @@ export function generateSegments(cx, cy) {
 
 // Generate number label positions (just outside the double ring)
 export function generateLabels(cx, cy) {
-  const labelRadius = RADII.BOARD + 16;
+  const labelRadius = RADII.BOARD + 12;
   return BOARD_ORDER.map((num, i) => {
     const deg = i * SEGMENT_ANGLE;
     const rad = toRad(deg);
