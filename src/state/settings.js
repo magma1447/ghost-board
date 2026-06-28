@@ -3,69 +3,69 @@
 const STORAGE_KEY = 'ghost-board-settings';
 
 const DEFAULTS = {
-  audio: {
-    theme: 'impact',
-    voice: '',
-    callTurnTotal: true,
-    callRemaining: true,
-    callCheckout: true,
-  },
-  debug: {
-    mouseInput: false,
-  },
+    audio: {
+        theme: 'impact',
+        voice: '',
+        callTurnTotal: true,
+        callRemaining: true,
+        callCheckout: true,
+    },
+    debug: {
+        mouseInput: false,
+    },
 };
 
 let current = null;
 
 function load() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const stored = JSON.parse(raw);
-      // Merge with defaults so new keys are always present
-      return merge(DEFAULTS, stored);
-    }
-  } catch {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+            const stored = JSON.parse(raw);
+            // Merge with defaults so new keys are always present
+            return merge(DEFAULTS, stored);
+        }
+    } catch {
     // Corrupted data — reset
-  }
-  return structuredClone(DEFAULTS);
+    }
+    return structuredClone(DEFAULTS);
 }
 
 function merge(defaults, overrides) {
-  const result = structuredClone(defaults);
-  for (const key of Object.keys(overrides)) {
-    if (key in result && typeof result[key] === 'object' && !Array.isArray(result[key])) {
-      result[key] = merge(result[key], overrides[key]);
-    } else {
-      result[key] = overrides[key];
+    const result = structuredClone(defaults);
+    for (const key of Object.keys(overrides)) {
+        if (key in result && typeof result[key] === 'object' && !Array.isArray(result[key])) {
+            result[key] = merge(result[key], overrides[key]);
+        } else {
+            result[key] = overrides[key];
+        }
     }
-  }
-  return result;
+    return result;
 }
 
 function save() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
 }
 
 export function settings() {
-  if (!current) {
-    current = load();
-  }
-  return current;
+    if (!current) {
+        current = load();
+    }
+    return current;
 }
 
 export function updateSettings(path, value) {
-  if (!current) {
-    current = load();
-  }
-  const keys = path.split('.');
-  let obj = current;
-  for (let i = 0; i < keys.length - 1; i++) {
-    if (!obj[keys[i]]) {
-      obj[keys[i]] = {};
+    if (!current) {
+        current = load();
     }
-    obj = obj[keys[i]];
-  }
-  obj[keys[keys.length - 1]] = value;
-  save();
+    const keys = path.split('.');
+    let obj = current;
+    for (let i = 0; i < keys.length - 1; i++) {
+        if (!obj[keys[i]]) {
+            obj[keys[i]] = {};
+        }
+        obj = obj[keys[i]];
+    }
+    obj[keys[keys.length - 1]] = value;
+    save();
 }

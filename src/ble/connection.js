@@ -11,121 +11,121 @@ const RECONNECT_DELAY_MS = 2000;
 const MAX_RECONNECT_ATTEMPTS = 5;
 
 export function createConnection(onHit, onStatus) {
-  let device = null;
-  let writeChar = null;
-  let autoReconnect = true;
-  let reconnectAttempts = 0;
+    let device = null;
+    let writeChar = null;
+    let autoReconnect = true;
+    let reconnectAttempts = 0;
 
-  function setStatus(status, detail) {
-    onStatus({ status, detail });
-  }
-
-  async function subscribe() {
-    setStatus('connecting', `Connecting to ${device.name}...`);
-    const server = await device.gatt.connect();
-
-    const service = await server.getPrimaryService(SERVICE_UUID);
-    const notifyChar = await service.getCharacteristic(NOTIFY_UUID);
-
-    try {
-      writeChar = await service.getCharacteristic(WRITE_UUID);
-    } catch {
-      writeChar = null; // Write not available — non-critical
+    function setStatus(status, detail) {
+        onStatus({ status, detail });
     }
 
-    const parse = createParser();
+    async function subscribe() {
+        setStatus('connecting', `Connecting to ${device.name}...`);
+        const server = await device.gatt.connect();
 
-    notifyChar.addEventListener('characteristicvaluechanged', (e) => {
-      const hits = parse(e.target.value);
-      for (const hit of hits) {
-        onHit(hit);
-      }
-    });
+        const service = await server.getPrimaryService(SERVICE_UUID);
+        const notifyChar = await service.getCharacteristic(NOTIFY_UUID);
 
-    await notifyChar.startNotifications();
-    reconnectAttempts = 0;
-    setStatus('connected', `Connected to ${device.name}`);
-  }
+        try {
+            writeChar = await service.getCharacteristic(WRITE_UUID);
+        } catch {
+            writeChar = null; // Write not available — non-critical
+        }
 
-  function onDisconnected() {
-    if (!autoReconnect) {
-      setStatus('disconnected', 'Disconnected');
-      return;
+        const parse = createParser();
+
+        notifyChar.addEventListener('characteristicvaluechanged', (e) => {
+            const hits = parse(e.target.value);
+            for (const hit of hits) {
+                onHit(hit);
+            }
+        });
+
+        await notifyChar.startNotifications();
+        reconnectAttempts = 0;
+        setStatus('connected', `Connected to ${device.name}`);
     }
 
-    if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
-      setStatus('error', 'Reconnect failed. Click Connect to retry.');
-      reconnectAttempts = 0;
-      return;
+    function onDisconnected() {
+        if (!autoReconnect) {
+            setStatus('disconnected', 'Disconnected');
+            return;
+        }
+
+        if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+            setStatus('error', 'Reconnect failed. Click Connect to retry.');
+            reconnectAttempts = 0;
+            return;
+        }
+
+        reconnectAttempts++;
+        setStatus('connecting', `Reconnecting (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
+
+        setTimeout(async () => {
+            try {
+                await subscribe();
+            } catch {
+                onDisconnected();
+            }
+        }, RECONNECT_DELAY_MS);
     }
 
-    reconnectAttempts++;
-    setStatus('connecting', `Reconnecting (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
+    async function connect() {
+        if (!navigator.bluetooth) {
+            setStatus('error', 'WebBluetooth not supported. Use Chrome or Edge.');
+            return;
+        }
 
-    setTimeout(async () => {
-      try {
-        await subscribe();
-      } catch {
-        onDisconnected();
-      }
-    }, RECONNECT_DELAY_MS);
-  }
+        autoReconnect = true;
+        reconnectAttempts = 0;
 
-  async function connect() {
-    if (!navigator.bluetooth) {
-      setStatus('error', 'WebBluetooth not supported. Use Chrome or Edge.');
-      return;
+        try {
+            setStatus('scanning', 'Requesting Granboard...');
+
+            device = await navigator.bluetooth.requestDevice({
+                filters: [{ namePrefix: DEVICE_NAME }],
+                optionalServices: [SERVICE_UUID],
+            });
+
+            device.addEventListener('gattserverdisconnected', onDisconnected);
+
+            await subscribe();
+        } catch (err) {
+            if (err.name === 'NotFoundError') {
+                setStatus('disconnected', 'No device selected');
+            } else {
+                setStatus('error', err.message);
+            }
+        }
     }
 
-    autoReconnect = true;
-    reconnectAttempts = 0;
-
-    try {
-      setStatus('scanning', 'Requesting Granboard...');
-
-      device = await navigator.bluetooth.requestDevice({
-        filters: [{ namePrefix: DEVICE_NAME }],
-        optionalServices: [SERVICE_UUID],
-      });
-
-      device.addEventListener('gattserverdisconnected', onDisconnected);
-
-      await subscribe();
-    } catch (err) {
-      if (err.name === 'NotFoundError') {
-        setStatus('disconnected', 'No device selected');
-      } else {
-        setStatus('error', err.message);
-      }
+    // Send raw bytes to the board (used for LED commands).
+    // Prefers writeWithoutResponse for lower latency when supported.
+    async function write(data) {
+        if (!writeChar) {
+            return;
+        }
+        try {
+            const props = writeChar.properties || {};
+            if (props.writeWithoutResponse && writeChar.writeValueWithoutResponse) {
+                await writeChar.writeValueWithoutResponse(data);
+            } else {
+                await writeChar.writeValue(data);
+            }
+        } catch {
+            // Write failed — non-critical (LEDs are cosmetic)
+        }
     }
-  }
 
-  // Send raw bytes to the board (used for LED commands).
-  // Prefers writeWithoutResponse for lower latency when supported.
-  async function write(data) {
-    if (!writeChar) {
-      return;
+    function disconnect() {
+        autoReconnect = false;
+        writeChar = null;
+        if (device?.gatt?.connected) {
+            device.gatt.disconnect();
+        }
+        setStatus('disconnected', 'Disconnected');
     }
-    try {
-      const props = writeChar.properties || {};
-      if (props.writeWithoutResponse && writeChar.writeValueWithoutResponse) {
-        await writeChar.writeValueWithoutResponse(data);
-      } else {
-        await writeChar.writeValue(data);
-      }
-    } catch {
-      // Write failed — non-critical (LEDs are cosmetic)
-    }
-  }
 
-  function disconnect() {
-    autoReconnect = false;
-    writeChar = null;
-    if (device?.gatt?.connected) {
-      device.gatt.disconnect();
-    }
-    setStatus('disconnected', 'Disconnected');
-  }
-
-  return { connect, disconnect, write };
+    return { connect, disconnect, write };
 }

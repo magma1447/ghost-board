@@ -14,167 +14,167 @@
 //   bullFinish: 'off' (end at 20) | 'single' | 'double' (must finish on bull)
 
 export function createAroundTheClock({
-  numPlayers = 2,
-  dartsPerTurn = 3,
-  bullFinish = 'single',
-  hitMode = 'any',
-  multiStep = false,
-  maxRounds = 0,
+    numPlayers = 2,
+    dartsPerTurn = 3,
+    bullFinish = 'single',
+    hitMode = 'any',
+    multiStep = false,
+    maxRounds = 0,
 } = {}) {
-  const finalTarget = bullFinish === 'off' ? 20 : 21; // 21 = bull
+    const finalTarget = bullFinish === 'off' ? 20 : 21; // 21 = bull
 
-  const players = [];
-  for (let i = 0; i < numPlayers; i++) {
-    players.push({ name: `Player ${i + 1}`, currentTarget: 1 });
-  }
-
-  const state = {
-    type: 'around-the-clock',
-    bullFinish,
-    hitMode,
-    multiStep,
-    maxRounds,
-    finalTarget,
-    players,
-    currentPlayerIndex: 0,
-    turnDarts: [],
-    turnLocked: false,
-    round: 1,
-    gameOver: false,
-    winner: null,
-  };
-
-  function currentPlayer() {
-    return state.players[state.currentPlayerIndex];
-  }
-
-  function advancePlayer() {
-    state.turnDarts = [];
-    state.turnLocked = false;
-    state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
-    if (state.currentPlayerIndex === 0) {
-      state.round++;
+    const players = [];
+    for (let i = 0; i < numPlayers; i++) {
+        players.push({ name: `Player ${i + 1}`, currentTarget: 1 });
     }
 
-    if (maxRounds > 0 && state.round > maxRounds) {
-      state.gameOver = true;
-      state.winner = null;
-      return 'draw';
-    }
-    return null;
-  }
+    const state = {
+        type: 'around-the-clock',
+        bullFinish,
+        hitMode,
+        multiStep,
+        maxRounds,
+        finalTarget,
+        players,
+        currentPlayerIndex: 0,
+        turnDarts: [],
+        turnLocked: false,
+        round: 1,
+        gameOver: false,
+        winner: null,
+    };
 
-  // Convert internal target number to a speakable value for voice callouts.
-  // Targets 1–20 are spoken as-is; target 21 (bull) is spoken as 25 or 50.
-  function formatTarget(target) {
-    if (target <= 20) {
-      return target;
-    }
-    return bullFinish === 'double' ? 50 : 25;
-  }
-
-  // Check if the dart's ring qualifies as a hit for the given target.
-  // Bull has special handling: no triple ring exists, so triples mode accepts any bull.
-  function ringMatches(ring, target) {
-    if (target === 21) {
-      if (bullFinish === 'double') {
-        return ring === 'DBULL';
-      }
-      // Single bull finish — accept either
-      return ring === 'SBULL' || ring === 'DBULL';
+    function currentPlayer() {
+        return state.players[state.currentPlayerIndex];
     }
 
-    // Number targets — check hit mode
-    if (hitMode === 'doubles') {
-      return ring === 'D';
-    }
-    if (hitMode === 'triples') {
-      return ring === 'T';
-    }
-    // Any ring on the correct segment
-    return ring === 'SO' || ring === 'SI' || ring === 'D' || ring === 'T';
-  }
+    function advancePlayer() {
+        state.turnDarts = [];
+        state.turnLocked = false;
+        state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
+        if (state.currentPlayerIndex === 0) {
+            state.round++;
+        }
 
-  function segmentMatches(segment, target) {
-    if (target === 21) {
-      // Bull — segment check is handled by ringMatches
-      return true;
-    }
-    return segment === target;
-  }
-
-  // With multi-step enabled, doubles advance 2 targets and triples advance 3.
-  // E.g. target is 5, hit T5 → advance to 8 (skipping 6 and 7).
-  function stepsForRing(ring) {
-    if (!multiStep) {
-      return 1;
-    }
-    if (ring === 'D' || ring === 'DBULL') {
-      return 2;
-    }
-    if (ring === 'T') {
-      return 3;
-    }
-    return 1;
-  }
-
-  function nextPlayer() {
-    const callouts = [];
-    const drawEvent = advancePlayer();
-
-    if (!state.gameOver) {
-      callouts.push({ type: 'remaining', value: formatTarget(currentPlayer().currentTarget) });
+        if (maxRounds > 0 && state.round > maxRounds) {
+            state.gameOver = true;
+            state.winner = null;
+            return 'draw';
+        }
+        return null;
     }
 
-    return { state, event: drawEvent || 'switch', callouts };
-  }
-
-  function onDart(ring, segment) {
-    if (state.gameOver) {
-      return { state, event: null, callouts: [] };
-    }
-    if (state.turnLocked || state.turnDarts.length >= dartsPerTurn) {
-      return { state, event: null, callouts: [] };
+    // Convert internal target number to a speakable value for voice callouts.
+    // Targets 1–20 are spoken as-is; target 21 (bull) is spoken as 25 or 50.
+    function formatTarget(target) {
+        if (target <= 20) {
+            return target;
+        }
+        return bullFinish === 'double' ? 50 : 25;
     }
 
-    const player = currentPlayer();
-    const target = player.currentTarget;
+    // Check if the dart's ring qualifies as a hit for the given target.
+    // Bull has special handling: no triple ring exists, so triples mode accepts any bull.
+    function ringMatches(ring, target) {
+        if (target === 21) {
+            if (bullFinish === 'double') {
+                return ring === 'DBULL';
+            }
+            // Single bull finish — accept either
+            return ring === 'SBULL' || ring === 'DBULL';
+        }
 
-    // Check if this dart hits the current target
-    const isHit = segmentMatches(segment, target) && ringMatches(ring, target);
-
-    if (!isHit) {
-      state.turnDarts.push({ ring, segment, hit: false });
-      return { state, event: 'miss', callouts: [] };
+        // Number targets — check hit mode
+        if (hitMode === 'doubles') {
+            return ring === 'D';
+        }
+        if (hitMode === 'triples') {
+            return ring === 'T';
+        }
+        // Any ring on the correct segment
+        return ring === 'SO' || ring === 'SI' || ring === 'D' || ring === 'T';
     }
 
-    // Hit — advance target (capped at finalTarget + 1 to indicate completion)
-    const steps = stepsForRing(ring);
-    player.currentTarget = Math.min(player.currentTarget + steps, finalTarget + 1);
-    state.turnDarts.push({ ring, segment, hit: true });
-
-    // Check win
-    if (player.currentTarget > finalTarget) {
-      state.gameOver = true;
-      state.winner = state.currentPlayerIndex;
-      return { state, event: 'win', callouts: [] };
+    function segmentMatches(segment, target) {
+        if (target === 21) {
+            // Bull — segment check is handled by ringMatches
+            return true;
+        }
+        return segment === target;
     }
 
-    // Call out the next target (but not on last dart — switch will handle it)
-    const callouts = [];
-    if (state.turnDarts.length < dartsPerTurn) {
-      callouts.push({ type: 'checkout', value: formatTarget(player.currentTarget) });
+    // With multi-step enabled, doubles advance 2 targets and triples advance 3.
+    // E.g. target is 5, hit T5 → advance to 8 (skipping 6 and 7).
+    function stepsForRing(ring) {
+        if (!multiStep) {
+            return 1;
+        }
+        if (ring === 'D' || ring === 'DBULL') {
+            return 2;
+        }
+        if (ring === 'T') {
+            return 3;
+        }
+        return 1;
     }
-    return { state, event: null, callouts };
-  }
 
-  function getState() {
-    return state;
-  }
+    function nextPlayer() {
+        const callouts = [];
+        const drawEvent = advancePlayer();
 
-  function loadState(saved) {
-    Object.assign(state, saved);
-  }
+        if (!state.gameOver) {
+            callouts.push({ type: 'remaining', value: formatTarget(currentPlayer().currentTarget) });
+        }
 
-  return { onDart, nextPlayer, getState, loadState };
+        return { state, event: drawEvent || 'switch', callouts };
+    }
+
+    function onDart(ring, segment) {
+        if (state.gameOver) {
+            return { state, event: null, callouts: [] };
+        }
+        if (state.turnLocked || state.turnDarts.length >= dartsPerTurn) {
+            return { state, event: null, callouts: [] };
+        }
+
+        const player = currentPlayer();
+        const target = player.currentTarget;
+
+        // Check if this dart hits the current target
+        const isHit = segmentMatches(segment, target) && ringMatches(ring, target);
+
+        if (!isHit) {
+            state.turnDarts.push({ ring, segment, hit: false });
+            return { state, event: 'miss', callouts: [] };
+        }
+
+        // Hit — advance target (capped at finalTarget + 1 to indicate completion)
+        const steps = stepsForRing(ring);
+        player.currentTarget = Math.min(player.currentTarget + steps, finalTarget + 1);
+        state.turnDarts.push({ ring, segment, hit: true });
+
+        // Check win
+        if (player.currentTarget > finalTarget) {
+            state.gameOver = true;
+            state.winner = state.currentPlayerIndex;
+            return { state, event: 'win', callouts: [] };
+        }
+
+        // Call out the next target (but not on last dart — switch will handle it)
+        const callouts = [];
+        if (state.turnDarts.length < dartsPerTurn) {
+            callouts.push({ type: 'checkout', value: formatTarget(player.currentTarget) });
+        }
+        return { state, event: null, callouts };
+    }
+
+    function getState() {
+        return state;
+    }
+
+    function loadState(saved) {
+        Object.assign(state, saved);
+    }
+
+    return { onDart, nextPlayer, getState, loadState };
 }

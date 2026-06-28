@@ -4,129 +4,129 @@ import '../game-panel.css';
 import { formatDart } from '../format.js';
 
 export function createX01Panel(container, { onNextPlayer, onEndGame }) {
-  const el = document.createElement('div');
-  el.className = 'game-panel';
+    const el = document.createElement('div');
+    el.className = 'game-panel';
 
-  // Rules summary
-  const rulesLabel = document.createElement('div');
-  rulesLabel.className = 'game-rules';
-  el.appendChild(rulesLabel);
+    // Rules summary
+    const rulesLabel = document.createElement('div');
+    rulesLabel.className = 'game-rules';
+    el.appendChild(rulesLabel);
 
-  // Round indicator
-  const roundLabel = document.createElement('div');
-  roundLabel.className = 'game-round';
-  el.appendChild(roundLabel);
+    // Round indicator
+    const roundLabel = document.createElement('div');
+    roundLabel.className = 'game-round';
+    el.appendChild(roundLabel);
 
-  // Scoreboard
-  const scoreboard = document.createElement('div');
-  scoreboard.className = 'game-scoreboard';
-  el.appendChild(scoreboard);
+    // Scoreboard
+    const scoreboard = document.createElement('div');
+    scoreboard.className = 'game-scoreboard';
+    el.appendChild(scoreboard);
 
-  // Turn info
-  const turnInfo = document.createElement('div');
-  turnInfo.className = 'game-turn-info';
-  el.appendChild(turnInfo);
+    // Turn info
+    const turnInfo = document.createElement('div');
+    turnInfo.className = 'game-turn-info';
+    el.appendChild(turnInfo);
 
-  // Event banner (bust / win / draw)
-  const banner = document.createElement('div');
-  banner.className = 'game-banner';
-  banner.hidden = true;
-  el.appendChild(banner);
+    // Event banner (bust / win / draw)
+    const banner = document.createElement('div');
+    banner.className = 'game-banner';
+    banner.hidden = true;
+    el.appendChild(banner);
 
-  // Buttons
-  const btnRow = document.createElement('div');
-  btnRow.className = 'game-buttons';
+    // Buttons
+    const btnRow = document.createElement('div');
+    btnRow.className = 'game-buttons';
 
-  const nextBtn = document.createElement('button');
-  nextBtn.className = 'game-btn';
-  nextBtn.textContent = 'Next Player';
-  nextBtn.addEventListener('click', onNextPlayer);
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'game-btn';
+    nextBtn.textContent = 'Next Player';
+    nextBtn.addEventListener('click', onNextPlayer);
 
-  const endBtn = document.createElement('button');
-  endBtn.className = 'game-btn game-btn-end';
-  endBtn.textContent = 'End Game';
-  endBtn.addEventListener('click', onEndGame);
+    const endBtn = document.createElement('button');
+    endBtn.className = 'game-btn game-btn-end';
+    endBtn.textContent = 'End Game';
+    endBtn.addEventListener('click', onEndGame);
 
-  btnRow.append(nextBtn, endBtn);
-  el.appendChild(btnRow);
+    btnRow.append(nextBtn, endBtn);
+    el.appendChild(btnRow);
 
-  container.appendChild(el);
+    container.appendChild(el);
 
-  let bannerTimeout = null;
+    let bannerTimeout = null;
 
-  function showBanner(text, type) {
-    clearTimeout(bannerTimeout);
-    banner.textContent = text;
-    banner.className = `game-banner game-banner-${type}`;
-    banner.hidden = false;
-    if (type !== 'win' && type !== 'draw') {
-      bannerTimeout = setTimeout(() => {
-        banner.hidden = true;
-      }, 2000);
+    function showBanner(text, type) {
+        clearTimeout(bannerTimeout);
+        banner.textContent = text;
+        banner.className = `game-banner game-banner-${type}`;
+        banner.hidden = false;
+        if (type !== 'win' && type !== 'draw') {
+            bannerTimeout = setTimeout(() => {
+                banner.hidden = true;
+            }, 2000);
+        }
     }
-  }
 
-  function buildRulesText(state) {
-    const tags = [];
-    if (state.doubleIn) {
-      tags.push('DI');
+    function buildRulesText(state) {
+        const tags = [];
+        if (state.doubleIn) {
+            tags.push('DI');
+        }
+        if (state.doubleOut) {
+            tags.push('DO');
+        }
+        if (state.bullMode === '50/50') {
+            tags.push('Bull 50/50');
+        }
+        if (state.maxRounds > 0) {
+            tags.push(`${state.maxRounds} rnd`);
+        }
+        return tags.length > 0 ? tags.join(' · ') : '';
     }
-    if (state.doubleOut) {
-      tags.push('DO');
-    }
-    if (state.bullMode === '50/50') {
-      tags.push('Bull 50/50');
-    }
-    if (state.maxRounds > 0) {
-      tags.push(`${state.maxRounds} rnd`);
-    }
-    return tags.length > 0 ? tags.join(' · ') : '';
-  }
 
-  function update(state, event) {
+    function update(state, event) {
     // Rules (shown once, static)
-    const rulesText = buildRulesText(state);
-    rulesLabel.textContent = rulesText;
-    rulesLabel.hidden = !rulesText;
+        const rulesText = buildRulesText(state);
+        rulesLabel.textContent = rulesText;
+        rulesLabel.hidden = !rulesText;
 
-    // Round
-    const roundText = state.maxRounds > 0
-      ? `Round ${state.round} / ${state.maxRounds}`
-      : `Round ${state.round}`;
-    roundLabel.textContent = roundText;
+        // Round
+        const roundText = state.maxRounds > 0
+            ? `Round ${state.round} / ${state.maxRounds}`
+            : `Round ${state.round}`;
+        roundLabel.textContent = roundText;
 
-    scoreboard.innerHTML = '';
-    for (let i = 0; i < state.players.length; i++) {
-      const p = state.players[i];
-      const row = document.createElement('div');
-      row.className = 'game-score-row' + (i === state.currentPlayerIndex ? ' active' : '');
-      row.innerHTML = `<span class="game-player-name">${p.name}</span><span class="game-player-value">${p.score}</span>`;
-      scoreboard.appendChild(row);
+        scoreboard.innerHTML = '';
+        for (let i = 0; i < state.players.length; i++) {
+            const p = state.players[i];
+            const row = document.createElement('div');
+            row.className = 'game-score-row' + (i === state.currentPlayerIndex ? ' active' : '');
+            row.innerHTML = `<span class="game-player-name">${p.name}</span><span class="game-player-value">${p.score}</span>`;
+            scoreboard.appendChild(row);
+        }
+
+        if (state.turnDarts.length > 0) {
+            const dartStrs = state.turnDarts.map(formatDart);
+            const turnTotal = state.turnDarts.reduce((sum, d) => sum + d.points, 0);
+            turnInfo.textContent = `${dartStrs.join(', ')}  (${turnTotal})`;
+        } else {
+            turnInfo.textContent = '';
+        }
+
+        nextBtn.disabled = state.gameOver;
+
+        if (event === 'bust') {
+            showBanner('BUST!', 'bust');
+        } else if (event === 'win') {
+            showBanner(`${state.players[state.winner].name} wins!`, 'win');
+        } else if (event === 'draw') {
+            showBanner('Draw — round limit reached', 'draw');
+        }
     }
 
-    if (state.turnDarts.length > 0) {
-      const dartStrs = state.turnDarts.map(formatDart);
-      const turnTotal = state.turnDarts.reduce((sum, d) => sum + d.points, 0);
-      turnInfo.textContent = `${dartStrs.join(', ')}  (${turnTotal})`;
-    } else {
-      turnInfo.textContent = '';
+    function destroy() {
+        clearTimeout(bannerTimeout);
+        el.remove();
     }
 
-    nextBtn.disabled = state.gameOver;
-
-    if (event === 'bust') {
-      showBanner('BUST!', 'bust');
-    } else if (event === 'win') {
-      showBanner(`${state.players[state.winner].name} wins!`, 'win');
-    } else if (event === 'draw') {
-      showBanner('Draw — round limit reached', 'draw');
-    }
-  }
-
-  function destroy() {
-    clearTimeout(bannerTimeout);
-    el.remove();
-  }
-
-  return { update, destroy };
+    return { update, destroy };
 }

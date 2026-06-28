@@ -2,218 +2,218 @@
 
 /* -- Game panel -- */
 .game-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
 .game-rules {
-  font-size: 0.75rem;
-  color: #888;
-  letter-spacing: 0.03em;
+    font-size: 0.75rem;
+    color: #888;
+    letter-spacing: 0.03em;
 }
 
 .game-rules[hidden] {
-  display: none;
+    display: none;
 }
 
 .game-round {
-  font-size: 0.8rem;
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+    font-size: 0.8rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 .game-scoreboard {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
 }
 
 .game-score-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0.75rem;
-  border-radius: 4px;
-  background: #1e1e1e;
-  font-size: 0.95rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    background: #1e1e1e;
+    font-size: 0.95rem;
 }
 
 .game-score-row.active {
-  background: #2a3a2a;
-  border-left: 3px solid #4caf50;
+    background: #2a3a2a;
+    border-left: 3px solid #4caf50;
 }
 
 .game-player-name {
-  font-weight: 500;
+    font-weight: 500;
 }
 
 .game-player-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
 }
 
 .game-turn-info {
-  font-size: 0.85rem;
-  color: #aaa;
-  min-height: 1.2em;
-  font-variant-numeric: tabular-nums;
+    font-size: 0.85rem;
+    color: #aaa;
+    min-height: 1.2em;
+    font-variant-numeric: tabular-nums;
 }
 
 .game-dart-hit {
-  color: #4caf50;
+    color: #4caf50;
 }
 
 .game-dart-miss {
-  color: #888;
+    color: #888;
 }
 
 .game-banner {
-  padding: 0.5rem 0.75rem;
-  border-radius: 4px;
-  font-weight: 700;
-  text-align: center;
-  font-size: 1.1rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    font-weight: 700;
+    text-align: center;
+    font-size: 1.1rem;
 }
 
 .game-banner[hidden] {
-  display: none;
+    display: none;
 }
 
 .game-banner-bust {
-  background: #4a1a1a;
-  color: #f44336;
+    background: #4a1a1a;
+    color: #f44336;
 }
 
 .game-banner-win {
-  background: #1a3a1a;
-  color: #4caf50;
+    background: #1a3a1a;
+    color: #4caf50;
 }
 
 .game-banner-draw {
-  background: #3a3a1a;
-  color: #ff9800;
+    background: #3a3a1a;
+    color: #ff9800;
 }
 
 .game-buttons {
-  display: flex;
-  gap: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
 }
 
 .game-btn {
-  flex: 1;
-  padding: 0.5rem 1rem;
-  border: 1px solid #555;
-  border-radius: 4px;
-  background: #2a2a2a;
-  color: #e0e0e0;
-  cursor: pointer;
-  font-size: 0.875rem;
+    flex: 1;
+    padding: 0.5rem 1rem;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background: #2a2a2a;
+    color: #e0e0e0;
+    cursor: pointer;
+    font-size: 0.875rem;
 }
 
 .game-btn:hover {
-  background: #3a3a3a;
+    background: #3a3a3a;
 }
 
 .game-btn:disabled {
-  opacity: 0.4;
-  cursor: default;
+    opacity: 0.4;
+    cursor: default;
 }
 
 .game-btn-end {
-  flex: 0;
-  border-color: #633;
-  color: #e88;
+    flex: 0;
+    border-color: #633;
+    color: #e88;
 }
 
 /* -- Setup panel -- */
 .game-setup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
 .game-setup-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #ccc;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ccc;
 }
 
 .game-setup-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .game-setup-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.35rem 0.75rem;
-  background: #1e1e1e;
-  border-radius: 4px;
-  font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.35rem 0.75rem;
+    background: #1e1e1e;
+    border-radius: 4px;
+    font-size: 0.85rem;
 }
 
 .game-setup-row label {
-  color: #ccc;
+    color: #ccc;
 }
 
 .game-setup-default {
-  color: #666;
-  font-size: 0.75rem;
+    color: #666;
+    font-size: 0.75rem;
 }
 
 .game-setup-row select {
-  padding: 0.2rem 0.4rem;
-  border: 1px solid #555;
-  border-radius: 4px;
-  background: #2a2a2a;
-  color: #e0e0e0;
-  font-size: 0.8rem;
+    padding: 0.2rem 0.4rem;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background: #2a2a2a;
+    color: #e0e0e0;
+    font-size: 0.8rem;
 }
 
 .game-setup-row input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  accent-color: #4caf50;
+    width: 16px;
+    height: 16px;
+    accent-color: #4caf50;
 }
 
 .game-setup-buttons {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
 }
 
 .game-setup-start {
-  padding: 0.4rem 1.2rem;
-  border: 1px solid #4caf50;
-  border-radius: 4px;
-  background: #1a3a1a;
-  color: #4caf50;
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 600;
+    padding: 0.4rem 1.2rem;
+    border: 1px solid #4caf50;
+    border-radius: 4px;
+    background: #1a3a1a;
+    color: #4caf50;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
 }
 
 .game-setup-start:hover {
-  background: #2a4a2a;
+    background: #2a4a2a;
 }
 
 .game-setup-restore {
-  padding: 0.4rem 0.75rem;
-  border: 1px solid #555;
-  border-radius: 4px;
-  background: none;
-  color: #888;
-  cursor: pointer;
-  font-size: 0.75rem;
+    padding: 0.4rem 0.75rem;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background: none;
+    color: #888;
+    cursor: pointer;
+    font-size: 0.75rem;
 }
 
 .game-setup-restore:hover {
-  color: #ccc;
-  border-color: #888;
+    color: #ccc;
+    border-color: #888;
 }

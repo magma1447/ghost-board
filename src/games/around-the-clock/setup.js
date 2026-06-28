@@ -5,21 +5,21 @@ import { formatBool, formatRounds } from '../format.js';
 import { settings, updateSettings } from '../../state/settings.js';
 
 const D = {
-  bullFinish: 'single',
-  hitMode: 'any',
-  multiStep: false,
-  maxRounds: 0,
+    bullFinish: 'single',
+    hitMode: 'any',
+    multiStep: false,
+    maxRounds: 0,
 };
 
 const BULL_LABELS = { off: 'off', single: 'single bull', double: 'double bull' };
 
 export function createAroundTheClockSetup(container, onStart) {
-  const el = document.createElement('div');
-  el.className = 'game-setup';
+    const el = document.createElement('div');
+    el.className = 'game-setup';
 
-  const saved = { ...D, ...(settings().aroundTheClock || {}) };
+    const saved = { ...D, ...(settings().aroundTheClock || {}) };
 
-  el.innerHTML = `
+    el.innerHTML = `
     <h3 class="game-setup-title">Around the Clock</h3>
     <div class="game-setup-fields">
       <div class="game-setup-row">
@@ -59,52 +59,52 @@ export function createAroundTheClockSetup(container, onStart) {
     </div>
   `;
 
-  const fields = {
-    bullFinish: el.querySelector('[data-field="bullFinish"]'),
-    hitMode: el.querySelector('[data-field="hitMode"]'),
-    multiStep: el.querySelector('[data-field="multiStep"]'),
-    maxRounds: el.querySelector('[data-field="maxRounds"]'),
-  };
-
-  function applyValues(vals) {
-    fields.bullFinish.value = vals.bullFinish;
-    fields.hitMode.value = vals.hitMode;
-    fields.multiStep.checked = vals.multiStep;
-    fields.maxRounds.value = String(vals.maxRounds);
-  }
-
-  function readValues() {
-    return {
-      bullFinish: fields.bullFinish.value,
-      hitMode: fields.hitMode.value,
-      multiStep: fields.multiStep.checked,
-      maxRounds: parseInt(fields.maxRounds.value, 10),
+    const fields = {
+        bullFinish: el.querySelector('[data-field="bullFinish"]'),
+        hitMode: el.querySelector('[data-field="hitMode"]'),
+        multiStep: el.querySelector('[data-field="multiStep"]'),
+        maxRounds: el.querySelector('[data-field="maxRounds"]'),
     };
-  }
 
-  applyValues(saved);
+    function applyValues(vals) {
+        fields.bullFinish.value = vals.bullFinish;
+        fields.hitMode.value = vals.hitMode;
+        fields.multiStep.checked = vals.multiStep;
+        fields.maxRounds.value = String(vals.maxRounds);
+    }
 
-  el.querySelector('.game-setup-restore').addEventListener('click', () => {
-    applyValues(D);
-  });
+    function readValues() {
+        return {
+            bullFinish: fields.bullFinish.value,
+            hitMode: fields.hitMode.value,
+            multiStep: fields.multiStep.checked,
+            maxRounds: parseInt(fields.maxRounds.value, 10),
+        };
+    }
 
-  el.querySelector('.game-setup-start').addEventListener('click', () => {
-    const opts = readValues();
+    applyValues(saved);
 
-    updateSettings('aroundTheClock.bullFinish', opts.bullFinish);
-    updateSettings('aroundTheClock.hitMode', opts.hitMode);
-    updateSettings('aroundTheClock.multiStep', opts.multiStep);
-    updateSettings('aroundTheClock.maxRounds', opts.maxRounds);
+    el.querySelector('.game-setup-restore').addEventListener('click', () => {
+        applyValues(D);
+    });
 
-    el.remove();
-    onStart(opts);
-  });
+    el.querySelector('.game-setup-start').addEventListener('click', () => {
+        const opts = readValues();
 
-  container.appendChild(el);
+        updateSettings('aroundTheClock.bullFinish', opts.bullFinish);
+        updateSettings('aroundTheClock.hitMode', opts.hitMode);
+        updateSettings('aroundTheClock.multiStep', opts.multiStep);
+        updateSettings('aroundTheClock.maxRounds', opts.maxRounds);
 
-  function destroy() {
-    el.remove();
-  }
+        el.remove();
+        onStart(opts);
+    });
 
-  return { destroy };
+    container.appendChild(el);
+
+    function destroy() {
+        el.remove();
+    }
+
+    return { destroy };
 }

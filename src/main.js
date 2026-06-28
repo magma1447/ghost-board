@@ -54,107 +54,107 @@ setTheme(savedTheme);
 
 const savedVoice = settings().audio.voice;
 if (savedVoice) {
-  setVoice(savedVoice);
+    setVoice(savedVoice);
 }
 
 // Debug mode: mouse clicks on board count as hits
 function setDebugMode(enabled) {
-  board.onSegmentClick(enabled ? (seg) => {
-    onEvent({ type: 'hit', ring: seg.ring, segment: seg.segment });
-  } : null);
+    board.onSegmentClick(enabled ? (seg) => {
+        onEvent({ type: 'hit', ring: seg.ring, segment: seg.segment });
+    } : null);
 }
 
 const savedDebug = settings().debug.mouseInput;
 if (savedDebug) {
-  setDebugMode(true);
+    setDebugMode(true);
 }
 
 const menu = createMenu(settingsBtn, [
-  {
-    label: 'Audio',
-    children: [
-      {
-        label: 'Sound theme',
-        type: 'select',
-        options: getThemeNames(),
-        value: savedTheme,
-        onChange(value) {
-          setTheme(value);
-          updateSettings('audio.theme', value);
-          ensureAudio();
-        },
-      },
-      {
-        label: 'Call turn total',
-        type: 'toggle',
-        value: settings().audio.callTurnTotal,
-        onChange(enabled) {
-          updateSettings('audio.callTurnTotal', enabled);
-        },
-      },
-      {
-        label: 'Call remaining',
-        type: 'toggle',
-        value: settings().audio.callRemaining,
-        onChange(enabled) {
-          updateSettings('audio.callRemaining', enabled);
-        },
-      },
-      {
-        label: 'Call checkout',
-        type: 'toggle',
-        value: settings().audio.callCheckout,
-        onChange(enabled) {
-          updateSettings('audio.callCheckout', enabled);
-        },
-      },
-      {
-        label: 'Voice',
-        type: 'select',
-        options: ['(default)', ...getVoiceNames()],
-        value: savedVoice || '(default)',
-        onChange(value) {
-          const name = value === '(default)' ? '' : value;
-          setVoice(name);
-          updateSettings('audio.voice', name);
-        },
-        onRender(selectEl) {
-          if (window.speechSynthesis) {
-            window.speechSynthesis.addEventListener('voiceschanged', () => {
-              const current = selectEl.value;
-              selectEl.innerHTML = '';
-              for (const name of ['(default)', ...getVoiceNames()]) {
-                const o = document.createElement('option');
-                o.value = name;
-                o.textContent = name;
-                selectEl.appendChild(o);
-              }
-              selectEl.value = current || '(default)';
-            });
-          }
-        },
-      },
-    ],
-  },
-  {
-    label: 'Debug',
-    children: [
-      {
-        label: 'Mouse input',
-        type: 'toggle',
-        value: savedDebug,
-        onChange(enabled) {
-          updateSettings('debug.mouseInput', enabled);
-          setDebugMode(enabled);
-        },
-      },
-    ],
-  },
+    {
+        label: 'Audio',
+        children: [
+            {
+                label: 'Sound theme',
+                type: 'select',
+                options: getThemeNames(),
+                value: savedTheme,
+                onChange(value) {
+                    setTheme(value);
+                    updateSettings('audio.theme', value);
+                    ensureAudio();
+                },
+            },
+            {
+                label: 'Call turn total',
+                type: 'toggle',
+                value: settings().audio.callTurnTotal,
+                onChange(enabled) {
+                    updateSettings('audio.callTurnTotal', enabled);
+                },
+            },
+            {
+                label: 'Call remaining',
+                type: 'toggle',
+                value: settings().audio.callRemaining,
+                onChange(enabled) {
+                    updateSettings('audio.callRemaining', enabled);
+                },
+            },
+            {
+                label: 'Call checkout',
+                type: 'toggle',
+                value: settings().audio.callCheckout,
+                onChange(enabled) {
+                    updateSettings('audio.callCheckout', enabled);
+                },
+            },
+            {
+                label: 'Voice',
+                type: 'select',
+                options: ['(default)', ...getVoiceNames()],
+                value: savedVoice || '(default)',
+                onChange(value) {
+                    const name = value === '(default)' ? '' : value;
+                    setVoice(name);
+                    updateSettings('audio.voice', name);
+                },
+                onRender(selectEl) {
+                    if (window.speechSynthesis) {
+                        window.speechSynthesis.addEventListener('voiceschanged', () => {
+                            const current = selectEl.value;
+                            selectEl.innerHTML = '';
+                            for (const name of ['(default)', ...getVoiceNames()]) {
+                                const o = document.createElement('option');
+                                o.value = name;
+                                o.textContent = name;
+                                selectEl.appendChild(o);
+                            }
+                            selectEl.value = current || '(default)';
+                        });
+                    }
+                },
+            },
+        ],
+    },
+    {
+        label: 'Debug',
+        children: [
+            {
+                label: 'Mouse input',
+                type: 'toggle',
+                value: savedDebug,
+                onChange(enabled) {
+                    updateSettings('debug.mouseInput', enabled);
+                    setDebugMode(enabled);
+                },
+            },
+        ],
+    },
 ]);
 
 settingsBtn.addEventListener('click', (e) => {
-  e.stopPropagation();
-  menu.toggle();
+    e.stopPropagation();
+    menu.toggle();
 });
 
 // -- Callout system --
@@ -172,50 +172,50 @@ settingsBtn.addEventListener('click', (e) => {
 const pendingCallouts = [];
 
 function processCallouts(callouts) {
-  if (!callouts || callouts.length === 0) {
-    return;
-  }
+    if (!callouts || callouts.length === 0) {
+        return;
+    }
 
-  // Cancel any in-flight callouts from the previous dart
-  for (const id of pendingCallouts) {
-    clearTimeout(id);
-  }
-  pendingCallouts.length = 0;
-  if (window.speechSynthesis) {
-    window.speechSynthesis.cancel();
-  }
+    // Cancel any in-flight callouts from the previous dart
+    for (const id of pendingCallouts) {
+        clearTimeout(id);
+    }
+    pendingCallouts.length = 0;
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+    }
 
-  const audio = settings().audio;
-  let delay = 0;
+    const audio = settings().audio;
+    let delay = 0;
 
-  for (const c of callouts) {
+    for (const c of callouts) {
     // Skip callout types the user has disabled in settings
-    if (c.type === 'turnTotal' && !audio.callTurnTotal) {
-      continue;
-    }
-    if (c.type === 'remaining' && !audio.callRemaining) {
-      continue;
-    }
-    if (c.type === 'checkout' && !audio.callCheckout) {
-      continue;
-    }
+        if (c.type === 'turnTotal' && !audio.callTurnTotal) {
+            continue;
+        }
+        if (c.type === 'remaining' && !audio.callRemaining) {
+            continue;
+        }
+        if (c.type === 'checkout' && !audio.callCheckout) {
+            continue;
+        }
 
-    // Add a pause before 'remaining' if a previous callout was already queued
-    // (e.g. turn total was spoken first — need a gap so they don't blend)
-    if (c.type === 'remaining' && delay > 0) {
-      delay += 1000;
-    }
+        // Add a pause before 'remaining' if a previous callout was already queued
+        // (e.g. turn total was spoken first — need a gap so they don't blend)
+        if (c.type === 'remaining' && delay > 0) {
+            delay += 1000;
+        }
 
-    // 'remaining' callouts get a chime sound before the spoken number
-    if (c.type === 'remaining') {
-      pendingCallouts.push(setTimeout(() => playChime(), delay));
-      delay += 400;
-    }
+        // 'remaining' callouts get a chime sound before the spoken number
+        if (c.type === 'remaining') {
+            pendingCallouts.push(setTimeout(() => playChime(), delay));
+            delay += 400;
+        }
 
-    const d = delay;
-    pendingCallouts.push(setTimeout(() => speakScore(c.value), d));
-    delay += 1500;
-  }
+        const d = delay;
+        pendingCallouts.push(setTimeout(() => speakScore(c.value), d));
+        delay += 1500;
+    }
 }
 
 // -- Game area (panel gets injected here by the game module) --
@@ -234,10 +234,10 @@ let currentGameType = null;
 let currentGameOpts = null;
 
 function persistState() {
-  const game = getGame();
-  if (game && currentGameType && currentGameOpts) {
-    saveGame({ type: currentGameType, options: currentGameOpts, state: game.getState() });
-  }
+    const game = getGame();
+    if (game && currentGameType && currentGameOpts) {
+        saveGame({ type: currentGameType, options: currentGameOpts, state: game.getState() });
+    }
 }
 
 // For target-based games (Around the Clock, Cat and Mouse), light up the
@@ -246,91 +246,91 @@ function persistState() {
 let targetLedTimeout = null;
 
 function showTargetLed(state, delayMs) {
-  clearTimeout(targetLedTimeout);
-  const player = state.players[state.currentPlayerIndex];
-  if (!player || !player.currentTarget || player.currentTarget > 20 || state.gameOver) {
-    return;
-  }
-  targetLedTimeout = setTimeout(() => {
-    ledShowSegment(player.currentTarget, LED_COLOR.GREEN);
-  }, delayMs);
+    clearTimeout(targetLedTimeout);
+    const player = state.players[state.currentPlayerIndex];
+    if (!player || !player.currentTarget || player.currentTarget > 20 || state.gameOver) {
+        return;
+    }
+    targetLedTimeout = setTimeout(() => {
+        ledShowSegment(player.currentTarget, LED_COLOR.GREEN);
+    }, delayMs);
 }
 
 function handleNextPlayer() {
-  const game = getGame();
-  if (!game) {
-    return;
-  }
-  playSwitch();
-  ledSwitch();
-  const { state, event, callouts } = game.nextPlayer();
-  getPanel().update(state, event);
-  processCallouts(callouts);
-  showTargetLed(state, 1000);
-  persistState();
+    const game = getGame();
+    if (!game) {
+        return;
+    }
+    playSwitch();
+    ledSwitch();
+    const { state, event, callouts } = game.nextPlayer();
+    getPanel().update(state, event);
+    processCallouts(callouts);
+    showTargetLed(state, 1000);
+    persistState();
 }
 
 function handleEndGame() {
-  stopGame();
-  clearGame();
-  ledsOn();
-  currentGameType = null;
-  currentGameOpts = null;
-  newGameBtn.hidden = false;
+    stopGame();
+    clearGame();
+    ledsOn();
+    currentGameType = null;
+    currentGameOpts = null;
+    newGameBtn.hidden = false;
 }
 
 function launchGame(type, opts) {
-  currentGameType = type;
-  currentGameOpts = opts;
-  ledsOff();
-  startGame(type, { ...opts, numPlayers: 2 }, gameArea, {
-    onNextPlayer: handleNextPlayer,
-    onEndGame: handleEndGame,
-  });
+    currentGameType = type;
+    currentGameOpts = opts;
+    ledsOff();
+    startGame(type, { ...opts, numPlayers: 2 }, gameArea, {
+        onNextPlayer: handleNextPlayer,
+        onEndGame: handleEndGame,
+    });
 }
 
 const GAME_SETUPS = {
-  x01: createX01Setup,
-  'around-the-clock': createAroundTheClockSetup,
-  'cat-and-mouse': createCatAndMouseSetup,
+    x01: createX01Setup,
+    'around-the-clock': createAroundTheClockSetup,
+    'cat-and-mouse': createCatAndMouseSetup,
 };
 
 function showGamePicker() {
-  const picker = document.createElement('div');
-  picker.className = 'game-picker';
+    const picker = document.createElement('div');
+    picker.className = 'game-picker';
 
-  for (const [type, label] of [['x01', 'X01'], ['around-the-clock', 'Around the Clock'], ['cat-and-mouse', 'Cat and Mouse']]) {
-    const btn = document.createElement('button');
-    btn.className = 'game-picker-btn';
-    btn.textContent = label;
-    btn.addEventListener('click', () => {
-      picker.remove();
-      GAME_SETUPS[type](gameArea, (opts) => {
-        clearGame();
-        launchGame(type, opts);
-      });
-    });
-    picker.appendChild(btn);
-  }
+    for (const [type, label] of [['x01', 'X01'], ['around-the-clock', 'Around the Clock'], ['cat-and-mouse', 'Cat and Mouse']]) {
+        const btn = document.createElement('button');
+        btn.className = 'game-picker-btn';
+        btn.textContent = label;
+        btn.addEventListener('click', () => {
+            picker.remove();
+            GAME_SETUPS[type](gameArea, (opts) => {
+                clearGame();
+                launchGame(type, opts);
+            });
+        });
+        picker.appendChild(btn);
+    }
 
-  gameArea.appendChild(picker);
+    gameArea.appendChild(picker);
 }
 
 newGameBtn.addEventListener('click', () => {
-  newGameBtn.hidden = true;
-  showGamePicker();
+    newGameBtn.hidden = true;
+    showGamePicker();
 });
 
 // -- Restore saved game on load --
 const savedGameData = loadGame();
 if (savedGameData && GAME_SETUPS[savedGameData.type]) {
-  newGameBtn.hidden = true;
-  launchGame(savedGameData.type, savedGameData.options);
-  const game = getGame();
-  if (game) {
-    game.loadState(savedGameData.state);
-    getPanel().update(game.getState(), null);
-  }
+    newGameBtn.hidden = true;
+    launchGame(savedGameData.type, savedGameData.options);
+    const game = getGame();
+    if (game) {
+        game.loadState(savedGameData.state);
+        getPanel().update(game.getState(), null);
+    }
 }
 
 // -- Hit log --
@@ -348,77 +348,77 @@ app.appendChild(panelSidebar);
 const hits = [];
 
 function formatHit(hit) {
-  if (hit.ring === 'OUT') {
-    return 'Miss (0)';
-  }
-  if (hit.ring === 'DBULL') {
-    return 'BULL (50)';
-  }
-  if (hit.ring === 'SBULL') {
-    return 'Bull (25)';
-  }
-  const prefix = { D: 'D', T: 'T', SO: 'S', SI: 'S' }[hit.ring];
-  const pts = calcPoints(hit.ring, hit.segment);
-  return `${prefix}${hit.segment} (${pts})`;
+    if (hit.ring === 'OUT') {
+        return 'Miss (0)';
+    }
+    if (hit.ring === 'DBULL') {
+        return 'BULL (50)';
+    }
+    if (hit.ring === 'SBULL') {
+        return 'Bull (25)';
+    }
+    const prefix = { D: 'D', T: 'T', SO: 'S', SI: 'S' }[hit.ring];
+    const pts = calcPoints(hit.ring, hit.segment);
+    return `${prefix}${hit.segment} (${pts})`;
 }
 
 function onEvent(event) {
-  if (event.type === 'hit') {
-    board.highlight(event.ring, event.segment);
-    ledHit(event.ring, event.segment);
-    hits.unshift(event);
+    if (event.type === 'hit') {
+        board.highlight(event.ring, event.segment);
+        ledHit(event.ring, event.segment);
+        hits.unshift(event);
 
-    const li = document.createElement('li');
-    li.textContent = formatHit(event);
-    hitList.prepend(li);
+        const li = document.createElement('li');
+        li.textContent = formatHit(event);
+        hitList.prepend(li);
 
-    if (hitList.children.length > 50) {
-      hitList.lastChild.remove();
+        if (hitList.children.length > 50) {
+            hitList.lastChild.remove();
+        }
+
+        // Forward to active game — decide sound based on game result
+        const game = getGame();
+        const panel = getPanel();
+        if (game && panel) {
+            const { state, event: gameEvent, callouts } = game.onDart(event.ring, event.segment);
+            panel.update(state, gameEvent);
+            if (gameEvent === 'bust' || gameEvent === 'miss') {
+                playBust();
+            } else if (gameEvent === 'win') {
+                playWin();
+            } else {
+                playHit(event.ring);
+                processCallouts(callouts);
+            }
+            showTargetLed(state, 800);
+            persistState();
+        } else {
+            playHit(event.ring);
+        }
     }
 
-    // Forward to active game — decide sound based on game result
-    const game = getGame();
-    const panel = getPanel();
-    if (game && panel) {
-      const { state, event: gameEvent, callouts } = game.onDart(event.ring, event.segment);
-      panel.update(state, gameEvent);
-      if (gameEvent === 'bust' || gameEvent === 'miss') {
-        playBust();
-      } else if (gameEvent === 'win') {
-        playWin();
-      } else {
-        playHit(event.ring);
-        processCallouts(callouts);
-      }
-      showTargetLed(state, 800);
-      persistState();
-    } else {
-      playHit(event.ring);
+    if (event.type === 'button') {
+        handleNextPlayer();
     }
-  }
-
-  if (event.type === 'button') {
-    handleNextPlayer();
-  }
 }
 
 function onStatus({ status, detail }) {
-  statusDot.dataset.status = status;
-  statusText.textContent = detail;
-  connectBtn.textContent = status === 'connected' ? 'Disconnect' : 'Connect';
+    statusDot.dataset.status = status;
+    statusText.textContent = detail;
+    connectBtn.textContent = status === 'connected' ? 'Disconnect' : 'Connect';
 
-  if (status === 'connected') {
-    ledSweep();
-  }
+    if (status === 'connected') {
+        ledSweep();
+    }
 }
 
 const ble = createConnection(onEvent, onStatus);
 initLeds((data) => ble.write(data));
 
 connectBtn.addEventListener('click', () => {
-  if (statusDot.dataset.status === 'connected') {
-    ble.disconnect();
-  } else {
-    ble.connect();
-  }
+    if (statusDot.dataset.status === 'connected') {
+        ble.disconnect();
+    } else {
+        ble.connect();
+    }
 });

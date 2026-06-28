@@ -5,25 +5,25 @@ import { formatBool, formatRounds } from '../format.js';
 import { settings, updateSettings } from '../../state/settings.js';
 
 const D = {
-  startingScore: 501,
-  doubleIn: false,
-  doubleOut: true,
-  bullMode: '25/50',
-  maxRounds: 20,
-  checkoutThreshold: 170,
+    startingScore: 501,
+    doubleIn: false,
+    doubleOut: true,
+    bullMode: '25/50',
+    maxRounds: 20,
+    checkoutThreshold: 170,
 };
 
 function formatCheckout(v) {
-  return v === 0 ? 'off' : String(v);
+    return v === 0 ? 'off' : String(v);
 }
 
 export function createX01Setup(container, onStart) {
-  const el = document.createElement('div');
-  el.className = 'game-setup';
+    const el = document.createElement('div');
+    el.className = 'game-setup';
 
-  const saved = { ...D, ...(settings().x01 || {}) };
+    const saved = { ...D, ...(settings().x01 || {}) };
 
-  el.innerHTML = `
+    el.innerHTML = `
     <h3 class="game-setup-title">X01 Game</h3>
     <div class="game-setup-fields">
       <div class="game-setup-row">
@@ -78,63 +78,63 @@ export function createX01Setup(container, onStart) {
     </div>
   `;
 
-  const fields = {
-    startingScore: el.querySelector('[data-field="startingScore"]'),
-    doubleIn: el.querySelector('[data-field="doubleIn"]'),
-    doubleOut: el.querySelector('[data-field="doubleOut"]'),
-    bullMode: el.querySelector('[data-field="bullMode"]'),
-    maxRounds: el.querySelector('[data-field="maxRounds"]'),
-    checkoutThreshold: el.querySelector('[data-field="checkoutThreshold"]'),
-  };
-
-  function applyValues(vals) {
-    fields.startingScore.value = String(vals.startingScore);
-    fields.doubleIn.checked = vals.doubleIn;
-    fields.doubleOut.checked = vals.doubleOut;
-    fields.bullMode.value = vals.bullMode;
-    fields.maxRounds.value = String(vals.maxRounds);
-    fields.checkoutThreshold.value = String(vals.checkoutThreshold);
-  }
-
-  function readValues() {
-    return {
-      startingScore: parseInt(fields.startingScore.value, 10),
-      doubleIn: fields.doubleIn.checked,
-      doubleOut: fields.doubleOut.checked,
-      bullMode: fields.bullMode.value,
-      maxRounds: parseInt(fields.maxRounds.value, 10),
-      checkoutThreshold: parseInt(fields.checkoutThreshold.value, 10),
+    const fields = {
+        startingScore: el.querySelector('[data-field="startingScore"]'),
+        doubleIn: el.querySelector('[data-field="doubleIn"]'),
+        doubleOut: el.querySelector('[data-field="doubleOut"]'),
+        bullMode: el.querySelector('[data-field="bullMode"]'),
+        maxRounds: el.querySelector('[data-field="maxRounds"]'),
+        checkoutThreshold: el.querySelector('[data-field="checkoutThreshold"]'),
     };
-  }
 
-  // Load user's saved preferences
-  applyValues(saved);
+    function applyValues(vals) {
+        fields.startingScore.value = String(vals.startingScore);
+        fields.doubleIn.checked = vals.doubleIn;
+        fields.doubleOut.checked = vals.doubleOut;
+        fields.bullMode.value = vals.bullMode;
+        fields.maxRounds.value = String(vals.maxRounds);
+        fields.checkoutThreshold.value = String(vals.checkoutThreshold);
+    }
 
-  // Restore defaults button — resets to real defaults, not user's saved prefs
-  el.querySelector('.game-setup-restore').addEventListener('click', () => {
-    applyValues(D);
-  });
+    function readValues() {
+        return {
+            startingScore: parseInt(fields.startingScore.value, 10),
+            doubleIn: fields.doubleIn.checked,
+            doubleOut: fields.doubleOut.checked,
+            bullMode: fields.bullMode.value,
+            maxRounds: parseInt(fields.maxRounds.value, 10),
+            checkoutThreshold: parseInt(fields.checkoutThreshold.value, 10),
+        };
+    }
 
-  el.querySelector('.game-setup-start').addEventListener('click', () => {
-    const opts = readValues();
+    // Load user's saved preferences
+    applyValues(saved);
 
-    // Persist as user's defaults for next time
-    updateSettings('x01.startingScore', opts.startingScore);
-    updateSettings('x01.doubleIn', opts.doubleIn);
-    updateSettings('x01.doubleOut', opts.doubleOut);
-    updateSettings('x01.bullMode', opts.bullMode);
-    updateSettings('x01.maxRounds', opts.maxRounds);
-    updateSettings('x01.checkoutThreshold', opts.checkoutThreshold);
+    // Restore defaults button — resets to real defaults, not user's saved prefs
+    el.querySelector('.game-setup-restore').addEventListener('click', () => {
+        applyValues(D);
+    });
 
-    el.remove();
-    onStart(opts);
-  });
+    el.querySelector('.game-setup-start').addEventListener('click', () => {
+        const opts = readValues();
 
-  container.appendChild(el);
+        // Persist as user's defaults for next time
+        updateSettings('x01.startingScore', opts.startingScore);
+        updateSettings('x01.doubleIn', opts.doubleIn);
+        updateSettings('x01.doubleOut', opts.doubleOut);
+        updateSettings('x01.bullMode', opts.bullMode);
+        updateSettings('x01.maxRounds', opts.maxRounds);
+        updateSettings('x01.checkoutThreshold', opts.checkoutThreshold);
 
-  function destroy() {
-    el.remove();
-  }
+        el.remove();
+        onStart(opts);
+    });
 
-  return { destroy };
+    container.appendChild(el);
+
+    function destroy() {
+        el.remove();
+    }
+
+    return { destroy };
 }

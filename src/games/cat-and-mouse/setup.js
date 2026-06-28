@@ -5,19 +5,19 @@ import { formatBool, formatRounds } from '../format.js';
 import { settings, updateSettings } from '../../state/settings.js';
 
 const D = {
-  gap: 1,
-  hitMode: 'any',
-  multiStep: false,
-  maxRounds: 0,
+    gap: 1,
+    hitMode: 'any',
+    multiStep: false,
+    maxRounds: 0,
 };
 
 export function createCatAndMouseSetup(container, onStart) {
-  const el = document.createElement('div');
-  el.className = 'game-setup';
+    const el = document.createElement('div');
+    el.className = 'game-setup';
 
-  const saved = { ...D, ...(settings().catAndMouse || {}) };
+    const saved = { ...D, ...(settings().catAndMouse || {}) };
 
-  el.innerHTML = `
+    el.innerHTML = `
     <h3 class="game-setup-title">Cat and Mouse</h3>
     <div class="game-setup-fields">
       <div class="game-setup-row">
@@ -59,52 +59,52 @@ export function createCatAndMouseSetup(container, onStart) {
     </div>
   `;
 
-  const fields = {
-    gap: el.querySelector('[data-field="gap"]'),
-    hitMode: el.querySelector('[data-field="hitMode"]'),
-    multiStep: el.querySelector('[data-field="multiStep"]'),
-    maxRounds: el.querySelector('[data-field="maxRounds"]'),
-  };
-
-  function applyValues(vals) {
-    fields.gap.value = String(vals.gap);
-    fields.hitMode.value = vals.hitMode;
-    fields.multiStep.checked = vals.multiStep;
-    fields.maxRounds.value = String(vals.maxRounds);
-  }
-
-  function readValues() {
-    return {
-      gap: parseInt(fields.gap.value, 10),
-      hitMode: fields.hitMode.value,
-      multiStep: fields.multiStep.checked,
-      maxRounds: parseInt(fields.maxRounds.value, 10),
+    const fields = {
+        gap: el.querySelector('[data-field="gap"]'),
+        hitMode: el.querySelector('[data-field="hitMode"]'),
+        multiStep: el.querySelector('[data-field="multiStep"]'),
+        maxRounds: el.querySelector('[data-field="maxRounds"]'),
     };
-  }
 
-  applyValues(saved);
+    function applyValues(vals) {
+        fields.gap.value = String(vals.gap);
+        fields.hitMode.value = vals.hitMode;
+        fields.multiStep.checked = vals.multiStep;
+        fields.maxRounds.value = String(vals.maxRounds);
+    }
 
-  el.querySelector('.game-setup-restore').addEventListener('click', () => {
-    applyValues(D);
-  });
+    function readValues() {
+        return {
+            gap: parseInt(fields.gap.value, 10),
+            hitMode: fields.hitMode.value,
+            multiStep: fields.multiStep.checked,
+            maxRounds: parseInt(fields.maxRounds.value, 10),
+        };
+    }
 
-  el.querySelector('.game-setup-start').addEventListener('click', () => {
-    const opts = readValues();
+    applyValues(saved);
 
-    updateSettings('catAndMouse.gap', opts.gap);
-    updateSettings('catAndMouse.hitMode', opts.hitMode);
-    updateSettings('catAndMouse.multiStep', opts.multiStep);
-    updateSettings('catAndMouse.maxRounds', opts.maxRounds);
+    el.querySelector('.game-setup-restore').addEventListener('click', () => {
+        applyValues(D);
+    });
 
-    el.remove();
-    onStart(opts);
-  });
+    el.querySelector('.game-setup-start').addEventListener('click', () => {
+        const opts = readValues();
 
-  container.appendChild(el);
+        updateSettings('catAndMouse.gap', opts.gap);
+        updateSettings('catAndMouse.hitMode', opts.hitMode);
+        updateSettings('catAndMouse.multiStep', opts.multiStep);
+        updateSettings('catAndMouse.maxRounds', opts.maxRounds);
 
-  function destroy() {
-    el.remove();
-  }
+        el.remove();
+        onStart(opts);
+    });
 
-  return { destroy };
+    container.appendChild(el);
+
+    function destroy() {
+        el.remove();
+    }
+
+    return { destroy };
 }
