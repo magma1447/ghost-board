@@ -1,6 +1,6 @@
 # Ghost Board
 
-Web interface for Granboard electronic dartboards. Connects via WebBluetooth and displays dart hits on an interactive board.
+Web interface for [Granboard](https://granboards.com/product-category/gran-board-3/) electronic dartboards. Connects via WebBluetooth and displays dart hits on an interactive board.
 
 ## Features
 
