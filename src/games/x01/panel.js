@@ -1,48 +1,49 @@
 // X01 game panel — renders x01 game state
 
-import './panel.css';
+import '../game-panel.css';
+import { formatDart } from '../format.js';
 
 export function createX01Panel(container, { onNextPlayer, onEndGame }) {
   const el = document.createElement('div');
-  el.className = 'x01-panel';
+  el.className = 'game-panel';
 
   // Rules summary
   const rulesLabel = document.createElement('div');
-  rulesLabel.className = 'x01-rules';
+  rulesLabel.className = 'game-rules';
   el.appendChild(rulesLabel);
 
   // Round indicator
   const roundLabel = document.createElement('div');
-  roundLabel.className = 'x01-round';
+  roundLabel.className = 'game-round';
   el.appendChild(roundLabel);
 
   // Scoreboard
   const scoreboard = document.createElement('div');
-  scoreboard.className = 'x01-scoreboard';
+  scoreboard.className = 'game-scoreboard';
   el.appendChild(scoreboard);
 
   // Turn info
   const turnInfo = document.createElement('div');
-  turnInfo.className = 'x01-turn-info';
+  turnInfo.className = 'game-turn-info';
   el.appendChild(turnInfo);
 
   // Event banner (bust / win / draw)
   const banner = document.createElement('div');
-  banner.className = 'x01-banner';
+  banner.className = 'game-banner';
   banner.hidden = true;
   el.appendChild(banner);
 
   // Buttons
   const btnRow = document.createElement('div');
-  btnRow.className = 'x01-buttons';
+  btnRow.className = 'game-buttons';
 
   const nextBtn = document.createElement('button');
-  nextBtn.className = 'x01-btn';
+  nextBtn.className = 'game-btn';
   nextBtn.textContent = 'Next Player';
   nextBtn.addEventListener('click', onNextPlayer);
 
   const endBtn = document.createElement('button');
-  endBtn.className = 'x01-btn x01-btn-end';
+  endBtn.className = 'game-btn game-btn-end';
   endBtn.textContent = 'End Game';
   endBtn.addEventListener('click', onEndGame);
 
@@ -53,24 +54,10 @@ export function createX01Panel(container, { onNextPlayer, onEndGame }) {
 
   let bannerTimeout = null;
 
-  function formatDart(d) {
-    if (d.ring === 'OUT') {
-      return 'Miss';
-    }
-    if (d.ring === 'DBULL') {
-      return 'BULL';
-    }
-    if (d.ring === 'SBULL') {
-      return 'Bull';
-    }
-    const prefix = { D: 'D', T: 'T', SO: 'S', SI: 'S' }[d.ring];
-    return `${prefix}${d.segment}`;
-  }
-
   function showBanner(text, type) {
     clearTimeout(bannerTimeout);
     banner.textContent = text;
-    banner.className = `x01-banner x01-banner-${type}`;
+    banner.className = `game-banner game-banner-${type}`;
     banner.hidden = false;
     if (type !== 'win' && type !== 'draw') {
       bannerTimeout = setTimeout(() => {
@@ -112,8 +99,8 @@ export function createX01Panel(container, { onNextPlayer, onEndGame }) {
     for (let i = 0; i < state.players.length; i++) {
       const p = state.players[i];
       const row = document.createElement('div');
-      row.className = 'x01-score-row' + (i === state.currentPlayerIndex ? ' active' : '');
-      row.innerHTML = `<span class="x01-player-name">${p.name}</span><span class="x01-player-score">${p.score}</span>`;
+      row.className = 'game-score-row' + (i === state.currentPlayerIndex ? ' active' : '');
+      row.innerHTML = `<span class="game-player-name">${p.name}</span><span class="game-player-value">${p.score}</span>`;
       scoreboard.appendChild(row);
     }
 

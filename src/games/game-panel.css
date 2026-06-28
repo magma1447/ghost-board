@@ -1,34 +1,36 @@
-/* Cat and Mouse game panel */
-.cam-panel {
+/* Shared game panel and setup styles */
+
+/* -- Game panel -- */
+.game-panel {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.cam-rules {
+.game-rules {
   font-size: 0.75rem;
   color: #888;
   letter-spacing: 0.03em;
 }
 
-.cam-rules[hidden] {
+.game-rules[hidden] {
   display: none;
 }
 
-.cam-round {
+.game-round {
   font-size: 0.8rem;
   color: #888;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
-.cam-scoreboard {
+.game-scoreboard {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
 
-.cam-score-row {
+.game-score-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -38,36 +40,37 @@
   font-size: 0.95rem;
 }
 
-.cam-score-row.active {
+.game-score-row.active {
   background: #2a3a2a;
   border-left: 3px solid #4caf50;
 }
 
-.cam-player-name {
+.game-player-name {
   font-weight: 500;
 }
 
-.cam-player-target {
+.game-player-value {
   font-size: 1.5rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
-.cam-turn-info {
+.game-turn-info {
   font-size: 0.85rem;
   color: #aaa;
   min-height: 1.2em;
+  font-variant-numeric: tabular-nums;
 }
 
-.cam-dart-hit {
+.game-dart-hit {
   color: #4caf50;
 }
 
-.cam-dart-miss {
+.game-dart-miss {
   color: #888;
 }
 
-.cam-banner {
+.game-banner {
   padding: 0.5rem 0.75rem;
   border-radius: 4px;
   font-weight: 700;
@@ -75,26 +78,31 @@
   font-size: 1.1rem;
 }
 
-.cam-banner[hidden] {
+.game-banner[hidden] {
   display: none;
 }
 
-.cam-banner-win {
+.game-banner-bust {
+  background: #4a1a1a;
+  color: #f44336;
+}
+
+.game-banner-win {
   background: #1a3a1a;
   color: #4caf50;
 }
 
-.cam-banner-draw {
+.game-banner-draw {
   background: #3a3a1a;
   color: #ff9800;
 }
 
-.cam-buttons {
+.game-buttons {
   display: flex;
   gap: 0.5rem;
 }
 
-.cam-btn {
+.game-btn {
   flex: 1;
   padding: 0.5rem 1rem;
   border: 1px solid #555;
@@ -105,41 +113,41 @@
   font-size: 0.875rem;
 }
 
-.cam-btn:hover {
+.game-btn:hover {
   background: #3a3a3a;
 }
 
-.cam-btn:disabled {
+.game-btn:disabled {
   opacity: 0.4;
   cursor: default;
 }
 
-.cam-btn-end {
+.game-btn-end {
   flex: 0;
   border-color: #633;
   color: #e88;
 }
 
-/* Cat and Mouse setup panel */
-.cam-setup {
+/* -- Setup panel -- */
+.game-setup {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.cam-setup-title {
+.game-setup-title {
   font-size: 1rem;
   font-weight: 600;
   color: #ccc;
 }
 
-.cam-setup-fields {
+.game-setup-fields {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.cam-setup-row {
+.game-setup-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -150,16 +158,16 @@
   font-size: 0.85rem;
 }
 
-.cam-setup-row label {
+.game-setup-row label {
   color: #ccc;
 }
 
-.cam-default {
+.game-setup-default {
   color: #666;
   font-size: 0.75rem;
 }
 
-.cam-setup-row select {
+.game-setup-row select {
   padding: 0.2rem 0.4rem;
   border: 1px solid #555;
   border-radius: 4px;
@@ -168,19 +176,19 @@
   font-size: 0.8rem;
 }
 
-.cam-setup-row input[type="checkbox"] {
+.game-setup-row input[type="checkbox"] {
   width: 16px;
   height: 16px;
   accent-color: #4caf50;
 }
 
-.cam-setup-buttons {
+.game-setup-buttons {
   display: flex;
   gap: 0.5rem;
   align-items: center;
 }
 
-.cam-setup-start {
+.game-setup-start {
   padding: 0.4rem 1.2rem;
   border: 1px solid #4caf50;
   border-radius: 4px;
@@ -191,11 +199,11 @@
   font-weight: 600;
 }
 
-.cam-setup-start:hover {
+.game-setup-start:hover {
   background: #2a4a2a;
 }
 
-.cam-setup-restore {
+.game-setup-restore {
   padding: 0.4rem 0.75rem;
   border: 1px solid #555;
   border-radius: 4px;
@@ -205,7 +213,7 @@
   font-size: 0.75rem;
 }
 
-.cam-setup-restore:hover {
+.game-setup-restore:hover {
   color: #ccc;
   border-color: #888;
 }

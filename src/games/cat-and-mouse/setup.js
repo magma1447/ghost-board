@@ -1,5 +1,7 @@
 // Cat and Mouse game setup panel
 
+import '../game-panel.css';
+import { formatBool, formatRounds } from '../format.js';
 import { settings, updateSettings } from '../../state/settings.js';
 
 const D = {
@@ -9,25 +11,17 @@ const D = {
   maxRounds: 0,
 };
 
-function fmtBool(v) {
-  return v ? 'on' : 'off';
-}
-
-function fmtRounds(v) {
-  return v === 0 ? 'no limit' : String(v);
-}
-
 export function createCatAndMouseSetup(container, onStart) {
   const el = document.createElement('div');
-  el.className = 'cam-setup';
+  el.className = 'game-setup';
 
   const saved = { ...D, ...(settings().catAndMouse || {}) };
 
   el.innerHTML = `
-    <h3 class="cam-setup-title">Cat and Mouse</h3>
-    <div class="cam-setup-fields">
-      <div class="cam-setup-row">
-        <label>Head start <span class="cam-default">(default: ${D.gap})</span></label>
+    <h3 class="game-setup-title">Cat and Mouse</h3>
+    <div class="game-setup-fields">
+      <div class="game-setup-row">
+        <label>Head start <span class="game-setup-default">(default: ${D.gap})</span></label>
         <select data-field="gap">
           <option value="1">1</option>
           <option value="2">2</option>
@@ -36,20 +30,20 @@ export function createCatAndMouseSetup(container, onStart) {
           <option value="5">5</option>
         </select>
       </div>
-      <div class="cam-setup-row">
-        <label>Hit mode <span class="cam-default">(default: ${D.hitMode})</span></label>
+      <div class="game-setup-row">
+        <label>Hit mode <span class="game-setup-default">(default: ${D.hitMode})</span></label>
         <select data-field="hitMode">
           <option value="any">Any</option>
           <option value="doubles">Doubles only</option>
           <option value="triples">Triples only</option>
         </select>
       </div>
-      <div class="cam-setup-row">
-        <label>Multi-step <span class="cam-default">(default: ${fmtBool(D.multiStep)})</span></label>
+      <div class="game-setup-row">
+        <label>Multi-step <span class="game-setup-default">(default: ${formatBool(D.multiStep)})</span></label>
         <input type="checkbox" data-field="multiStep">
       </div>
-      <div class="cam-setup-row">
-        <label>Max rounds <span class="cam-default">(default: ${fmtRounds(D.maxRounds)})</span></label>
+      <div class="game-setup-row">
+        <label>Max rounds <span class="game-setup-default">(default: ${formatRounds(D.maxRounds)})</span></label>
         <select data-field="maxRounds">
           <option value="0">No limit</option>
           <option value="15">15</option>
@@ -59,9 +53,9 @@ export function createCatAndMouseSetup(container, onStart) {
         </select>
       </div>
     </div>
-    <div class="cam-setup-buttons">
-      <button class="cam-setup-start">Start Game</button>
-      <button class="cam-setup-restore">Restore defaults</button>
+    <div class="game-setup-buttons">
+      <button class="game-setup-start">Start Game</button>
+      <button class="game-setup-restore">Restore defaults</button>
     </div>
   `;
 
@@ -90,11 +84,11 @@ export function createCatAndMouseSetup(container, onStart) {
 
   applyValues(saved);
 
-  el.querySelector('.cam-setup-restore').addEventListener('click', () => {
+  el.querySelector('.game-setup-restore').addEventListener('click', () => {
     applyValues(D);
   });
 
-  el.querySelector('.cam-setup-start').addEventListener('click', () => {
+  el.querySelector('.game-setup-start').addEventListener('click', () => {
     const opts = readValues();
 
     updateSettings('catAndMouse.gap', opts.gap);

@@ -1,48 +1,49 @@
 // Cat and Mouse game panel
 
-import './panel.css';
+import '../game-panel.css';
+import { formatDart } from '../format.js';
 
 export function createCatAndMousePanel(container, { onNextPlayer, onEndGame }) {
   const el = document.createElement('div');
-  el.className = 'cam-panel';
+  el.className = 'game-panel';
 
   // Rules summary
   const rulesLabel = document.createElement('div');
-  rulesLabel.className = 'cam-rules';
+  rulesLabel.className = 'game-rules';
   el.appendChild(rulesLabel);
 
   // Round indicator
   const roundLabel = document.createElement('div');
-  roundLabel.className = 'cam-round';
+  roundLabel.className = 'game-round';
   el.appendChild(roundLabel);
 
   // Scoreboard
   const scoreboard = document.createElement('div');
-  scoreboard.className = 'cam-scoreboard';
+  scoreboard.className = 'game-scoreboard';
   el.appendChild(scoreboard);
 
   // Turn info
   const turnInfo = document.createElement('div');
-  turnInfo.className = 'cam-turn-info';
+  turnInfo.className = 'game-turn-info';
   el.appendChild(turnInfo);
 
   // Event banner (win / draw)
   const banner = document.createElement('div');
-  banner.className = 'cam-banner';
+  banner.className = 'game-banner';
   banner.hidden = true;
   el.appendChild(banner);
 
   // Buttons
   const btnRow = document.createElement('div');
-  btnRow.className = 'cam-buttons';
+  btnRow.className = 'game-buttons';
 
   const nextBtn = document.createElement('button');
-  nextBtn.className = 'cam-btn';
+  nextBtn.className = 'game-btn';
   nextBtn.textContent = 'Next Player';
   nextBtn.addEventListener('click', onNextPlayer);
 
   const endBtn = document.createElement('button');
-  endBtn.className = 'cam-btn cam-btn-end';
+  endBtn.className = 'game-btn game-btn-end';
   endBtn.textContent = 'End Game';
   endBtn.addEventListener('click', onEndGame);
 
@@ -51,23 +52,9 @@ export function createCatAndMousePanel(container, { onNextPlayer, onEndGame }) {
 
   container.appendChild(el);
 
-  function formatDart(d) {
-    if (d.ring === 'OUT') {
-      return 'Miss';
-    }
-    if (d.ring === 'DBULL') {
-      return 'BULL';
-    }
-    if (d.ring === 'SBULL') {
-      return 'Bull';
-    }
-    const prefix = { D: 'D', T: 'T', SO: 'S', SI: 'S' }[d.ring];
-    return `${prefix}${d.segment}`;
-  }
-
   function showBanner(text, type) {
     banner.textContent = text;
-    banner.className = `cam-banner cam-banner-${type}`;
+    banner.className = `game-banner game-banner-${type}`;
     banner.hidden = false;
   }
 
@@ -102,14 +89,14 @@ export function createCatAndMousePanel(container, { onNextPlayer, onEndGame }) {
     for (let i = 0; i < state.players.length; i++) {
       const p = state.players[i];
       const row = document.createElement('div');
-      row.className = 'cam-score-row' + (i === state.currentPlayerIndex ? ' active' : '');
+      row.className = 'game-score-row' + (i === state.currentPlayerIndex ? ' active' : '');
 
       const name = document.createElement('span');
-      name.className = 'cam-player-name';
+      name.className = 'game-player-name';
       name.textContent = p.name;
 
       const target = document.createElement('span');
-      target.className = 'cam-player-target';
+      target.className = 'game-player-value';
       target.textContent = '\u2192 ' + p.currentTarget;
 
       row.append(name, target);
@@ -121,7 +108,7 @@ export function createCatAndMousePanel(container, { onNextPlayer, onEndGame }) {
       turnInfo.innerHTML = '';
       for (const d of state.turnDarts) {
         const span = document.createElement('span');
-        span.className = d.hit ? 'cam-dart-hit' : 'cam-dart-miss';
+        span.className = d.hit ? 'game-dart-hit' : 'game-dart-miss';
         span.textContent = formatDart(d);
         if (turnInfo.childNodes.length > 0) {
           turnInfo.appendChild(document.createTextNode(', '));

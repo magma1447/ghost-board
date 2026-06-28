@@ -1,5 +1,7 @@
 // X01 game setup panel
 
+import '../game-panel.css';
+import { formatBool, formatRounds } from '../format.js';
 import { settings, updateSettings } from '../../state/settings.js';
 
 const D = {
@@ -11,29 +13,21 @@ const D = {
   checkoutThreshold: 170,
 };
 
-function fmtBool(v) {
-  return v ? 'on' : 'off';
-}
-
-function fmtRounds(v) {
-  return v === 0 ? 'no limit' : String(v);
-}
-
-function fmtCheckout(v) {
+function formatCheckout(v) {
   return v === 0 ? 'off' : String(v);
 }
 
 export function createX01Setup(container, onStart) {
   const el = document.createElement('div');
-  el.className = 'x01-setup';
+  el.className = 'game-setup';
 
   const saved = { ...D, ...(settings().x01 || {}) };
 
   el.innerHTML = `
-    <h3 class="x01-setup-title">X01 Game</h3>
-    <div class="x01-setup-fields">
-      <div class="x01-setup-row">
-        <label>Start score <span class="x01-default">(default: ${D.startingScore})</span></label>
+    <h3 class="game-setup-title">X01 Game</h3>
+    <div class="game-setup-fields">
+      <div class="game-setup-row">
+        <label>Start score <span class="game-setup-default">(default: ${D.startingScore})</span></label>
         <select data-field="startingScore">
           <option value="301">301</option>
           <option value="501">501</option>
@@ -41,23 +35,23 @@ export function createX01Setup(container, onStart) {
           <option value="1001">1001</option>
         </select>
       </div>
-      <div class="x01-setup-row">
-        <label>Double in <span class="x01-default">(default: ${fmtBool(D.doubleIn)})</span></label>
+      <div class="game-setup-row">
+        <label>Double in <span class="game-setup-default">(default: ${formatBool(D.doubleIn)})</span></label>
         <input type="checkbox" data-field="doubleIn">
       </div>
-      <div class="x01-setup-row">
-        <label>Double out <span class="x01-default">(default: ${fmtBool(D.doubleOut)})</span></label>
+      <div class="game-setup-row">
+        <label>Double out <span class="game-setup-default">(default: ${formatBool(D.doubleOut)})</span></label>
         <input type="checkbox" data-field="doubleOut">
       </div>
-      <div class="x01-setup-row">
-        <label>Bull scoring <span class="x01-default">(default: ${D.bullMode})</span></label>
+      <div class="game-setup-row">
+        <label>Bull scoring <span class="game-setup-default">(default: ${D.bullMode})</span></label>
         <select data-field="bullMode">
           <option value="25/50">25 / 50 (standard)</option>
           <option value="50/50">50 / 50</option>
         </select>
       </div>
-      <div class="x01-setup-row">
-        <label>Max rounds <span class="x01-default">(default: ${fmtRounds(D.maxRounds)})</span></label>
+      <div class="game-setup-row">
+        <label>Max rounds <span class="game-setup-default">(default: ${formatRounds(D.maxRounds)})</span></label>
         <select data-field="maxRounds">
           <option value="0">No limit</option>
           <option value="15">15</option>
@@ -66,8 +60,8 @@ export function createX01Setup(container, onStart) {
           <option value="30">30</option>
         </select>
       </div>
-      <div class="x01-setup-row">
-        <label>Checkout calls below <span class="x01-default">(default: ${fmtCheckout(D.checkoutThreshold)})</span></label>
+      <div class="game-setup-row">
+        <label>Checkout calls below <span class="game-setup-default">(default: ${formatCheckout(D.checkoutThreshold)})</span></label>
         <select data-field="checkoutThreshold">
           <option value="0">Off</option>
           <option value="60">60</option>
@@ -78,9 +72,9 @@ export function createX01Setup(container, onStart) {
         </select>
       </div>
     </div>
-    <div class="x01-setup-buttons">
-      <button class="x01-setup-start">Start Game</button>
-      <button class="x01-setup-restore">Restore defaults</button>
+    <div class="game-setup-buttons">
+      <button class="game-setup-start">Start Game</button>
+      <button class="game-setup-restore">Restore defaults</button>
     </div>
   `;
 
@@ -117,11 +111,11 @@ export function createX01Setup(container, onStart) {
   applyValues(saved);
 
   // Restore defaults button — resets to real defaults, not user's saved prefs
-  el.querySelector('.x01-setup-restore').addEventListener('click', () => {
+  el.querySelector('.game-setup-restore').addEventListener('click', () => {
     applyValues(D);
   });
 
-  el.querySelector('.x01-setup-start').addEventListener('click', () => {
+  el.querySelector('.game-setup-start').addEventListener('click', () => {
     const opts = readValues();
 
     // Persist as user's defaults for next time
