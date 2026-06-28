@@ -1,0 +1,254 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background: #121212;
+  color: #e0e0e0;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+#app {
+  display: flex;
+  height: 100vh;
+}
+
+/* Left panel: dartboard, takes 50% width, centers the board */
+.panel-board {
+  flex: 0 0 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.dartboard {
+  width: 100%;
+  height: 100%;
+  max-width: 90vh; /* keep it from stretching too wide */
+}
+
+/* Right panel: status + hit log */
+.panel-sidebar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  gap: 1rem;
+  overflow: hidden;
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #666;
+  flex-shrink: 0;
+}
+
+.status-dot[data-status="connected"] { background: #4caf50; }
+.status-dot[data-status="connecting"],
+.status-dot[data-status="scanning"] { background: #ff9800; }
+.status-dot[data-status="error"] { background: #f44336; }
+
+.status-text {
+  font-size: 0.875rem;
+  flex: 1;
+}
+
+.connect-btn {
+  padding: 0.4rem 1rem;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #2a2a2a;
+  color: #e0e0e0;
+  cursor: pointer;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.connect-btn:hover {
+  background: #3a3a3a;
+}
+
+.settings-btn {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #2a2a2a;
+  color: #e0e0e0;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.settings-btn:hover {
+  background: #3a3a3a;
+}
+
+.menu-anchor {
+  position: relative;
+}
+
+/* Floating settings menu */
+.menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.35rem;
+  min-width: 220px;
+  background: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  font-size: 0.85rem;
+  overflow: hidden;
+}
+
+.menu[hidden] {
+  display: none;
+}
+
+.menu-group + .menu-group {
+  border-top: 1px solid #333;
+}
+
+.menu-group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  background: none;
+  color: #aaa;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  text-align: left;
+}
+
+.menu-group-header:hover {
+  background: #252525;
+}
+
+.menu-chevron {
+  display: inline-block;
+  font-size: 0.7rem;
+  transition: transform 0.15s;
+}
+
+.menu-group-header.expanded .menu-chevron {
+  transform: rotate(90deg);
+}
+
+.menu-group-body {
+  padding: 0.25rem 0.75rem 0.5rem 1.5rem;
+}
+
+.menu-group-body[hidden] {
+  display: none;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.3rem 0;
+}
+
+.menu-item label {
+  color: #ccc;
+}
+
+.menu-select {
+  padding: 0.2rem 0.4rem;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #2a2a2a;
+  color: #e0e0e0;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.new-game-btn {
+  align-self: flex-start;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #2a2a2a;
+  color: #e0e0e0;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.new-game-btn:hover {
+  background: #3a3a3a;
+}
+
+.new-game-btn[hidden] {
+  display: none;
+}
+
+.hit-log {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-size: 0.875rem;
+}
+
+.hit-log h2 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.hit-list {
+  list-style: none;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.hit-list li {
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #2a2a2a;
+  font-variant-numeric: tabular-nums;
+}
+
+.hit-list li:first-child {
+  color: #ffff00;
+}
+
+/* Stack vertically on narrow screens */
+@media (max-width: 700px) {
+  #app {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .panel-board {
+    flex: none;
+    height: 50vh;
+  }
+
+  .panel-sidebar {
+    flex: 1;
+  }
+}
