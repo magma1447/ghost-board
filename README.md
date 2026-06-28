@@ -46,6 +46,14 @@ Web interface for Granboard electronic dartboards. Connects via WebBluetooth and
     - Hit mode — any / doubles only / triples only (default: any)
     - Multi-step — doubles advance 2, triples advance 3 (default: off)
     - Max rounds (default: no limit)
+- **Simon Says**
+  - Each round, Simon picks 3 unique target numbers — hit them in any order
+  - Both players throw at the same targets, 1 point per correct hit
+  - LED highlights all remaining targets, voice announces the 3 numbers
+  - 2 players
+  - Options:
+    - Hit mode — any / doubles only / triples only (default: any)
+    - Rounds — 5 / 10 / 15 / 20 / no limit (default: 10)
 
 ## Getting Started
 

@@ -168,6 +168,13 @@ export function createCatAndMouse({
         return { state, event: null, callouts };
     }
 
+    function getCallouts() {
+        if (state.gameOver) {
+            return [];
+        }
+        return [{ type: 'remaining', value: currentPlayer().currentTarget }];
+    }
+
     function getState() {
         return state;
     }
@@ -176,5 +183,5 @@ export function createCatAndMouse({
         Object.assign(state, saved);
     }
 
-    return { onDart, nextPlayer, getState, loadState };
+    return { onDart, nextPlayer, getCallouts, getState, loadState };
 }

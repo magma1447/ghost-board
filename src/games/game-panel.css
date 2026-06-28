@@ -70,6 +70,23 @@
     color: #888;
 }
 
+.game-sequence {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 0.4rem 0.75rem;
+    background: #1e1e1e;
+    border-radius: 4px;
+}
+
+.game-sequence-label {
+    color: #888;
+}
+
+.game-sequence-current {
+    color: #ffb74d;
+    text-decoration: underline;
+}
+
 .game-banner {
     padding: 0.5rem 0.75rem;
     border-radius: 4px;

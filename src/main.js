@@ -3,7 +3,7 @@
 import { createDartboard } from './board/dartboard.js';
 import { createConnection } from './ble/connection.js';
 import { calcPoints } from './ble/protocol.js';
-import { init as initLeds, onHit as ledHit, onSwitch as ledSwitch, sweep as ledSweep, allOff as ledsOff, allOn as ledsOn, showSegment as ledShowSegment } from './ble/leds.js';
+import { init as initLeds, onHit as ledHit, onSwitch as ledSwitch, sweep as ledSweep, allOff as ledsOff, allOn as ledsOn, showSegment as ledShowSegment, showSegments as ledShowSegments } from './ble/leds.js';
 import { LED_COLOR } from './ble/protocol.js';
 import { playHit, playSwitch, playBust, playWin, playChime, speakScore, setTheme, setVoice, getThemeNames, getVoiceNames, ensureAudio } from './audio/sounds.js';
 import { settings, updateSettings } from './state/settings.js';
@@ -13,6 +13,7 @@ import { startGame, stopGame, getGame, getPanel } from './games/manager.js';
 import { createX01Setup } from './games/x01/setup.js';
 import { createAroundTheClockSetup } from './games/around-the-clock/setup.js';
 import { createCatAndMouseSetup } from './games/cat-and-mouse/setup.js';
+import { createSimonSaysSetup } from './games/simon-says/setup.js';
 
 const app = document.getElementById('app');
 
@@ -240,15 +241,30 @@ function persistState() {
     }
 }
 
-// For target-based games (Around the Clock, Cat and Mouse), light up the
-// current target segment in green after a short delay. The delay lets the
-// hit flash animation play first (800ms after dart, 1000ms after switch).
+// For target-based games, light up target segment(s) in green after a short
+// delay. The delay lets the hit flash animation play first (800ms after dart,
+// 1000ms after switch). Supports both single-target games (Around the Clock,
+// Cat and Mouse via player.currentTarget) and multi-target games (Simon Says
+// via state.targetSegments).
 let targetLedTimeout = null;
 
 function showTargetLed(state, delayMs) {
     clearTimeout(targetLedTimeout);
+    if (state.gameOver) {
+        return;
+    }
+
+    // Multi-target: light up all remaining targets (Simon Says)
+    if (state.targetSegments && state.targetSegments.length > 0) {
+        targetLedTimeout = setTimeout(() => {
+            ledShowSegments(state.targetSegments, LED_COLOR.GREEN);
+        }, delayMs);
+        return;
+    }
+
+    // Single target: light up the current player's target
     const player = state.players[state.currentPlayerIndex];
-    if (!player || !player.currentTarget || player.currentTarget > 20 || state.gameOver) {
+    if (!player || !player.currentTarget || player.currentTarget > 20) {
         return;
     }
     targetLedTimeout = setTimeout(() => {
@@ -293,13 +309,14 @@ const GAME_SETUPS = {
     x01: createX01Setup,
     'around-the-clock': createAroundTheClockSetup,
     'cat-and-mouse': createCatAndMouseSetup,
+    'simon-says': createSimonSaysSetup,
 };
 
 function showGamePicker() {
     const picker = document.createElement('div');
     picker.className = 'game-picker';
 
-    for (const [type, label] of [['x01', 'X01'], ['around-the-clock', 'Around the Clock'], ['cat-and-mouse', 'Cat and Mouse']]) {
+    for (const [type, label] of [['x01', 'X01'], ['around-the-clock', 'Around the Clock'], ['cat-and-mouse', 'Cat and Mouse'], ['simon-says', 'Simon Says']]) {
         const btn = document.createElement('button');
         btn.className = 'game-picker-btn';
         btn.textContent = label;
@@ -308,6 +325,11 @@ function showGamePicker() {
             GAME_SETUPS[type](gameArea, (opts) => {
                 clearGame();
                 launchGame(type, opts);
+                const game = getGame();
+                if (game) {
+                    showTargetLed(game.getState(), 500);
+                    processCallouts(game.getCallouts());
+                }
             });
         });
         picker.appendChild(btn);
@@ -330,6 +352,7 @@ if (savedGameData && GAME_SETUPS[savedGameData.type]) {
     if (game) {
         game.loadState(savedGameData.state);
         getPanel().update(game.getState(), null);
+        showTargetLed(game.getState(), 500);
     }
 }
 

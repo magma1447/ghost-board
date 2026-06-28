@@ -166,6 +166,13 @@ export function createX01({
         return { state, event: null, callouts };
     }
 
+    function getCallouts() {
+        if (state.gameOver) {
+            return [];
+        }
+        return [{ type: 'remaining', value: currentPlayer().score }];
+    }
+
     function getState() {
         return state;
     }
@@ -175,5 +182,5 @@ export function createX01({
         turnTotalReturned = false;
     }
 
-    return { onDart, nextPlayer, getState, loadState };
+    return { onDart, nextPlayer, getCallouts, getState, loadState };
 }

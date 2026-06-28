@@ -143,3 +143,15 @@ export function showSegment(segNum, color) {
     }
     send(buildRingCommand(ring));
 }
+
+// Light multiple segments (1–20) in the given color, all others off
+export function showSegments(segNums, color) {
+    cancelSweep();
+    const ring = new Array(20).fill(LED_COLOR.OFF);
+    for (const seg of segNums) {
+        if (seg >= 1 && seg <= 20) {
+            ring[seg - 1] = color;
+        }
+    }
+    send(buildRingCommand(ring));
+}
