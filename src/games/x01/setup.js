@@ -1,8 +1,15 @@
 // X01 game setup panel
 
-import { settings, updateSettings, X01_DEFAULTS } from '../../state/settings.js';
+import { settings, updateSettings } from '../../state/settings.js';
 
-const D = X01_DEFAULTS;
+const D = {
+  startingScore: 501,
+  doubleIn: false,
+  doubleOut: true,
+  bullMode: '25/50',
+  maxRounds: 20,
+  checkoutThreshold: 170,
+};
 
 function fmtBool(v) {
   return v ? 'on' : 'off';
@@ -20,7 +27,7 @@ export function createX01Setup(container, onStart) {
   const el = document.createElement('div');
   el.className = 'x01-setup';
 
-  const saved = settings().x01;
+  const saved = { ...D, ...(settings().x01 || {}) };
 
   el.innerHTML = `
     <h3 class="x01-setup-title">X01 Game</h3>

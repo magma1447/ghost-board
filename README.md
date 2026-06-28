@@ -27,6 +27,25 @@ Web interface for Granboard electronic dartboards. Connects via WebBluetooth and
     - Double out (default: on)
     - Bull scoring — 25/50 or 50/50 (default: 25/50)
     - Max rounds (default: 20, 0 for no limit)
+- **Around the Clock**
+  - Hit 1 through 20 in order, optionally finishing on bull
+  - 2 players, manual player switch
+  - LED highlights target number, voice calls next target on hit
+  - Wrong number plays miss sound
+  - Options:
+    - Bull finish — off / single bull / double bull (default: single bull)
+    - Hit mode — any / doubles only / triples only (default: any)
+    - Multi-step — doubles advance 2, triples advance 3 (default: off)
+    - Max rounds (default: no limit)
+- **Cat and Mouse**
+  - Mouse runs clockwise around the board, cat chases
+  - Mouse starts at 20, cat starts at 5 — mouse wins by reaching 5, cat wins by catching up
+  - 2 players, manual player switch
+  - Options:
+    - Head start — 1 to 5 positions (default: 1)
+    - Hit mode — any / doubles only / triples only (default: any)
+    - Multi-step — doubles advance 2, triples advance 3 (default: off)
+    - Max rounds (default: no limit)
 
 ## Getting Started
 

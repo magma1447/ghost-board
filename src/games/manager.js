@@ -4,10 +4,13 @@ import { createX01 } from './x01/game.js';
 import { createX01Panel } from './x01/panel.js';
 import { createAroundTheClock } from './around-the-clock/game.js';
 import { createAroundTheClockPanel } from './around-the-clock/panel.js';
+import { createCatAndMouse } from './cat-and-mouse/game.js';
+import { createCatAndMousePanel } from './cat-and-mouse/panel.js';
 
 const GAME_TYPES = {
   x01: { createGame: createX01, createPanel: createX01Panel },
   'around-the-clock': { createGame: createAroundTheClock, createPanel: createAroundTheClockPanel },
+  'cat-and-mouse': { createGame: createCatAndMouse, createPanel: createCatAndMousePanel },
 };
 
 let activeGame = null;

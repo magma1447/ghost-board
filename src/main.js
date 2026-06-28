@@ -12,6 +12,7 @@ import { createMenu } from './ui/menu.js';
 import { startGame, stopGame, getGame, getPanel } from './games/manager.js';
 import { createX01Setup } from './games/x01/setup.js';
 import { createAroundTheClockSetup } from './games/around-the-clock/setup.js';
+import { createCatAndMouseSetup } from './games/cat-and-mouse/setup.js';
 
 const app = document.getElementById('app');
 
@@ -275,13 +276,14 @@ function launchGame(type, opts) {
 const GAME_SETUPS = {
   x01: createX01Setup,
   'around-the-clock': createAroundTheClockSetup,
+  'cat-and-mouse': createCatAndMouseSetup,
 };
 
 function showGamePicker() {
   const picker = document.createElement('div');
   picker.className = 'game-picker';
 
-  for (const [type, label] of [['x01', 'X01'], ['around-the-clock', 'Around the Clock']]) {
+  for (const [type, label] of [['x01', 'X01'], ['around-the-clock', 'Around the Clock'], ['cat-and-mouse', 'Cat and Mouse']]) {
     const btn = document.createElement('button');
     btn.className = 'game-picker-btn';
     btn.textContent = label;

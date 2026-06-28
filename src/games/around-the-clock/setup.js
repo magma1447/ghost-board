@@ -1,8 +1,13 @@
 // Around the Clock game setup panel
 
-import { settings, updateSettings, AROUND_THE_CLOCK_DEFAULTS } from '../../state/settings.js';
+import { settings, updateSettings } from '../../state/settings.js';
 
-const D = AROUND_THE_CLOCK_DEFAULTS;
+const D = {
+  bullFinish: 'single',
+  hitMode: 'any',
+  multiStep: false,
+  maxRounds: 0,
+};
 
 function fmtBool(v) {
   return v ? 'on' : 'off';
@@ -18,7 +23,7 @@ export function createAroundTheClockSetup(container, onStart) {
   const el = document.createElement('div');
   el.className = 'atc-setup';
 
-  const saved = settings().aroundTheClock;
+  const saved = { ...D, ...(settings().aroundTheClock || {}) };
 
   el.innerHTML = `
     <h3 class="atc-setup-title">Around the Clock</h3>
