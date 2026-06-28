@@ -21,9 +21,16 @@ const DEFAULTS = {
     maxRounds: 20,
     checkoutThreshold: 170,
   },
+  aroundTheClock: {
+    bullFinish: 'single',
+    hitMode: 'any',
+    multiStep: false,
+    maxRounds: 0,
+  },
 };
 
 export const X01_DEFAULTS = DEFAULTS.x01;
+export const AROUND_THE_CLOCK_DEFAULTS = DEFAULTS.aroundTheClock;
 
 let current = null;
 

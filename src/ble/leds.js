@@ -129,3 +129,13 @@ export function allOn() {
   cancelSweep();
   send(buildRingCommand(new Array(20).fill(LED_COLOR.WHITE)));
 }
+
+// Light a single segment (1–20) in the given color, all others off
+export function showSegment(segNum, color) {
+  cancelSweep();
+  const ring = new Array(20).fill(LED_COLOR.OFF);
+  if (segNum >= 1 && segNum <= 20) {
+    ring[segNum - 1] = color;
+  }
+  send(buildRingCommand(ring));
+}

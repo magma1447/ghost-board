@@ -3,13 +3,15 @@
 import { createDartboard } from './board/dartboard.js';
 import { createConnection } from './ble/connection.js';
 import { calcPoints } from './ble/protocol.js';
-import { init as initLeds, onHit as ledHit, onSwitch as ledSwitch, sweep as ledSweep, allOff as ledsOff, allOn as ledsOn } from './ble/leds.js';
+import { init as initLeds, onHit as ledHit, onSwitch as ledSwitch, sweep as ledSweep, allOff as ledsOff, allOn as ledsOn, showSegment as ledShowSegment } from './ble/leds.js';
+import { LED_COLOR } from './ble/protocol.js';
 import { playHit, playSwitch, playBust, playWin, playChime, speakScore, setTheme, setVoice, getThemeNames, getVoiceNames, ensureAudio } from './audio/sounds.js';
 import { settings, updateSettings } from './state/settings.js';
 import { saveGame, loadGame, clearGame } from './state/game-store.js';
 import { createMenu } from './ui/menu.js';
 import { startGame, stopGame, getGame, getPanel } from './games/manager.js';
 import { createX01Setup } from './games/x01/setup.js';
+import { createAroundTheClockSetup } from './games/around-the-clock/setup.js';
 
 const app = document.getElementById('app');
 
@@ -213,14 +215,28 @@ newGameBtn.className = 'new-game-btn';
 newGameBtn.textContent = 'New Game';
 gameArea.appendChild(newGameBtn);
 
-// Track current game options for persistence
+// Track current game type and options for persistence
+let currentGameType = null;
 let currentGameOpts = null;
 
 function persistState() {
   const game = getGame();
-  if (game && currentGameOpts) {
-    saveGame({ type: 'x01', options: currentGameOpts, state: game.getState() });
+  if (game && currentGameType && currentGameOpts) {
+    saveGame({ type: currentGameType, options: currentGameOpts, state: game.getState() });
   }
+}
+
+let targetLedTimeout = null;
+
+function showTargetLed(state, delayMs) {
+  clearTimeout(targetLedTimeout);
+  const player = state.players[state.currentPlayerIndex];
+  if (!player || !player.currentTarget || player.currentTarget > 20 || state.gameOver) {
+    return;
+  }
+  targetLedTimeout = setTimeout(() => {
+    ledShowSegment(player.currentTarget, LED_COLOR.GREEN);
+  }, delayMs);
 }
 
 function handleNextPlayer() {
@@ -233,6 +249,7 @@ function handleNextPlayer() {
   const { state, event, callouts } = game.nextPlayer();
   getPanel().update(state, event);
   processCallouts(callouts);
+  showTargetLed(state, 1000);
   persistState();
 }
 
@@ -240,34 +257,57 @@ function handleEndGame() {
   stopGame();
   clearGame();
   ledsOn();
+  currentGameType = null;
   currentGameOpts = null;
   newGameBtn.hidden = false;
 }
 
-function launchGame(opts) {
+function launchGame(type, opts) {
+  currentGameType = type;
   currentGameOpts = opts;
   ledsOff();
-  startGame('x01', { ...opts, numPlayers: 2 }, gameArea, {
+  startGame(type, { ...opts, numPlayers: 2 }, gameArea, {
     onNextPlayer: handleNextPlayer,
     onEndGame: handleEndGame,
   });
 }
 
+const GAME_SETUPS = {
+  x01: createX01Setup,
+  'around-the-clock': createAroundTheClockSetup,
+};
+
+function showGamePicker() {
+  const picker = document.createElement('div');
+  picker.className = 'game-picker';
+
+  for (const [type, label] of [['x01', 'X01'], ['around-the-clock', 'Around the Clock']]) {
+    const btn = document.createElement('button');
+    btn.className = 'game-picker-btn';
+    btn.textContent = label;
+    btn.addEventListener('click', () => {
+      picker.remove();
+      GAME_SETUPS[type](gameArea, (opts) => {
+        clearGame();
+        launchGame(type, opts);
+      });
+    });
+    picker.appendChild(btn);
+  }
+
+  gameArea.appendChild(picker);
+}
+
 newGameBtn.addEventListener('click', () => {
   newGameBtn.hidden = true;
-
-  // Show setup panel
-  createX01Setup(gameArea, (opts) => {
-    clearGame();
-    launchGame(opts);
-  });
+  showGamePicker();
 });
 
 // -- Restore saved game on load --
 const savedGameData = loadGame();
-if (savedGameData && savedGameData.type === 'x01') {
+if (savedGameData && GAME_SETUPS[savedGameData.type]) {
   newGameBtn.hidden = true;
-  launchGame(savedGameData.options);
+  launchGame(savedGameData.type, savedGameData.options);
   const game = getGame();
   if (game) {
     game.loadState(savedGameData.state);
@@ -324,7 +364,7 @@ function onEvent(event) {
     if (game && panel) {
       const { state, event: gameEvent, callouts } = game.onDart(event.ring, event.segment);
       panel.update(state, gameEvent);
-      if (gameEvent === 'bust') {
+      if (gameEvent === 'bust' || gameEvent === 'miss') {
         playBust();
       } else if (gameEvent === 'win') {
         playWin();
@@ -332,6 +372,7 @@ function onEvent(event) {
         playHit(event.ring);
         processCallouts(callouts);
       }
+      showTargetLed(state, 800);
       persistState();
     } else {
       playHit(event.ring);
