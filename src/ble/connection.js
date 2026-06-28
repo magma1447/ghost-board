@@ -1,6 +1,6 @@
 // WebBluetooth connection to Granboard
 
-import { SERVICE_UUID, NOTIFY_UUID, DEVICE_NAME } from './protocol.js';
+import { SERVICE_UUID, NOTIFY_UUID, WRITE_UUID, DEVICE_NAME } from './protocol.js';
 import { createParser } from './parser.js';
 
 const RECONNECT_DELAY_MS = 2000;
@@ -8,6 +8,7 @@ const MAX_RECONNECT_ATTEMPTS = 5;
 
 export function createConnection(onHit, onStatus) {
   let device = null;
+  let writeChar = null;
   let autoReconnect = true;
   let reconnectAttempts = 0;
 
@@ -21,6 +22,12 @@ export function createConnection(onHit, onStatus) {
 
     const service = await server.getPrimaryService(SERVICE_UUID);
     const notifyChar = await service.getCharacteristic(NOTIFY_UUID);
+
+    try {
+      writeChar = await service.getCharacteristic(WRITE_UUID);
+    } catch {
+      writeChar = null; // Write not available — non-critical
+    }
 
     const parse = createParser();
 
@@ -89,13 +96,30 @@ export function createConnection(onHit, onStatus) {
     }
   }
 
+  async function write(data) {
+    if (!writeChar) {
+      return;
+    }
+    try {
+      const props = writeChar.properties || {};
+      if (props.writeWithoutResponse && writeChar.writeValueWithoutResponse) {
+        await writeChar.writeValueWithoutResponse(data);
+      } else {
+        await writeChar.writeValue(data);
+      }
+    } catch {
+      // Write failed — non-critical
+    }
+  }
+
   function disconnect() {
     autoReconnect = false;
+    writeChar = null;
     if (device?.gatt?.connected) {
       device.gatt.disconnect();
     }
     setStatus('disconnected', 'Disconnected');
   }
 
-  return { connect, disconnect };
+  return { connect, disconnect, write };
 }

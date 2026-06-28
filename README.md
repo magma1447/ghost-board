@@ -2,6 +2,32 @@
 
 Web interface for Granboard electronic dartboards. Connects via WebBluetooth and displays dart hits on an interactive board.
 
+## Features
+
+- Interactive SVG dartboard with real-time hit highlighting
+- BLE connection to Granboard with auto-reconnect
+- LED control — hit flash, player switch sweep, game-aware on/off
+- Sound effects with three themes (impact, gunshot, arcade)
+- Voice callouts — turn total, remaining score, checkout darts, dramatic 180 call
+- Configurable voice selection via browser SpeechSynthesis
+- Game state persistence — survives page refresh and BLE disconnect
+- Settings stored in localStorage with gear menu
+- Debug mode — mouse clicks on board simulate dart hits
+- Responsive layout with mobile breakpoint
+
+## Games
+
+- **X01**
+  - 2 players, manual player switch (board BTN button or UI)
+  - Bust reverts entire turn, locks remaining darts
+  - Settings remembered between sessions
+  - Options:
+    - Starting score (301, 501, 701, 1001)
+    - Double in (default: off)
+    - Double out (default: on)
+    - Bull scoring — 25/50 or 50/50 (default: 25/50)
+    - Max rounds (default: 20, 0 for no limit)
+
 ## Getting Started
 
 ```bash
@@ -9,7 +35,31 @@ npm install
 npm run dev
 ```
 
-Open in Chrome or Edge (WebBluetooth required). Click **Connect** to pair with your Granboard.
+Or via Docker:
+
+```bash
+docker compose -f docker/compose.yml up
+```
+
+Then open `http://localhost:3501` and click **Connect** to pair with your Granboard.
+
+## Browser Support
+
+Ghost Board requires **WebBluetooth**, which is supported in:
+
+- **Chrome** (desktop & Android)
+- **Edge** (desktop)
+- **Opera** (desktop)
+
+Safari and Firefox do not support WebBluetooth.
+
+### Linux
+
+On Linux, WebBluetooth is disabled by default in Chrome. To enable it:
+
+1. Open `chrome://flags/#enable-web-bluetooth`
+2. Set the flag to **Enabled**
+3. Restart Chrome
 
 ## Attribution
 

@@ -5,6 +5,16 @@
   gap: 0.75rem;
 }
 
+.x01-rules {
+  font-size: 0.75rem;
+  color: #888;
+  letter-spacing: 0.03em;
+}
+
+.x01-rules[hidden] {
+  display: none;
+}
+
 .x01-round {
   font-size: 0.8rem;
   color: #888;
@@ -72,6 +82,11 @@
   color: #4caf50;
 }
 
+.x01-banner-draw {
+  background: #3a3a1a;
+  color: #ff9800;
+}
+
 .x01-buttons {
   display: flex;
   gap: 0.5rem;
@@ -101,4 +116,94 @@
   flex: 0;
   border-color: #633;
   color: #e88;
+}
+
+/* X01 setup panel */
+.x01-setup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.x01-setup-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ccc;
+}
+
+.x01-setup-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.x01-setup-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.35rem 0.75rem;
+  background: #1e1e1e;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.x01-setup-row label {
+  color: #ccc;
+}
+
+.x01-default {
+  color: #666;
+  font-size: 0.75rem;
+}
+
+.x01-setup-row select {
+  padding: 0.2rem 0.4rem;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #2a2a2a;
+  color: #e0e0e0;
+  font-size: 0.8rem;
+}
+
+.x01-setup-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #4caf50;
+}
+
+.x01-setup-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.x01-setup-start {
+  padding: 0.4rem 1.2rem;
+  border: 1px solid #4caf50;
+  border-radius: 4px;
+  background: #1a3a1a;
+  color: #4caf50;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.x01-setup-start:hover {
+  background: #2a4a2a;
+}
+
+.x01-setup-restore {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.x01-setup-restore:hover {
+  color: #ccc;
+  border-color: #888;
 }

@@ -5,11 +5,25 @@ const STORAGE_KEY = 'ghost-board-settings';
 const DEFAULTS = {
   audio: {
     theme: 'impact',
+    voice: '',
+    callTurnTotal: true,
+    callRemaining: true,
+    callCheckout: true,
   },
   debug: {
     mouseInput: false,
   },
+  x01: {
+    startingScore: 501,
+    doubleIn: false,
+    doubleOut: true,
+    bullMode: '25/50',
+    maxRounds: 20,
+    checkoutThreshold: 170,
+  },
 };
+
+export const X01_DEFAULTS = DEFAULTS.x01;
 
 let current = null;
 

@@ -6,6 +6,11 @@ export function createX01Panel(container, { onNextPlayer, onEndGame }) {
   const el = document.createElement('div');
   el.className = 'x01-panel';
 
+  // Rules summary
+  const rulesLabel = document.createElement('div');
+  rulesLabel.className = 'x01-rules';
+  el.appendChild(rulesLabel);
+
   // Round indicator
   const roundLabel = document.createElement('div');
   roundLabel.className = 'x01-round';
@@ -21,7 +26,7 @@ export function createX01Panel(container, { onNextPlayer, onEndGame }) {
   turnInfo.className = 'x01-turn-info';
   el.appendChild(turnInfo);
 
-  // Event banner (bust / win)
+  // Event banner (bust / win / draw)
   const banner = document.createElement('div');
   banner.className = 'x01-banner';
   banner.hidden = true;
@@ -67,15 +72,41 @@ export function createX01Panel(container, { onNextPlayer, onEndGame }) {
     banner.textContent = text;
     banner.className = `x01-banner x01-banner-${type}`;
     banner.hidden = false;
-    if (type !== 'win') {
+    if (type !== 'win' && type !== 'draw') {
       bannerTimeout = setTimeout(() => {
         banner.hidden = true;
       }, 2000);
     }
   }
 
+  function buildRulesText(state) {
+    const tags = [];
+    if (state.doubleIn) {
+      tags.push('DI');
+    }
+    if (state.doubleOut) {
+      tags.push('DO');
+    }
+    if (state.bullMode === '50/50') {
+      tags.push('Bull 50/50');
+    }
+    if (state.maxRounds > 0) {
+      tags.push(`${state.maxRounds} rnd`);
+    }
+    return tags.length > 0 ? tags.join(' · ') : '';
+  }
+
   function update(state, event) {
-    roundLabel.textContent = `Round ${state.round}`;
+    // Rules (shown once, static)
+    const rulesText = buildRulesText(state);
+    rulesLabel.textContent = rulesText;
+    rulesLabel.hidden = !rulesText;
+
+    // Round
+    const roundText = state.maxRounds > 0
+      ? `Round ${state.round} / ${state.maxRounds}`
+      : `Round ${state.round}`;
+    roundLabel.textContent = roundText;
 
     scoreboard.innerHTML = '';
     for (let i = 0; i < state.players.length; i++) {
@@ -100,6 +131,8 @@ export function createX01Panel(container, { onNextPlayer, onEndGame }) {
       showBanner('BUST!', 'bust');
     } else if (event === 'win') {
       showBanner(`${state.players[state.winner].name} wins!`, 'win');
+    } else if (event === 'draw') {
+      showBanner('Draw — round limit reached', 'draw');
     }
   }
 

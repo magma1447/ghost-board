@@ -125,6 +125,68 @@ export const SEGMENT_MAP = {
   '4.0': { ring: RING.DOUBLE_BULL, segment: 50 },
 };
 
+// LED control — all commands are raw binary (Uint8Array)
+//
+// Static ring command: 20 bytes, one per segment S1–S20
+// Each byte is a palette code:
+//   0x00=off, 0x01=red, 0x02=orange, 0x03=yellow,
+//   0x04=green, 0x05=cyan, 0x06=purple, 0x07=white
+//
+// Animation command: 16 bytes, opcode-based with RGB colors
+//   Byte 0: opcode, Bytes 1-6: color A + B (RGB), Byte 12: speed, Byte 15: 0x01
+
+export const LED_COLOR = {
+  OFF: 0x00, RED: 0x01, ORANGE: 0x02, YELLOW: 0x03,
+  GREEN: 0x04, CYAN: 0x05, PURPLE: 0x06, WHITE: 0x07,
+};
+
+// Segment number → target ID for hit animation commands
+export const SEG_TARGET_ID = {
+  1: 0x001C, 2: 0x0031, 3: 0x0037, 4: 0x0022,
+  5: 0x0016, 6: 0x0028, 7: 0x0001, 8: 0x0007,
+  9: 0x0010, 10: 0x002B, 11: 0x000A, 12: 0x0013,
+  13: 0x0025, 14: 0x000D, 15: 0x002E, 16: 0x0004,
+  17: 0x0034, 18: 0x001F, 19: 0x003A, 20: 0x0019,
+};
+
+// Build a 20-byte static ring command (one color per segment)
+export function buildRingCommand(segments) {
+  return new Uint8Array(segments);
+}
+
+// Pre-built ring commands
+export const LED_ALL_OFF = new Uint8Array(20); // all 0x00
+export const LED_ALL_WHITE = new Uint8Array(20).fill(LED_COLOR.WHITE);
+
+// Build a 16-byte hit animation frame
+// hitType: 0x01=single, 0x02=double, 0x03=triple
+export function buildHitCommand(hitType, segNum, colorA, colorB, speed) {
+  const tid = SEG_TARGET_ID[segNum] ?? 0;
+  const u8 = new Uint8Array(16);
+  u8[0] = hitType;
+  u8[1] = colorA[0]; u8[2] = colorA[1]; u8[3] = colorA[2];
+  u8[4] = colorB[0]; u8[5] = colorB[1]; u8[6] = colorB[2];
+  u8[10] = tid & 0xFF;
+  u8[11] = (tid >> 8) & 0xFF;
+  u8[12] = speed;
+  u8[15] = 0x01;
+  return u8;
+}
+
+// Build a 16-byte animation effect frame
+// opcode: 0x0F=rainbow rotate, 0x11=chase, 0x14=pulse, 0x17=flash, 0x1D=fade
+export function buildEffectCommand(opcode, colorA, speed, mode) {
+  const u8 = new Uint8Array(16);
+  u8[0] = opcode;
+  if (colorA) {
+    u8[1] = colorA[0]; u8[2] = colorA[1]; u8[3] = colorA[2];
+  }
+  u8[12] = speed ?? 0x0A;
+  u8[13] = mode ?? 0x00;
+  u8[15] = 0x01;
+  return u8;
+}
+
 // Points calculation
 export function calcPoints(ring, segment) {
   if (ring === RING.DOUBLE_BULL) {

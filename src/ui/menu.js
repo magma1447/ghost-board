@@ -102,6 +102,10 @@ function renderItem(item) {
     select.value = item.value;
     select.addEventListener('change', () => item.onChange(select.value));
     row.appendChild(select);
+    // Allow caller to keep a reference for dynamic updates
+    if (item.onRender) {
+      item.onRender(select);
+    }
   } else if (item.type === 'toggle') {
     const cb = document.createElement('input');
     cb.type = 'checkbox';
