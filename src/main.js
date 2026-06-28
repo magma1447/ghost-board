@@ -157,7 +157,18 @@ settingsBtn.addEventListener('click', (e) => {
   menu.toggle();
 });
 
-// -- Callout system: game returns callouts, we decide how to play them --
+// -- Callout system --
+// Games return callout arrays from onDart() and nextPlayer(). Each callout has
+// a type ('turnTotal', 'remaining', 'checkout') and a numeric value to speak.
+// This function schedules them as timed speech events, respecting user settings.
+//
+// Timing sequence for a player switch with turn total enabled:
+//   0ms:    speak turn total (e.g. "sixty")
+//   1500ms: extra gap before remaining score
+//   2500ms: play chime
+//   2900ms: speak remaining (e.g. "three oh one")
+//
+// Each new dart cancels any pending callouts to avoid overlap.
 const pendingCallouts = [];
 
 function processCallouts(callouts) {
@@ -165,7 +176,7 @@ function processCallouts(callouts) {
     return;
   }
 
-  // Cancel pending timeouts and current speech
+  // Cancel any in-flight callouts from the previous dart
   for (const id of pendingCallouts) {
     clearTimeout(id);
   }
@@ -178,6 +189,7 @@ function processCallouts(callouts) {
   let delay = 0;
 
   for (const c of callouts) {
+    // Skip callout types the user has disabled in settings
     if (c.type === 'turnTotal' && !audio.callTurnTotal) {
       continue;
     }
@@ -188,12 +200,13 @@ function processCallouts(callouts) {
       continue;
     }
 
-    // Extra gap before remaining if something was spoken before it
+    // Add a pause before 'remaining' if a previous callout was already queued
+    // (e.g. turn total was spoken first — need a gap so they don't blend)
     if (c.type === 'remaining' && delay > 0) {
       delay += 1000;
     }
 
-    // Chime before remaining
+    // 'remaining' callouts get a chime sound before the spoken number
     if (c.type === 'remaining') {
       pendingCallouts.push(setTimeout(() => playChime(), delay));
       delay += 400;
@@ -227,6 +240,9 @@ function persistState() {
   }
 }
 
+// For target-based games (Around the Clock, Cat and Mouse), light up the
+// current target segment in green after a short delay. The delay lets the
+// hit flash animation play first (800ms after dart, 1000ms after switch).
 let targetLedTimeout = null;
 
 function showTargetLed(state, delayMs) {

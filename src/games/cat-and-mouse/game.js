@@ -1,6 +1,17 @@
-// Cat and Mouse — mouse runs, cat chases, both go clockwise
+// Cat and Mouse — mouse runs clockwise around the board, cat chases.
+//
+// Both players move around the 20 board segments in clockwise order.
+// Mouse starts at segment 20 (index 0 in BOARD_ORDER), cat starts
+// `gap` positions behind. Mouse wins by completing a full lap (reaching
+// the cat's starting position). Cat wins by catching up to or passing
+// the mouse.
+//
+// Progress is tracked as an absolute step counter (not a board position).
+// The actual target segment is computed from progress using BOARD_ORDER.
+// This avoids circular comparison complexity — win conditions are simple
+// integer comparisons on progress values.
 
-// Standard dartboard clockwise order
+// Standard dartboard clockwise order (physical layout, not numerical)
 const BOARD_ORDER = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
 
 export function createCatAndMouse({
@@ -11,6 +22,10 @@ export function createCatAndMouse({
   multiStep = false,
   maxRounds = 0,
 } = {}) {
+  // Map absolute progress to a board segment number.
+  // Mouse starts at BOARD_ORDER[0] = 20, cat starts `gap` positions behind.
+  // The cat's offset is (20 - gap) so with gap=1, cat starts at position 19
+  // in the array (segment 5), which is one step behind 20 in clockwise order.
   function computeTarget(playerIndex, progress) {
     if (playerIndex === 0) {
       return BOARD_ORDER[progress % 20];
@@ -83,10 +98,14 @@ export function createCatAndMouse({
     return 1;
   }
 
+  // Cat catches mouse when cat's progress lead equals or exceeds the gap.
+  // Since cat starts `gap` positions behind, this means cat has physically
+  // reached or passed the mouse on the board.
   function checkCatCaught() {
     return state.players[1].progress - state.players[0].progress >= gap;
   }
 
+  // Mouse wins by completing a full lap (20 steps = all segments)
   function checkMouseFinished() {
     return state.players[0].progress >= 20;
   }

@@ -1,4 +1,8 @@
-// WebBluetooth connection to Granboard
+// WebBluetooth connection to Granboard.
+//
+// Manages the full BLE lifecycle: device discovery, GATT connection,
+// subscribing to hit notifications, and sending LED write commands.
+// Automatically reconnects on unexpected disconnect (e.g. board sleep).
 
 import { SERVICE_UUID, NOTIFY_UUID, WRITE_UUID, DEVICE_NAME } from './protocol.js';
 import { createParser } from './parser.js';
@@ -96,6 +100,8 @@ export function createConnection(onHit, onStatus) {
     }
   }
 
+  // Send raw bytes to the board (used for LED commands).
+  // Prefers writeWithoutResponse for lower latency when supported.
   async function write(data) {
     if (!writeChar) {
       return;
@@ -108,7 +114,7 @@ export function createConnection(onHit, onStatus) {
         await writeChar.writeValue(data);
       }
     } catch {
-      // Write failed — non-critical
+      // Write failed — non-critical (LEDs are cosmetic)
     }
   }
 

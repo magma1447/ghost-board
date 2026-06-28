@@ -1,4 +1,12 @@
-// Granboard BLE protocol constants
+// Granboard BLE protocol — hit parsing, LED commands, and segment mapping.
+//
+// The Granboard communicates over BLE with three characteristics on one service:
+//   NOTIFY — board sends hit events as text frames (e.g. "2.5@" for single-outer 1)
+//   WRITE  — app sends LED commands as raw binary (Uint8Array)
+//
+// Hit frames are "<group>.<bit>@"-delimited strings. The group.bit codes map
+// to physical board segments via SEGMENT_MAP (reverse-engineered, not sequential).
+//
 // Reference: https://github.com/Lennart-Jerome/GranBoard-with-Autodarts
 
 export const SERVICE_UUID = '442f1570-8a00-9a28-cbe1-e1d4212d53eb';
@@ -18,7 +26,9 @@ export const RING = {
 };
 
 // Raw BLE code -> { ring, segment }
-// Segment numbers are the actual dartboard numbers (1-20, 25, 50)
+// Keys are "group.bit" strings received from the board's NOTIFY characteristic.
+// Each segment has 4 codes (outer single, inner single, double, triple).
+// The mapping is not sequential — it reflects the physical sensor wiring.
 export const SEGMENT_MAP = {
   // Segment 1
   '2.5': { ring: RING.SINGLE_OUTER, segment: 1 },
@@ -140,7 +150,10 @@ export const LED_COLOR = {
   GREEN: 0x04, CYAN: 0x05, PURPLE: 0x06, WHITE: 0x07,
 };
 
-// Segment number → target ID for hit animation commands
+// Segment number → target ID for hit animation commands.
+// These IDs are written into bytes 10-11 of the 16-byte hit command
+// to tell the board which LED segment to animate. Like the sensor codes,
+// these are non-sequential and board-specific.
 export const SEG_TARGET_ID = {
   1: 0x001C, 2: 0x0031, 3: 0x0037, 4: 0x0022,
   5: 0x0016, 6: 0x0028, 7: 0x0001, 8: 0x0007,
@@ -158,8 +171,14 @@ export function buildRingCommand(segments) {
 export const LED_ALL_OFF = new Uint8Array(20); // all 0x00
 export const LED_ALL_WHITE = new Uint8Array(20).fill(LED_COLOR.WHITE);
 
-// Build a 16-byte hit animation frame
+// Build a 16-byte hit animation frame.
 // hitType: 0x01=single, 0x02=double, 0x03=triple
+// Layout: [hitType, R1,G1,B1, R2,G2,B2, _, _, _, tidLo, tidHi, speed, _, _, 0x01]
+//   colorA (bytes 1-3): primary flash color (RGB)
+//   colorB (bytes 4-6): secondary/fade color (RGB)
+//   tid (bytes 10-11):  target segment ID (little-endian)
+//   speed (byte 12):    animation speed (higher = faster)
+//   byte 15:            must be 0x01 to activate
 export function buildHitCommand(hitType, segNum, colorA, colorB, speed) {
   const tid = SEG_TARGET_ID[segNum] ?? 0;
   const u8 = new Uint8Array(16);
@@ -173,8 +192,10 @@ export function buildHitCommand(hitType, segNum, colorA, colorB, speed) {
   return u8;
 }
 
-// Build a 16-byte animation effect frame
+// Build a 16-byte whole-board animation effect.
+// Unlike hit commands (which target one segment), effects animate the entire ring.
 // opcode: 0x0F=rainbow rotate, 0x11=chase, 0x14=pulse, 0x17=flash, 0x1D=fade
+// Layout: [opcode, R,G,B, _, _, _, _, _, _, _, _, speed, mode, _, 0x01]
 export function buildEffectCommand(opcode, colorA, speed, mode) {
   const u8 = new Uint8Array(16);
   u8[0] = opcode;

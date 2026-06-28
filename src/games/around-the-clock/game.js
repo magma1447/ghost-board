@@ -1,4 +1,17 @@
-// Around the Clock — hit 1 through 20 (optionally bull) in order
+// Around the Clock — hit 1 through 20 (optionally bull) in order.
+//
+// Each player must hit their current target number to advance. Only the
+// current target counts — hitting any other number is a miss. Multiple
+// sequential hits in one turn all count (e.g. if target is 5 and you
+// hit S5, S6, S7 → you advance to 8; but S5, S7, S6 → only S5 counts).
+//
+// Targets are internally numbered 1–21 where 21 represents bull.
+// No bust mechanic — wrong darts are simply misses (plays bust sound).
+//
+// Options:
+//   hitMode: 'any' | 'doubles' | 'triples' — which ring counts as a hit
+//   multiStep: doubles advance 2 targets, triples advance 3
+//   bullFinish: 'off' (end at 20) | 'single' | 'double' (must finish on bull)
 
 export function createAroundTheClock({
   numPlayers = 2,
@@ -51,16 +64,18 @@ export function createAroundTheClock({
     return null;
   }
 
+  // Convert internal target number to a speakable value for voice callouts.
+  // Targets 1–20 are spoken as-is; target 21 (bull) is spoken as 25 or 50.
   function formatTarget(target) {
     if (target <= 20) {
       return target;
     }
-    // Bull — speak 25 for single, 50 for double
     return bullFinish === 'double' ? 50 : 25;
   }
 
+  // Check if the dart's ring qualifies as a hit for the given target.
+  // Bull has special handling: no triple ring exists, so triples mode accepts any bull.
   function ringMatches(ring, target) {
-    // Bull target
     if (target === 21) {
       if (bullFinish === 'double') {
         return ring === 'DBULL';
@@ -88,6 +103,8 @@ export function createAroundTheClock({
     return segment === target;
   }
 
+  // With multi-step enabled, doubles advance 2 targets and triples advance 3.
+  // E.g. target is 5, hit T5 → advance to 8 (skipping 6 and 7).
   function stepsForRing(ring) {
     if (!multiStep) {
       return 1;
@@ -131,7 +148,7 @@ export function createAroundTheClock({
       return { state, event: 'miss', callouts: [] };
     }
 
-    // Hit — advance target
+    // Hit — advance target (capped at finalTarget + 1 to indicate completion)
     const steps = stepsForRing(ring);
     player.currentTarget = Math.min(player.currentTarget + steps, finalTarget + 1);
     state.turnDarts.push({ ring, segment, hit: true });

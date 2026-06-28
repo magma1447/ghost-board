@@ -1,4 +1,14 @@
-// X01 game family (501, 301, 701, etc.)
+// X01 game family (301, 501, 701, 1001).
+//
+// Players take turns throwing 3 darts, subtracting points from a starting score.
+// First player to reach exactly 0 wins. Going below 0 (or to 1 with double-out)
+// is a bust — score reverts to what it was at the start of the turn, and
+// remaining darts are locked out.
+//
+// Returns { state, event, callouts } from onDart() and nextPlayer().
+// Events: null, 'bust', 'win', 'draw', 'switch'
+// Callout types: 'turnTotal' (after 3rd dart), 'remaining' (on switch),
+//   'checkout' (per-dart when score is below threshold)
 
 import { calcPoints } from '../../ble/protocol.js';
 
@@ -27,12 +37,12 @@ export function createX01({
     players,
     currentPlayerIndex: 0,
     turnDarts: [],
-    turnStartScore: startingScore,
-    turnLocked: false,
+    turnStartScore: startingScore, // saved to revert on bust
+    turnLocked: false, // true after bust — blocks remaining darts
     round: 1,
     gameOver: false,
     winner: null,
-    opened: new Array(numPlayers).fill(!doubleIn),
+    opened: new Array(numPlayers).fill(!doubleIn), // per-player: has hit a double to "open"
   };
 
   // Ephemeral — tracks whether onDart already returned a turnTotal callout
@@ -82,6 +92,7 @@ export function createX01({
     return { state, event: drawEvent || 'switch', callouts };
   }
 
+  // In 50/50 bull mode, single bull scores 50 instead of the standard 25
   function getPoints(ring, segment) {
     if (bullMode === '50/50' && ring === 'SBULL') {
       return 50;
@@ -117,6 +128,7 @@ export function createX01({
     const points = getPoints(ring, segment);
     const newScore = player.score - points;
 
+    // Bust: score went negative, or landed on 1 with double-out (impossible to finish)
     if (newScore < 0 || (doubleOut && newScore === 1)) {
       player.score = state.turnStartScore;
       state.turnLocked = true;
@@ -127,6 +139,7 @@ export function createX01({
     player.score = newScore;
     state.turnDarts.push({ ring, segment, points });
 
+    // Reached exactly 0 — but with double-out, must finish on a double
     if (newScore === 0) {
       if (doubleOut && !isDouble(ring)) {
         player.score = state.turnStartScore;

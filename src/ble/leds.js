@@ -1,16 +1,19 @@
-// LED effects for Granboard — hit flashes, connect sweep, player switch
+// LED effects for Granboard — hit flashes, connect sweep, player switch.
 //
-// Architecture: default handlers that games can override or disable.
-//   setHitHandler(fn)    — custom hit LED behavior, or null to disable
-//   setSwitchHandler(fn) — custom switch LED behavior, or null to disable
-//   resetHandlers()      — restore defaults
+// Two types of LED commands are used (see protocol.js for byte layouts):
+//   1. Static ring: 20-byte array, one palette color per segment (for sweep/highlight)
+//   2. Animation: 16-byte command that triggers built-in board animations (for hit flash)
+//
+// Games can override the default hit/switch animations via setHitHandler/setSwitchHandler.
+// This is used by target-based games (Around the Clock, Cat and Mouse) to show the
+// current target segment in green after each dart.
 
 import {
   LED_ALL_OFF, LED_COLOR,
   buildRingCommand, buildHitCommand, buildEffectCommand,
 } from './protocol.js';
 
-// Standard dartboard clockwise order
+// Standard dartboard clockwise order (physical layout, not numerical)
 const SWEEP_ORDER = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
 
 let writeFn = null;
@@ -51,7 +54,8 @@ function defaultHitFlash(ring, segment) {
   send(buildHitCommand(hitType, segment, [0xFF, 0x00, 0x00], [0xFF, 0x95, 0x00], 0x14));
 }
 
-// -- Sweep: light each segment sequentially (for connect / switch) --
+// Sweep: light each segment one at a time in clockwise order using static
+// ring commands. Used for the initial connect animation and player switch.
 function runSweep(color, stepMs, onDone) {
   cancelSweep();
   let i = 0;

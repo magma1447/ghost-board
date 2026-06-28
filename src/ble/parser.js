@@ -1,4 +1,15 @@
-// Parse Granboard BLE notifications into hit events
+// Parse Granboard BLE notifications into hit events.
+//
+// The board sends text over BLE NOTIFY, framed with '@' delimiters.
+// Each frame is either:
+//   "BTN"        — the physical button on the board was pressed
+//   "OUT"        — dart landed outside the scoring area
+//   "2.5"        — a segment code (looked up in SEGMENT_MAP)
+//   "WRITE OK"   — acknowledgement of a write command (ignored)
+//
+// Frames may arrive split across multiple BLE packets, and some boards
+// send a "GB8;102" prefix before the actual code. We buffer incoming
+// data and split on '@' to handle both cases.
 
 import { SEGMENT_MAP, RING } from './protocol.js';
 
@@ -16,7 +27,7 @@ export function createParser() {
       let frame = buffer.slice(0, idx);
       buffer = buffer.slice(idx + 1);
 
-      // Strip GB8 prefix if present
+      // Some board firmware versions prefix frames with "GB8;102"
       if (frame.startsWith('GB8;102')) {
         frame = frame.slice(7);
       }
