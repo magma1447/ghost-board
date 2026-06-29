@@ -139,6 +139,7 @@ export function renderScoreboard(scoreboard, state, options = {}) {
         dartsFor = (s, p, isCurrent) => (isCurrent ? s.turn.darts : (p.lastDarts || [])),
         dartMode = 'hitmiss',
         match = null,
+        checkout = null, // suggested finish for the current player, or null
     } = options;
     const showMatch = match && isMatchPlay(match);
     const ranks = showMatch ? matchRanks(match) : null;
@@ -198,6 +199,14 @@ export function renderScoreboard(scoreboard, state, options = {}) {
             }
         }
 
+        // Checkout suggestion for the current player, above the hit history
+        let checkoutLine = null;
+        if (isCurrent && checkout && checkout.length > 0) {
+            checkoutLine = document.createElement('div');
+            checkoutLine.className = 'game-player-checkout';
+            checkoutLine.textContent = `Checkout: ${checkout.join(', ')}`;
+        }
+
         // Turn darts: live for the current player, last completed for others
         const turn = document.createElement('div');
         turn.className = 'game-player-turn';
@@ -219,11 +228,15 @@ export function renderScoreboard(scoreboard, state, options = {}) {
             }
         }
 
+        const children = [head];
         if (matchLine) {
-            block.append(head, matchLine, turn);
-        } else {
-            block.append(head, turn);
+            children.push(matchLine);
         }
+        if (checkoutLine) {
+            children.push(checkoutLine);
+        }
+        children.push(turn);
+        block.append(...children);
         scoreboard.appendChild(block);
     }
 }

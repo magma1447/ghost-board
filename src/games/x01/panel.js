@@ -3,6 +3,7 @@
 import { formatRoundLabel, settingsLine } from '../format.js';
 import { createGamePanel, renderScoreboard, winnerName } from '../panel-factory.js';
 import { defaults, fields } from './options.js';
+import { checkoutFor } from './checkout-sequence.js';
 
 export function createX01Panel(container, callbacks) {
     const panel = createGamePanel(container, callbacks);
@@ -16,6 +17,7 @@ export function createX01Panel(container, callbacks) {
             valueFor: (p) => String(p.score),
             dartMode: 'total',
             match,
+            checkout: checkoutFor(state),
         });
 
         panel.nextBtn.disabled = state.isGameOver;

@@ -110,6 +110,13 @@
     letter-spacing: 0.03em;
 }
 
+/* Checkout suggestion for the current player (above the hit history) */
+.game-player-checkout {
+    margin-top: 0.15rem;
+    color: #e0b75e;
+    letter-spacing: 0.03em;
+}
+
 /* Standings pill wrapping the rank + legs/sets tally; #1 (leader) is green */
 .game-player-rank {
     display: inline-block;
