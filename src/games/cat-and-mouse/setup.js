@@ -9,6 +9,7 @@ const D = {
     gap: 1,
     hitMode: 'any',
     multiStep: false,
+    sprint: false,
     maxRounds: 0,
     roundLimitResult: 'mouse',
 };
@@ -48,6 +49,10 @@ export function createCatAndMouseSetup(container, onStart, onCancel) {
         <input type="checkbox" data-field="multiStep">
       </div>
       <div class="game-setup-row">
+        <label>Sprint <span class="game-setup-default">(default: ${formatBool(D.sprint)})</span></label>
+        <input type="checkbox" data-field="sprint">
+      </div>
+      <div class="game-setup-row">
         <label>Max rounds <span class="game-setup-default">(default: ${formatRounds(D.maxRounds)})</span></label>
         <select data-field="maxRounds">
           <option value="0">No limit</option>
@@ -79,6 +84,7 @@ export function createCatAndMouseSetup(container, onStart, onCancel) {
         gap: el.querySelector('[data-field="gap"]'),
         hitMode: el.querySelector('[data-field="hitMode"]'),
         multiStep: el.querySelector('[data-field="multiStep"]'),
+        sprint: el.querySelector('[data-field="sprint"]'),
         maxRounds: el.querySelector('[data-field="maxRounds"]'),
         roundLimitResult: el.querySelector('[data-field="roundLimitResult"]'),
     };
@@ -87,6 +93,7 @@ export function createCatAndMouseSetup(container, onStart, onCancel) {
         fields.gap.value = String(vals.gap);
         fields.hitMode.value = vals.hitMode;
         fields.multiStep.checked = vals.multiStep;
+        fields.sprint.checked = vals.sprint;
         fields.maxRounds.value = String(vals.maxRounds);
         fields.roundLimitResult.value = vals.roundLimitResult;
     }
@@ -96,6 +103,7 @@ export function createCatAndMouseSetup(container, onStart, onCancel) {
             gap: parseInt(fields.gap.value, 10),
             hitMode: fields.hitMode.value,
             multiStep: fields.multiStep.checked,
+            sprint: fields.sprint.checked,
             maxRounds: parseInt(fields.maxRounds.value, 10),
             roundLimitResult: fields.roundLimitResult.value,
         };
@@ -118,6 +126,7 @@ export function createCatAndMouseSetup(container, onStart, onCancel) {
         updateSettings('catAndMouse.gap', opts.gap);
         updateSettings('catAndMouse.hitMode', opts.hitMode);
         updateSettings('catAndMouse.multiStep', opts.multiStep);
+        updateSettings('catAndMouse.sprint', opts.sprint);
         updateSettings('catAndMouse.maxRounds', opts.maxRounds);
         updateSettings('catAndMouse.roundLimitResult', opts.roundLimitResult);
 

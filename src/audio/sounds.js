@@ -243,6 +243,19 @@ export function playWin() {
     }
 }
 
+// Cool rising power-up arpeggio with a sparkle on top — Cat and Mouse sprint.
+// Theme-independent so the bonus always sounds special.
+export function playSprint() {
+    ensureAudio();
+    const t = getCtx().currentTime;
+    tone(t, 0.08, 392, 'square', 0.3);
+    tone(t + 0.07, 0.08, 523, 'square', 0.3);
+    tone(t + 0.14, 0.08, 659, 'square', 0.3);
+    tone(t + 0.21, 0.08, 784, 'square', 0.3);
+    tone(t + 0.28, 0.3, 1047, 'square', 0.4);
+    tone(t + 0.28, 0.35, 1568, 'sine', 0.15);
+}
+
 // -- Speech synthesis for score calling --
 
 let selectedVoiceName = null;

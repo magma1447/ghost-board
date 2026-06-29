@@ -5,7 +5,7 @@ import { createConnection } from './ble/connection.js';
 import { createLog } from './ui/log.js';
 import { init as initLeds, onHit as ledHit, onSwitch as ledSwitch, sweep as ledSweep, allOff as ledsOff, allOn as ledsOn, showSegment as ledShowSegment, showSegments as ledShowSegments } from './ble/leds.js';
 import { LED_COLOR, calcPoints } from './ble/protocol.js';
-import { playHit, playSwitch, playBust, playWin, playChime, speakScore, setTheme, setVoice, getThemeNames, getVoiceNames, ensureAudio } from './audio/sounds.js';
+import { playHit, playSwitch, playBust, playWin, playChime, playSprint, speakScore, setTheme, setVoice, getThemeNames, getVoiceNames, ensureAudio } from './audio/sounds.js';
 import { settings, updateSettings } from './state/settings.js';
 import { saveGame, loadGame, clearGame } from './state/game-store.js';
 import { createMenu } from './ui/menu.js';
@@ -65,6 +65,22 @@ function updateHeadline() {
     } else {
         setBoardHeadline('');
     }
+}
+
+// Briefly flash a word (e.g. SPRINT) in the big display, then revert to the
+// normal headline. Used for the Cat and Mouse sprint bonus.
+let headlineFlashTimeout = null;
+function flashHeadline(text, durationMs) {
+    clearTimeout(headlineFlashTimeout);
+    boardHeadline.textContent = text;
+    boardHeadline.removeAttribute('data-len');
+    boardHeadline.hidden = false;
+    boardHeadline.classList.remove('faded');
+    boardHeadline.classList.add('flash');
+    headlineFlashTimeout = setTimeout(() => {
+        boardHeadline.classList.remove('flash');
+        updateHeadline();
+    }, durationMs);
 }
 
 // -- Right panel: status + hit log --
@@ -581,6 +597,10 @@ function onEvent(event) {
                 playBust();
             } else if (gameEvent === 'win') {
                 playWin();
+            } else if (gameEvent === 'sprint') {
+                // Perfect set in Cat and Mouse — earned another three darts
+                playSprint();
+                log.logEvent('Sprint — three more darts', 'game');
             } else {
                 playHit(event.ring);
                 processCallouts(callouts);
@@ -588,7 +608,11 @@ function onEvent(event) {
             showTargetLed(state, 800);
             persistState();
             handleGameOutcome(state, gameEvent);
-            updateHeadline();
+            if (gameEvent === 'sprint') {
+                flashHeadline('SPRINT', 1500);
+            } else {
+                updateHeadline();
+            }
         } else {
             log.logEvent(formatHit(event), 'hit');
             playHit(event.ring);

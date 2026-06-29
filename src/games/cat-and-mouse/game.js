@@ -23,6 +23,7 @@ export function createCatAndMouse({
     multiStep = false,
     maxRounds = 0,
     roundLimitResult = 'mouse',
+    sprint = false,
 } = {}) {
     // Map absolute progress to a board segment number.
     // Mouse starts at BOARD_ORDER[0] = 20, cat starts `gap` positions behind.
@@ -171,6 +172,13 @@ export function createCatAndMouse({
             state.gameOver = true;
             state.winner = 1;
             return { state, event: 'win', callouts: [] };
+        }
+
+        // Sprint: a perfect set (all darts in the turn hit) earns another full
+        // set — reset the darts so the same player keeps throwing.
+        if (sprint && state.turnDarts.length >= dartsPerTurn && state.turnDarts.every((d) => d.hit)) {
+            state.turnDarts = [];
+            return { state, event: 'sprint', callouts: [] };
         }
 
         // Call out next target (not on last dart)
