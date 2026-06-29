@@ -18,6 +18,7 @@ Ghost Board is a web-based alternative to the official Granboard app. It connect
 - Full-screen win / draw / leg / set celebration overlay
 - BLE connection with auto-reconnect; status shown in a Bluetooth icon (red / green / yellow) with toast messages
 - LED control — hit flash, player-switch sweep, target highlighting, game-aware on/off
+- Simulated LED ring on the SVG board — the web board mirrors the physical board's LEDs (targets, X01 checkout, switch sweep, hit flashes), so the full effect is visible without hardware
 - Sound effects with three themes (impact, gunshot, arcade)
 - Voice callouts — turn total, remaining score, per-dart checkout calls; configurable voice via browser SpeechSynthesis
 - Per-game rules and per-option help, with collapsible setup sections that summarise the current config
@@ -46,7 +47,7 @@ Any game can be played as a match rather than a single game:
   - 1–8 players
   - Bust reverts the entire turn and locks the remaining darts
   - Per-player 3-dart average
-  - Checkout path suggestions for the current player (standard competition checkouts for double-out, solved otherwise)
+  - Checkout path suggestions for the current player (standard competition checkouts for double-out, solved otherwise), shown on the card and lit on the board's LED ring
   - Options:
     - Start score — 301 / 501 / 701 / 1001 (default: 501)
     - Double in (default: off)
