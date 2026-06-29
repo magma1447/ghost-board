@@ -69,5 +69,5 @@ export function createSimonSaysPanel(container, callbacks) {
         }
     }
 
-    return { update, destroy: panel.destroy, nextBtn: panel.nextBtn, showBanner: panel.showBanner };
+    return { update, destroy: panel.destroy, nextBtn: panel.nextBtn, rematchBtn: panel.rematchBtn, showBanner: panel.showBanner };
 }

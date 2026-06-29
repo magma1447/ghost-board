@@ -140,6 +140,10 @@ body {
     cursor: default;
 }
 
+.btn[hidden] {
+    display: none;
+}
+
 .btn-small {
     padding: 0.3rem 0.7rem;
     font-size: 0.8rem;

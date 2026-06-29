@@ -85,6 +85,8 @@ export function createGameController({ gameArea, board, headline, log, winDispla
     // ended and the advance button starts the next leg.
     let match = null;
     let pendingNextLeg = false;
+    // Rotates the starting player on each rematch (reset on a fresh New Game).
+    let rematchOffset = 0;
 
     function persistState() {
         const game = getGame();
@@ -111,6 +113,32 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         log.logEvent(`Round ${state.round}`, 'game');
     }
 
+    // Reveal the panel's Rematch button (shown once a game/match is over)
+    function showRematch() {
+        const panel = getPanel();
+        if (panel && panel.rematchBtn) {
+            panel.rematchBtn.hidden = false;
+        }
+    }
+
+    // Replay the same game/match with the same players and settings, rotating
+    // who throws first. currentGameType/Opts are still set at game-over.
+    function rematch() {
+        if (!currentGameType || !currentGameOpts) {
+            return;
+        }
+        const numPlayers = (currentGameOpts.playerUuids || []).length || 1;
+        rematchOffset = (rematchOffset + 1) % numPlayers;
+        winDisplay.hide();
+        launchGame(currentGameType, currentGameOpts, false, rematchOffset);
+        const game = getGame();
+        if (game) {
+            showTargetLed(game.getState(), 500);
+            processCallouts(game.getCallouts());
+            logRound(game.getState());
+        }
+    }
+
     // Announce a win/draw outcome: log it and show the full-screen overlay
     // (no-op for other events)
     function handleGameOutcome(state, gameEvent) {
@@ -118,9 +146,11 @@ export function createGameController({ gameArea, board, headline, log, winDispla
             const name = createPlayer(state.players[state.winner].uuid).getName();
             log.logEvent(`${name} wins`, 'game');
             winDisplay.showWin(name);
+            showRematch();
         } else if (gameEvent === 'draw') {
             log.logEvent('Draw', 'game');
             winDisplay.showDraw();
+            showRematch();
         }
     }
 
@@ -148,6 +178,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         if (outcome.level === 'match') {
             log.logEvent(`${winnerName} wins the match`, 'game');
             winDisplay.showWin(winnerName); // full gold overlay
+            showRematch();
             return;
         }
 
@@ -235,19 +266,23 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         startGame(currentGameType, { ...currentGameOpts, startingPlayerIndex: startIndex }, gameArea, {
             onNextPlayer: handleNextPlayer,
             onEndGame: requestEndGame,
+            onRematch: rematch,
         });
         refreshPanel();
         headline.update();
         winDisplay.hide();
     }
 
-    function launchGame(type, opts, resumed = false) {
+    function launchGame(type, opts, resumed = false, startOffset = 0) {
         currentGameType = type;
         currentGameOpts = opts;
         lastLoggedRound = 0;
         pendingNextLeg = false;
         // Best-of 1/1 = single game; the match layer stays inactive.
         match = createMatchState(opts.legsBestOf || 1, opts.setsBestOf || 1, opts.playerUuids || []);
+        // Rotate the first leg's starter on a rematch (legNumber only drives
+        // rotation; the displayed leg/set numbers come from legs/setsWon).
+        match.legNumber = 1 + startOffset;
         startGameInstance(startingPlayerIndex(match));
 
         const names = (opts.playerUuids || []).map((uuid) => createPlayer(uuid).getName());
@@ -291,6 +326,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                 picker.remove();
                 GAME_SETUPS[type](gameArea, (opts) => {
                     clearGame();
+                    rematchOffset = 0; // fresh game — restart the rotation
                     launchGame(type, opts);
                     const game = getGame();
                     if (game) {
@@ -362,14 +398,21 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                 headline.update();
                 // If a leg ended mid-match before "Next leg" was pressed, re-arm
                 // the advance button (and re-show the result banner) so play can
-                // continue after a reload.
-                if (isMatchPlay(match) && state.gameOver) {
-                    const matchOver = match.setsWon.some((s) => s >= firstToWin(match.setsBestOf));
-                    if (!matchOver) {
-                        const level = currentLegNumber(match) === 1 ? 'set' : 'leg';
-                        const winnerName = createPlayer(state.players[state.winner].uuid).getName();
-                        winDisplay.showLegWin(winnerName, level);
-                        armNextLeg(level);
+                // continue after a reload. If the game/match is fully over,
+                // offer a rematch instead.
+                if (state.gameOver) {
+                    if (isMatchPlay(match)) {
+                        const matchOver = match.setsWon.some((s) => s >= firstToWin(match.setsBestOf));
+                        if (matchOver) {
+                            showRematch();
+                        } else {
+                            const level = currentLegNumber(match) === 1 ? 'set' : 'leg';
+                            const winnerName = createPlayer(state.players[state.winner].uuid).getName();
+                            winDisplay.showLegWin(winnerName, level);
+                            armNextLeg(level);
+                        }
+                    } else {
+                        showRematch();
                     }
                 }
             }

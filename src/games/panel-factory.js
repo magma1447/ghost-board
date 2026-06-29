@@ -16,7 +16,7 @@ import { createPlayer } from '../state/players.js';
 import { isMatchPlay, matchPositionLabel, playerMatchLabel, matchRanks } from './match.js';
 import { openMatchHistory } from '../ui/match-history.js';
 
-export function createGamePanel(container, { onNextPlayer, onEndGame }) {
+export function createGamePanel(container, { onNextPlayer, onEndGame, onRematch }) {
     const el = document.createElement('div');
     el.className = 'game-panel';
 
@@ -55,7 +55,14 @@ export function createGamePanel(container, { onNextPlayer, onEndGame }) {
     endBtn.textContent = 'End Game';
     endBtn.addEventListener('click', onEndGame);
 
-    btnRow.append(nextBtn, endBtn);
+    // Rematch — same players/settings, shown only once the game/match is over
+    const rematchBtn = document.createElement('button');
+    rematchBtn.className = 'btn btn-primary game-rematch';
+    rematchBtn.textContent = 'Rematch';
+    rematchBtn.hidden = true;
+    rematchBtn.addEventListener('click', () => onRematch && onRematch());
+
+    btnRow.append(nextBtn, endBtn, rematchBtn);
     el.appendChild(btnRow);
 
     container.appendChild(el);
@@ -104,7 +111,7 @@ export function createGamePanel(container, { onNextPlayer, onEndGame }) {
         el.remove();
     }
 
-    return { el, rulesLabel, roundLabel, scoreboard, banner, nextBtn, endBtn, showBanner, setRules, setRound, destroy };
+    return { el, rulesLabel, roundLabel, scoreboard, banner, nextBtn, endBtn, rematchBtn, showBanner, setRules, setRound, destroy };
 }
 
 function defaultName(p) {
