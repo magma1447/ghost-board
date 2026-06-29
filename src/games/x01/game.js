@@ -55,14 +55,13 @@ export function createX01({
 
     function advancePlayer() {
         // Count the completed visit (for the 3-dart average): add the points
-        // actually scored this turn (0 on a bust, since the score reverted)
-        // and bump the visit count together, so the average only changes at
-        // turn end — never mid-throw. Skip if no darts were thrown.
-        if (state.turnDarts.length > 0) {
-            const leaving = currentPlayer();
-            leaving.scored += state.turnStartScore - leaving.score;
-            leaving.visits++;
-        }
+        // actually scored this turn and bump the visit count together, so the
+        // average only changes at turn end — never mid-throw. Every turn
+        // counts, including a missed turn that scored 0 (darts that miss the
+        // board register nothing) and a bust (score reverted → 0 scored).
+        const leaving = currentPlayer();
+        leaving.scored += state.turnStartScore - leaving.score;
+        leaving.visits++;
         state.turnDarts = [];
         state.turnLocked = false;
         state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
