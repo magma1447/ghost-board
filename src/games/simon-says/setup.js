@@ -9,7 +9,10 @@ const D = {
     hitMode: 'any',
     scoring: 'flat',
     maxRounds: 10,
+    onDraw: 'draw',
 };
+
+const ON_DRAW_LABELS = { draw: 'draw', continue: 'play until a winner' };
 
 export function createSimonSaysSetup(container, onStart, onCancel) {
     const el = document.createElement('div');
@@ -46,6 +49,13 @@ export function createSimonSaysSetup(container, onStart, onCancel) {
           <option value="20">20</option>
         </select>
       </div>
+      <div class="game-setup-row">
+        <label>On a tie <span class="game-setup-default">(default: ${ON_DRAW_LABELS[D.onDraw]})</span></label>
+        <select data-field="onDraw">
+          <option value="draw">Draw</option>
+          <option value="continue">Play until a winner</option>
+        </select>
+      </div>
     </div>
     <div class="game-setup-buttons">
       <button class="btn game-setup-back">Back</button>
@@ -60,12 +70,14 @@ export function createSimonSaysSetup(container, onStart, onCancel) {
         hitMode: el.querySelector('[data-field="hitMode"]'),
         scoring: el.querySelector('[data-field="scoring"]'),
         maxRounds: el.querySelector('[data-field="maxRounds"]'),
+        onDraw: el.querySelector('[data-field="onDraw"]'),
     };
 
     function applyValues(vals) {
         fields.hitMode.value = vals.hitMode;
         fields.scoring.value = vals.scoring;
         fields.maxRounds.value = String(vals.maxRounds);
+        fields.onDraw.value = vals.onDraw;
     }
 
     function readValues() {
@@ -73,6 +85,7 @@ export function createSimonSaysSetup(container, onStart, onCancel) {
             hitMode: fields.hitMode.value,
             scoring: fields.scoring.value,
             maxRounds: parseInt(fields.maxRounds.value, 10),
+            onDraw: fields.onDraw.value,
         };
     }
 
@@ -93,6 +106,7 @@ export function createSimonSaysSetup(container, onStart, onCancel) {
         updateSettings('simonSays.hitMode', opts.hitMode);
         updateSettings('simonSays.scoring', opts.scoring);
         updateSettings('simonSays.maxRounds', opts.maxRounds);
+        updateSettings('simonSays.onDraw', opts.onDraw);
 
         const playerUuids = roster.commit();
         if (!playerUuids) {

@@ -80,7 +80,10 @@ export function createSimonSaysPanel(container, { onNextPlayer, onEndGame }) {
         rulesLabel.hidden = !rulesText;
 
         // Round
-        roundLabel.textContent = formatRoundLabel(state.round, state.maxRounds);
+        // Past the round limit but still playing → sudden death (play-until-winner)
+        roundLabel.textContent = (!state.gameOver && state.maxRounds > 0 && state.round > state.maxRounds)
+            ? `Sudden death · round ${state.round}`
+            : formatRoundLabel(state.round, state.maxRounds);
 
         // Target display — green when hit, orange when still needed
         sequenceLabel.innerHTML = '';

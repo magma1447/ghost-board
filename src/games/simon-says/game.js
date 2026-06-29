@@ -18,6 +18,7 @@ export function createSimonSays({
     hitMode = 'any',
     scoring = 'flat',
     maxRounds = 10,
+    onDraw = 'draw',
 } = {}) {
     function generateSequence() {
         // Pick 3 unique numbers from 1–20
@@ -145,11 +146,16 @@ export function createSimonSays({
             state.round++;
 
             if (state.maxRounds > 0 && state.round > state.maxRounds) {
-                state.gameOver = true;
-                state.targetSegments = [];
-                state.winner = determineWinner();
-                const event = state.winner !== null ? 'win' : 'draw';
-                return { state, event, callouts: [] };
+                const winner = determineWinner();
+                // End at the limit unless it's a tie and we play until a winner
+                // (sudden death — keep playing further rounds until one leads).
+                if (winner !== null || onDraw === 'draw') {
+                    state.gameOver = true;
+                    state.targetSegments = [];
+                    state.winner = winner;
+                    const event = winner !== null ? 'win' : 'draw';
+                    return { state, event, callouts: [] };
+                }
             }
 
             state.sequence = generateSequence();
