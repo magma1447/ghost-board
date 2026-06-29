@@ -9,6 +9,8 @@ import { playHit, playSwitch, playBust, playWin, playChime, speakScore, setTheme
 import { settings, updateSettings } from './state/settings.js';
 import { saveGame, loadGame, clearGame } from './state/game-store.js';
 import { createMenu } from './ui/menu.js';
+import { createConnectionControl } from './ui/connection-control.js';
+import { icons } from './ui/icons.js';
 import { startGame, stopGame, getGame, getPanel } from './games/manager.js';
 import { createX01Setup } from './games/x01/setup.js';
 import { createAroundTheClockSetup } from './games/around-the-clock/setup.js';
@@ -31,23 +33,20 @@ panelSidebar.className = 'panel-sidebar';
 const statusBar = document.createElement('div');
 statusBar.className = 'status-bar';
 
-const statusDot = document.createElement('div');
-statusDot.className = 'status-dot';
-
-const statusText = document.createElement('span');
-statusText.className = 'status-text';
-statusText.textContent = 'Disconnected';
-
-const connectBtn = document.createElement('button');
-connectBtn.className = 'connect-btn';
-connectBtn.textContent = 'Connect';
-
 const settingsBtn = document.createElement('button');
 settingsBtn.className = 'settings-btn';
-settingsBtn.innerHTML = '&#9881;'; // gear icon
+settingsBtn.innerHTML = icons.settings;
 settingsBtn.title = 'Settings';
 
-statusBar.append(statusDot, statusText, connectBtn, settingsBtn);
+// Bluetooth connection icon + dropdown (sits left of the gear).
+// onConnect/onDisconnect reference `ble`, which is created further down —
+// these only run on click, by which point it's initialized.
+const connControl = createConnectionControl({
+    onConnect: () => ble.connect(),
+    onDisconnect: () => ble.disconnect(),
+});
+
+statusBar.append(connControl.element, settingsBtn);
 panelSidebar.appendChild(statusBar);
 
 // -- Settings menu (floating overlay) --
@@ -455,9 +454,7 @@ function onEvent(event) {
 }
 
 function onStatus({ status, detail }) {
-    statusDot.dataset.status = status;
-    statusText.textContent = detail;
-    connectBtn.textContent = status === 'connected' ? 'Disconnect' : 'Connect';
+    connControl.setStatus(status, detail);
 
     if (status === 'connected') {
         ledSweep();
@@ -466,11 +463,3 @@ function onStatus({ status, detail }) {
 
 const ble = createConnection(onEvent, onStatus);
 initLeds((data) => ble.write(data));
-
-connectBtn.addEventListener('click', () => {
-    if (statusDot.dataset.status === 'connected') {
-        ble.disconnect();
-    } else {
-        ble.connect();
-    }
-});
