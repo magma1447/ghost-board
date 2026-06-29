@@ -39,12 +39,12 @@ export function createCatAndMousePanel(container, { onNextPlayer, onEndGame }) {
     btnRow.className = 'game-buttons';
 
     const nextBtn = document.createElement('button');
-    nextBtn.className = 'game-btn';
+    nextBtn.className = 'btn btn-block';
     nextBtn.textContent = 'Next Player';
     nextBtn.addEventListener('click', onNextPlayer);
 
     const endBtn = document.createElement('button');
-    endBtn.className = 'game-btn game-btn-end';
+    endBtn.className = 'btn btn-danger';
     endBtn.textContent = 'End Game';
     endBtn.addEventListener('click', onEndGame);
 

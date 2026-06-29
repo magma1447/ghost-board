@@ -67,7 +67,7 @@ const statusBar = document.createElement('div');
 statusBar.className = 'status-bar';
 
 const settingsBtn = document.createElement('button');
-settingsBtn.className = 'settings-btn';
+settingsBtn.className = 'btn btn-icon';
 settingsBtn.innerHTML = icons.settings;
 settingsBtn.title = 'Settings';
 
@@ -289,11 +289,11 @@ const winDisplay = createWinDisplay();
 
 // -- Top-bar menu actions (New Game + Players) --
 const newGameBtn = document.createElement('button');
-newGameBtn.className = 'new-game-btn';
+newGameBtn.className = 'btn btn-small';
 newGameBtn.textContent = 'New Game';
 
 const playersBtn = document.createElement('button');
-playersBtn.className = 'players-btn';
+playersBtn.className = 'btn btn-small';
 playersBtn.textContent = 'Players';
 playersBtn.addEventListener('click', () => openPlayerConfig());
 
@@ -438,7 +438,7 @@ function showGamePicker() {
 
     for (const [type, label] of Object.entries(GAME_LABELS)) {
         const btn = document.createElement('button');
-        btn.className = 'game-picker-btn';
+        btn.className = 'btn btn-block';
         btn.textContent = label;
         btn.addEventListener('click', () => {
             picker.remove();
@@ -461,7 +461,7 @@ function showGamePicker() {
 
     // Cancel → back to the home screen
     const cancelBtn = document.createElement('button');
-    cancelBtn.className = 'game-picker-cancel';
+    cancelBtn.className = 'btn btn-small btn-danger game-picker-cancel';
     cancelBtn.textContent = 'Cancel';
     cancelBtn.addEventListener('click', () => {
         picker.remove();

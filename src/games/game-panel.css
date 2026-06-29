@@ -119,32 +119,6 @@
     gap: 0.5rem;
 }
 
-.game-btn {
-    flex: 1;
-    padding: 0.5rem 1rem;
-    border: 1px solid #555;
-    border-radius: 4px;
-    background: #2a2a2a;
-    color: #e0e0e0;
-    cursor: pointer;
-    font-size: 0.875rem;
-}
-
-.game-btn:hover {
-    background: #3a3a3a;
-}
-
-.game-btn:disabled {
-    opacity: 0.4;
-    cursor: default;
-}
-
-.game-btn-end {
-    flex: 0;
-    border-color: #633;
-    color: #e88;
-}
-
 /* -- Player roster (setup) -- */
 .game-roster {
     display: flex;
@@ -200,40 +174,6 @@
     align-items: center;
     gap: 0.4rem;
     flex: 1;
-}
-
-.game-roster-confirm {
-    flex: 0 0 auto;
-    width: 1.8rem;
-    height: 1.8rem;
-    border: 1px solid #4caf50;
-    border-radius: 4px;
-    background: none;
-    color: #4caf50;
-    cursor: pointer;
-    font-size: 0.8rem;
-    line-height: 1;
-}
-
-.game-roster-confirm:hover {
-    background: #1a3a1a;
-}
-
-.game-roster-remove {
-    flex: 0 0 auto;
-    width: 1.8rem;
-    height: 1.8rem;
-    border: 1px solid #633;
-    border-radius: 4px;
-    background: none;
-    color: #e88;
-    cursor: pointer;
-    font-size: 0.8rem;
-    line-height: 1;
-}
-
-.game-roster-remove:hover {
-    background: #3a2a2a;
 }
 
 .game-roster-add {
@@ -316,46 +256,6 @@
     align-items: center;
 }
 
-.game-setup-start {
-    padding: 0.4rem 1.2rem;
-    border: 1px solid #4caf50;
-    border-radius: 4px;
-    background: #1a3a1a;
-    color: #4caf50;
-    cursor: pointer;
-    font-size: 0.875rem;
-    font-weight: 600;
-}
-
-.game-setup-start:hover {
-    background: #2a4a2a;
-}
-
-.game-setup-back {
-    padding: 0.4rem 0.9rem;
-    border: 1px solid #555;
-    border-radius: 4px;
-    background: #2a2a2a;
-    color: #e0e0e0;
-    cursor: pointer;
-    font-size: 0.875rem;
-}
-
-.game-setup-back:hover {
-    background: #3a3a3a;
-}
-
 .game-setup-restore {
     margin-left: auto;
-    padding: 0.4rem 0.75rem;
-    border: 1px solid #633;
-    border-radius: 4px;
-    background: none;
-    color: #e88;
-    cursor: pointer;
-    font-size: 0.75rem;
-}
-
-.game-setup-restore:hover {
-    background: #3a2a2a;
 }

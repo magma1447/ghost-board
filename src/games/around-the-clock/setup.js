@@ -56,9 +56,9 @@ export function createAroundTheClockSetup(container, onStart, onCancel) {
       </div>
     </div>
     <div class="game-setup-buttons">
-      <button class="game-setup-back">Back</button>
-      <button class="game-setup-start">Start Game</button>
-      <button class="game-setup-restore">Restore defaults</button>
+      <button class="btn game-setup-back">Back</button>
+      <button class="btn btn-primary game-setup-start">Start Game</button>
+      <button class="btn btn-small btn-danger game-setup-restore">Restore defaults</button>
     </div>
   `;
 

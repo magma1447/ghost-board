@@ -49,7 +49,7 @@ export function openPlayerConfig() {
 
     const addBtn = document.createElement('button');
     addBtn.type = 'button';
-    addBtn.className = 'player-config-add-btn';
+    addBtn.className = 'btn btn-primary';
     addBtn.textContent = 'Add';
 
     function doAdd() {
@@ -82,7 +82,7 @@ export function openPlayerConfig() {
 
     const closeBtn = document.createElement('button');
     closeBtn.type = 'button';
-    closeBtn.className = 'player-config-close';
+    closeBtn.className = 'btn player-config-close';
     closeBtn.textContent = 'Done';
     closeBtn.addEventListener('click', close);
     panel.appendChild(closeBtn);
@@ -111,7 +111,7 @@ export function openPlayerConfig() {
 
                 const yesBtn = document.createElement('button');
                 yesBtn.type = 'button';
-                yesBtn.className = 'player-config-confirm-yes';
+                yesBtn.className = 'btn btn-small btn-danger';
                 yesBtn.textContent = 'Delete';
                 yesBtn.addEventListener('click', () => {
                     deletePlayer(p.uuid);
@@ -122,7 +122,7 @@ export function openPlayerConfig() {
 
                 const noBtn = document.createElement('button');
                 noBtn.type = 'button';
-                noBtn.className = 'player-config-confirm-no';
+                noBtn.className = 'btn btn-small';
                 noBtn.textContent = 'Cancel';
                 noBtn.addEventListener('click', () => {
                     pendingDelete = null;
@@ -164,7 +164,7 @@ export function openPlayerConfig() {
 
             const delBtn = document.createElement('button');
             delBtn.type = 'button';
-            delBtn.className = 'player-config-del';
+            delBtn.className = 'btn btn-icon btn-danger';
             delBtn.textContent = '✕';
             delBtn.title = 'Delete player';
             delBtn.addEventListener('click', () => {

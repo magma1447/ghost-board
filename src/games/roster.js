@@ -149,13 +149,13 @@ export function createPlayerRoster(container, { min = 1, max = 8 } = {}) {
 
         const okBtn = document.createElement('button');
         okBtn.type = 'button';
-        okBtn.className = 'game-roster-confirm';
+        okBtn.className = 'btn btn-icon btn-primary';
         okBtn.textContent = '✓';
         okBtn.addEventListener('click', confirm);
 
         const cancelBtn = document.createElement('button');
         cancelBtn.type = 'button';
-        cancelBtn.className = 'game-roster-remove';
+        cancelBtn.className = 'btn btn-icon btn-danger';
         cancelBtn.textContent = '✕';
         cancelBtn.addEventListener('click', cancel);
 
@@ -180,7 +180,7 @@ export function createPlayerRoster(container, { min = 1, max = 8 } = {}) {
                 if (selection.length > min) {
                     const removeBtn = document.createElement('button');
                     removeBtn.type = 'button';
-                    removeBtn.className = 'game-roster-remove';
+                    removeBtn.className = 'btn btn-icon btn-danger';
                     removeBtn.textContent = '✕';
                     removeBtn.title = 'Remove player';
                     removeBtn.addEventListener('click', () => {

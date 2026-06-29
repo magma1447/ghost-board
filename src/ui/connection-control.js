@@ -12,7 +12,7 @@ export function createConnectionControl({ onConnect, onDisconnect }) {
     wrap.className = 'menu-anchor';
 
     const btn = document.createElement('button');
-    btn.className = 'conn-btn';
+    btn.className = 'btn btn-icon conn-btn';
     btn.innerHTML = icons.bluetooth;
     btn.dataset.status = 'disconnected';
 
