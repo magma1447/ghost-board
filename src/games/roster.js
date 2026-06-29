@@ -55,7 +55,31 @@ export function createPlayerRoster(container, { min = 1, max = 8 } = {}) {
             render();
         }
     });
-    el.appendChild(addBtn);
+    // Quick reorder controls. The row dropdowns already set explicit play
+    // order (row 1 throws first); these are shortcuts on top of that.
+    const orderBar = document.createElement('div');
+    orderBar.className = 'game-roster-order';
+
+    // Add player (left) and the order controls (right) share one row
+    const controls = document.createElement('div');
+    controls.className = 'game-roster-controls';
+    controls.append(addBtn, orderBar);
+    el.appendChild(controls);
+
+    function applyOrder(op) {
+        if (op === 'swap' || op === 'reverse') {
+            selection.reverse();
+        } else if (op === 'rotate') {
+            selection.unshift(selection.pop()); // last becomes first: A,B,C -> C,A,B
+        } else if (op === 'randomize') {
+            for (let i = selection.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [selection[i], selection[j]] = [selection[j], selection[i]];
+            }
+        }
+        showErrors = false;
+        render();
+    }
 
     // UUIDs picked in rows other than `exceptIndex` (to prevent duplicates)
     function takenElsewhere(exceptIndex) {
@@ -196,6 +220,31 @@ export function createPlayerRoster(container, { min = 1, max = 8 } = {}) {
         }
         // Hide add button at max (and for fixed-count games where min === max)
         addBtn.hidden = selection.length >= max;
+        // Reserve the ✕-column on the right of the controls row only when
+        // rows actually have remove buttons (so Order aligns with the selects)
+        el.classList.toggle('roster-has-remove', selection.length > min);
+
+        // Reorder controls — Swap at 2 players, the trio at 3+, none at 1
+        orderBar.innerHTML = '';
+        orderBar.hidden = selection.length < 2;
+        if (selection.length >= 2) {
+            const label = document.createElement('span');
+            label.className = 'game-roster-order-label';
+            label.textContent = 'Order';
+            orderBar.appendChild(label);
+
+            const ops = selection.length === 2
+                ? [['Swap', 'swap']]
+                : [['Randomize', 'randomize'], ['Rotate', 'rotate'], ['Reverse', 'reverse']];
+            for (const [text, op] of ops) {
+                const orderBtn = document.createElement('button');
+                orderBtn.type = 'button';
+                orderBtn.className = 'btn btn-small';
+                orderBtn.textContent = text;
+                orderBtn.addEventListener('click', () => applyOrder(op));
+                orderBar.appendChild(orderBtn);
+            }
+        }
     }
 
     render();

@@ -121,9 +121,20 @@
 
 /* -- Player roster (setup) -- */
 .game-roster {
+    --roster-action: 1.9rem; /* width of a row's ✕/✓ icon button */
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
+}
+
+/* Fixed-width row action buttons, so the Order controls can align to the
+   selects' right edge (the controls reserve this column + the row gap). */
+.game-roster-row .btn-icon {
+    width: var(--roster-action);
+}
+
+.game-roster.roster-has-remove .game-roster-controls {
+    padding-right: calc(var(--roster-action) + 0.4rem);
 }
 
 .game-roster-title {
@@ -177,7 +188,6 @@
 }
 
 .game-roster-add {
-    align-self: flex-start;
     padding: 0.3rem 0.7rem;
     border: 1px dashed #555;
     border-radius: 4px;
@@ -194,6 +204,30 @@
 
 .game-roster-add[hidden] {
     display: none;
+}
+
+.game-roster-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.game-roster-order {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-left: auto;
+}
+
+.game-roster-order[hidden] {
+    display: none;
+}
+
+.game-roster-order-label {
+    font-size: 0.75rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 /* -- Setup panel -- */
