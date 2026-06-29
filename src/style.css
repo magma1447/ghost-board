@@ -356,6 +356,33 @@ body {
     align-self: flex-end;
 }
 
+/* -- Match history modal (reuses rules-backdrop / rules-panel / rules-close) -- */
+.match-history-body {
+    overflow-y: auto;
+    color: #ddd;
+    font-size: 0.9rem;
+}
+
+.match-history-title {
+    margin: 0 0 0.5rem;
+    font-size: 1.3rem;
+}
+
+.match-history-empty {
+    color: #888;
+}
+
+.match-history-log {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.match-history-line {
+    padding: 0.1rem 0;
+    color: #ccc;
+}
+
 /* -- Toast notifications (global) -- */
 .toast-container {
     position: fixed;

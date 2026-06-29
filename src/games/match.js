@@ -22,6 +22,7 @@ export function createMatchState(legsBestOf, setsBestOf, playerUuids) {
         legNumber: 1, // running count across the whole match (drives rotation)
         legsWon: new Array(numPlayers).fill(0), // within the current set
         setsWon: new Array(numPlayers).fill(0), // across the match
+        legResults: [], // history: { set, winner } per completed leg
     };
 }
 
@@ -40,6 +41,11 @@ export function startingPlayerIndex(match) {
 // 'set' means this leg also clinched the set (leg counts reset); 'match' means
 // it clinched the match.
 export function recordLegWin(match, winnerIndex) {
+    // Log the leg against the set it belongs to (before the set tally changes)
+    if (!match.legResults) {
+        match.legResults = [];
+    }
+    match.legResults.push({ set: currentSetNumber(match), winner: winnerIndex });
     match.legsWon[winnerIndex]++;
     if (match.legsWon[winnerIndex] >= firstToWin(match.legsBestOf)) {
         match.setsWon[winnerIndex]++;

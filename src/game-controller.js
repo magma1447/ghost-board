@@ -345,6 +345,9 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                 if (savedMatch.legNumber) {
                     match.legNumber = savedMatch.legNumber;
                 }
+                if (savedMatch.legResults) {
+                    match.legResults = savedMatch.legResults;
+                }
             }
             const game = getGame();
             if (game) {

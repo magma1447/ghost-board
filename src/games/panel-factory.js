@@ -14,6 +14,7 @@ import './game-panel.css';
 import { formatDart } from './format.js';
 import { createPlayer } from '../state/players.js';
 import { isMatchPlay, matchPositionLabel, playerMatchLabel, matchRanks } from './match.js';
+import { openMatchHistory } from '../ui/match-history.js';
 
 export function createGamePanel(container, { onNextPlayer, onEndGame }) {
     const el = document.createElement('div');
@@ -83,8 +84,19 @@ export function createGamePanel(container, { onNextPlayer, onEndGame }) {
     // Set the round line. During match play the Set/Leg position is shown in
     // front of the game's round text.
     function setRound(text, match) {
-        const prefix = (match && isMatchPlay(match)) ? `${matchPositionLabel(match)} | ` : '';
-        roundLabel.textContent = prefix + text;
+        roundLabel.innerHTML = '';
+        if (match && isMatchPlay(match)) {
+            const label = document.createElement('span');
+            label.textContent = `${matchPositionLabel(match)} | ${text}`;
+            const histBtn = document.createElement('button');
+            histBtn.type = 'button';
+            histBtn.className = 'game-round-history';
+            histBtn.textContent = 'History';
+            histBtn.addEventListener('click', () => openMatchHistory(match));
+            roundLabel.append(label, histBtn);
+        } else {
+            roundLabel.textContent = text;
+        }
     }
 
     function destroy() {
