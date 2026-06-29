@@ -195,6 +195,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         stopGame();
         clearGame();
         ledsOn();
+        board.clearHighlight(); // don't leave the last hit lit after the game ends
         currentGameType = null;
         currentGameOpts = null;
         match = null;
@@ -229,6 +230,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
     // fresh one; refreshPanel() then layers in the current match display.
     function startGameInstance(startIndex) {
         ledsOff();
+        board.clearHighlight(); // start each game/leg with no stale highlight
         // opts carries numPlayers + playerUuids from the setup panel's roster
         startGame(currentGameType, { ...currentGameOpts, startingPlayerIndex: startIndex }, gameArea, {
             onNextPlayer: handleNextPlayer,
