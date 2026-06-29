@@ -106,10 +106,11 @@ export function createCatAndMousePanel(container, { onNextPlayer, onEndGame }) {
 
             head.append(name, target);
 
-            // Turn darts: live for the current player, last completed for others
+            // Turn darts: live for the current player (turnDisplay accumulates
+            // across sprint sets), last completed turn for others
             const turn = document.createElement('div');
             turn.className = 'game-player-turn';
-            const darts = isCurrent ? state.turnDarts : (p.lastDarts || []);
+            const darts = isCurrent ? state.turnDisplay : (p.lastDarts || []);
             for (const d of darts) {
                 const span = document.createElement('span');
                 span.className = d.hit ? 'game-dart-hit' : 'game-dart-miss';

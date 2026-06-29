@@ -53,7 +53,8 @@ export function createCatAndMouse({
         maxRounds,
         players,
         currentPlayerIndex: 0,
-        turnDarts: [],
+        turnDarts: [], // current set of 3 (reset on sprint) — gates turn-full logic
+        turnDisplay: [], // all darts shown for the ongoing turn (accumulates across sprints)
         turnLocked: false,
         round: 1,
         gameOver: false,
@@ -65,8 +66,9 @@ export function createCatAndMouse({
     }
 
     function advancePlayer() {
-        currentPlayer().lastDarts = state.turnDarts; // keep this turn visible until their next
+        currentPlayer().lastDarts = state.turnDisplay; // full turn, including sprint sets
         state.turnDarts = [];
+        state.turnDisplay = [];
         state.turnLocked = false;
         state.currentPlayerIndex = (state.currentPlayerIndex + 1) % 2;
         if (state.currentPlayerIndex === 0) {
@@ -152,7 +154,9 @@ export function createCatAndMouse({
         const isHit = segment === target && ringMatches(ring);
 
         if (!isHit) {
-            state.turnDarts.push({ ring, segment, hit: false });
+            const dart = { ring, segment, hit: false };
+            state.turnDarts.push(dart);
+            state.turnDisplay.push(dart);
             return { state, event: 'miss', callouts: [] };
         }
 
@@ -160,7 +164,9 @@ export function createCatAndMouse({
         const steps = stepsForRing(ring);
         player.progress += steps;
         player.currentTarget = computeTarget(idx, player.progress);
-        state.turnDarts.push({ ring, segment, hit: true });
+        const dart = { ring, segment, hit: true };
+        state.turnDarts.push(dart);
+        state.turnDisplay.push(dart);
 
         // Check win conditions
         if (idx === 0 && checkMouseFinished()) {
