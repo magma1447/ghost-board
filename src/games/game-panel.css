@@ -331,7 +331,22 @@
     background: #2a4a2a;
 }
 
+.game-setup-back {
+    padding: 0.4rem 0.9rem;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background: #2a2a2a;
+    color: #e0e0e0;
+    cursor: pointer;
+    font-size: 0.875rem;
+}
+
+.game-setup-back:hover {
+    background: #3a3a3a;
+}
+
 .game-setup-restore {
+    margin-left: auto;
     padding: 0.4rem 0.75rem;
     border: 1px solid #555;
     border-radius: 4px;

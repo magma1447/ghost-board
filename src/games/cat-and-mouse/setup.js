@@ -12,7 +12,7 @@ const D = {
     maxRounds: 0,
 };
 
-export function createCatAndMouseSetup(container, onStart) {
+export function createCatAndMouseSetup(container, onStart, onCancel) {
     const el = document.createElement('div');
     el.className = 'game-setup';
 
@@ -56,6 +56,7 @@ export function createCatAndMouseSetup(container, onStart) {
       </div>
     </div>
     <div class="game-setup-buttons">
+      <button class="game-setup-back">Back</button>
       <button class="game-setup-start">Start Game</button>
       <button class="game-setup-restore">Restore defaults</button>
     </div>
@@ -91,6 +92,11 @@ export function createCatAndMouseSetup(container, onStart) {
 
     el.querySelector('.game-setup-restore').addEventListener('click', () => {
         applyValues(D);
+    });
+
+    el.querySelector('.game-setup-back').addEventListener('click', () => {
+        el.remove();
+        onCancel();
     });
 
     el.querySelector('.game-setup-start').addEventListener('click', () => {

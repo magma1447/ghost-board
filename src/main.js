@@ -328,6 +328,10 @@ function showGamePicker() {
     const picker = document.createElement('div');
     picker.className = 'game-picker';
 
+    const gamesRow = document.createElement('div');
+    gamesRow.className = 'game-picker-row';
+    picker.appendChild(gamesRow);
+
     for (const [type, label] of [['x01', 'X01'], ['around-the-clock', 'Around the Clock'], ['cat-and-mouse', 'Cat and Mouse'], ['simon-says', 'Simon Says']]) {
         const btn = document.createElement('button');
         btn.className = 'game-picker-btn';
@@ -342,10 +346,23 @@ function showGamePicker() {
                     showTargetLed(game.getState(), 500);
                     processCallouts(game.getCallouts());
                 }
+            }, () => {
+                // Back from setup → return to the game picker
+                showGamePicker();
             });
         });
-        picker.appendChild(btn);
+        gamesRow.appendChild(btn);
     }
+
+    // Cancel → back to the home screen
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'game-picker-cancel';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.addEventListener('click', () => {
+        picker.remove();
+        homeActions.hidden = false;
+    });
+    picker.appendChild(cancelBtn);
 
     gameArea.appendChild(picker);
 }
