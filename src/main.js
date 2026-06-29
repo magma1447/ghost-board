@@ -471,7 +471,6 @@ function onEvent(event) {
     if (event.type === 'hit') {
         board.highlight(event.ring, event.segment);
         ledHit(event.ring, event.segment);
-        log.logEvent(formatHit(event), 'hit');
 
         // Forward to active game — decide sound based on game result
         const game = getGame();
@@ -479,7 +478,14 @@ function onEvent(event) {
         if (game && panel) {
             const { state, event: gameEvent, callouts } = game.onDart(event.ring, event.segment);
             panel.update(state, gameEvent);
-            if (gameEvent === 'bust' || gameEvent === 'miss') {
+            // 'ignored' = dart didn't count (turn complete/locked or game over):
+            // stay silent so it doesn't sound like progress, and mark it in the
+            // log. LEDs + board highlight still fire; audio follows game logic.
+            const ignored = gameEvent === 'ignored';
+            log.logEvent(`${formatHit(event)}${ignored ? ' (ignored)' : ''}`, 'hit');
+            if (ignored) {
+                // no audio
+            } else if (gameEvent === 'bust' || gameEvent === 'miss') {
                 playBust();
             } else if (gameEvent === 'win') {
                 playWin();
@@ -491,6 +497,7 @@ function onEvent(event) {
             persistState();
             logGameOutcome(state, gameEvent);
         } else {
+            log.logEvent(formatHit(event), 'hit');
             playHit(event.ring);
         }
     }

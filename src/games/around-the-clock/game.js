@@ -131,11 +131,13 @@ export function createAroundTheClock({
     }
 
     function onDart(ring, segment) {
+        // Dart didn't count (game over, or turn already complete/locked) —
+        // 'ignored' lets the UI skip audio while LEDs still flash.
         if (state.gameOver) {
-            return { state, event: null, callouts: [] };
+            return { state, event: 'ignored', callouts: [] };
         }
         if (state.turnLocked || state.turnDarts.length >= dartsPerTurn) {
-            return { state, event: null, callouts: [] };
+            return { state, event: 'ignored', callouts: [] };
         }
 
         const player = currentPlayer();
