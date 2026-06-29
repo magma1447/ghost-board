@@ -25,7 +25,7 @@ export function createX01({
 } = {}) {
     const players = [];
     for (let i = 0; i < numPlayers; i++) {
-        players.push({ uuid: playerUuids[i], score: startingScore });
+        players.push({ uuid: playerUuids[i], score: startingScore, visits: 0, scored: 0 });
     }
 
     const state = {
@@ -54,6 +54,15 @@ export function createX01({
     }
 
     function advancePlayer() {
+        // Count the completed visit (for the 3-dart average): add the points
+        // actually scored this turn (0 on a bust, since the score reverted)
+        // and bump the visit count together, so the average only changes at
+        // turn end — never mid-throw. Skip if no darts were thrown.
+        if (state.turnDarts.length > 0) {
+            const leaving = currentPlayer();
+            leaving.scored += state.turnStartScore - leaving.score;
+            leaving.visits++;
+        }
         state.turnDarts = [];
         state.turnLocked = false;
         state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
@@ -150,6 +159,9 @@ export function createX01({
                 turnTotalReturned = true;
                 return { state, event: 'bust', callouts: [] };
             }
+            // Record the winning visit (no advancePlayer follows a win)
+            player.scored += state.turnStartScore - player.score;
+            player.visits++;
             state.gameOver = true;
             state.winner = state.currentPlayerIndex;
             turnTotalReturned = true;

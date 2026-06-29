@@ -102,16 +102,26 @@ export function createX01Panel(container, { onNextPlayer, onEndGame }) {
             const row = document.createElement('div');
             row.className = 'game-score-row' + (i === state.currentPlayerIndex ? ' active' : '');
 
+            // Name + 3-dart average stacked on the left
+            const info = document.createElement('div');
+            info.className = 'game-player-info';
+
             // Use textContent (not innerHTML) — names are user-entered
             const name = document.createElement('span');
             name.className = 'game-player-name';
             name.textContent = createPlayer(p.uuid).getName();
 
+            const avg = document.createElement('span');
+            avg.className = 'game-player-avg';
+            avg.textContent = p.visits > 0 ? `Avg ${(p.scored / p.visits).toFixed(2)}` : 'Avg —';
+
+            info.append(name, avg);
+
             const value = document.createElement('span');
             value.className = 'game-player-value';
             value.textContent = p.score;
 
-            row.append(name, value);
+            row.append(info, value);
             scoreboard.appendChild(row);
         }
 
