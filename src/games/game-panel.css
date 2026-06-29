@@ -52,7 +52,13 @@
     margin-top: 0.25rem;
     font-size: 0.85rem;
     color: #aaa;
-    min-height: 1.2em;
+    /* Fixed one-line height so the card doesn't grow/shrink as the turn
+       appears, clears, or would otherwise wrap */
+    height: 1.2em;
+    line-height: 1.2em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
     font-variant-numeric: tabular-nums;
 }
 
