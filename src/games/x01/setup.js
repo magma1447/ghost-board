@@ -3,6 +3,10 @@
 import '../game-panel.css';
 import { formatBool, formatRounds } from '../format.js';
 import { createPlayerRoster } from '../roster.js';
+import { attachOptionInfo } from '../option-info.js';
+import { openRules } from '../../ui/rules-dialog.js';
+import { meta } from './meta.js';
+import rulesMd from './rules.md?raw';
 import { settings, updateSettings } from '../../state/settings.js';
 
 const D = {
@@ -25,7 +29,11 @@ export function createX01Setup(container, onStart, onCancel) {
     const saved = { ...D, ...(settings().x01 || {}) };
 
     el.innerHTML = `
-    <h3 class="game-setup-title">X01 Game</h3>
+    <div class="game-setup-header">
+      <h3 class="game-setup-title">X01 Game</h3>
+      <button type="button" class="btn btn-small game-setup-rules">Rules</button>
+    </div>
+    <p class="game-setup-synopsis">${meta.short}</p>
     <div data-roster></div>
     <div class="game-setup-fields">
       <div class="game-setup-row">
@@ -114,6 +122,13 @@ export function createX01Setup(container, onStart, onCancel) {
 
     // Load user's saved preferences
     applyValues(saved);
+
+    // "?" info popovers per option
+    attachOptionInfo(el, meta.options);
+
+    el.querySelector('.game-setup-rules').addEventListener('click', () => {
+        openRules(rulesMd);
+    });
 
     // Restore defaults button — resets to real defaults, not user's saved prefs
     el.querySelector('.game-setup-restore').addEventListener('click', () => {

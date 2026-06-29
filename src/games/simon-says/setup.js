@@ -3,6 +3,10 @@
 import '../game-panel.css';
 import { formatRounds } from '../format.js';
 import { createPlayerRoster } from '../roster.js';
+import { attachOptionInfo } from '../option-info.js';
+import { openRules } from '../../ui/rules-dialog.js';
+import { meta } from './meta.js';
+import rulesMd from './rules.md?raw';
 import { settings, updateSettings } from '../../state/settings.js';
 
 const D = {
@@ -21,7 +25,11 @@ export function createSimonSaysSetup(container, onStart, onCancel) {
     const saved = { ...D, ...(settings().simonSays || {}) };
 
     el.innerHTML = `
-    <h3 class="game-setup-title">Simon Says</h3>
+    <div class="game-setup-header">
+      <h3 class="game-setup-title">Simon Says</h3>
+      <button type="button" class="btn btn-small game-setup-rules">Rules</button>
+    </div>
+    <p class="game-setup-synopsis">${meta.short}</p>
     <div data-roster></div>
     <div class="game-setup-fields">
       <div class="game-setup-row">
@@ -90,6 +98,12 @@ export function createSimonSaysSetup(container, onStart, onCancel) {
     }
 
     applyValues(saved);
+
+    attachOptionInfo(el, meta.options);
+
+    el.querySelector('.game-setup-rules').addEventListener('click', () => {
+        openRules(rulesMd);
+    });
 
     el.querySelector('.game-setup-restore').addEventListener('click', () => {
         applyValues(D);

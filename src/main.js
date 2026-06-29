@@ -18,6 +18,10 @@ import { createCatAndMouseSetup } from './games/cat-and-mouse/setup.js';
 import { createSimonSaysSetup } from './games/simon-says/setup.js';
 import { openPlayerConfig } from './ui/player-config.js';
 import { createPlayer } from './state/players.js';
+import { meta as x01Meta } from './games/x01/meta.js';
+import { meta as aroundTheClockMeta } from './games/around-the-clock/meta.js';
+import { meta as catAndMouseMeta } from './games/cat-and-mouse/meta.js';
+import { meta as simonSaysMeta } from './games/simon-says/meta.js';
 import { createWinDisplay } from './ui/win-display.js';
 import { confirmDialog } from './ui/confirm.js';
 
@@ -467,6 +471,14 @@ const GAME_SETUPS = {
     'simon-says': createSimonSaysSetup,
 };
 
+// Per-game short descriptions for the picker hover title.
+const GAME_META = {
+    x01: x01Meta,
+    'around-the-clock': aroundTheClockMeta,
+    'cat-and-mouse': catAndMouseMeta,
+    'simon-says': simonSaysMeta,
+};
+
 function showGamePicker() {
     const picker = document.createElement('div');
     picker.className = 'game-picker';
@@ -479,6 +491,9 @@ function showGamePicker() {
         const btn = document.createElement('button');
         btn.className = 'btn btn-block';
         btn.textContent = label;
+        if (GAME_META[type]) {
+            btn.title = GAME_META[type].short;
+        }
         btn.addEventListener('click', () => {
             picker.remove();
             GAME_SETUPS[type](gameArea, (opts) => {
