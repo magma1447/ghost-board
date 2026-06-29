@@ -255,10 +255,12 @@ export function createPlayerRoster(container, { min = 1, max = 8 } = {}) {
     }
 
     // Persist the selection and return the chosen player UUIDs for launch.
-    // Returns null (and flags empty rows) if fewer than `min` are selected.
+    // Returns null (and flags the offending rows) if any row is empty/incomplete
+    // or fewer than `min` players are selected.
     function commit() {
+        const incomplete = selection.some((s) => !s || s === NEW_PLAYER);
         const uuids = selectedUuids();
-        if (uuids.length < min) {
+        if (incomplete || uuids.length < min) {
             showErrors = true;
             render();
             return null;
