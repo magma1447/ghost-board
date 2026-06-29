@@ -87,6 +87,40 @@ export function createGameController({ gameArea, board, headline, log, winDispla
     let pendingNextLeg = false;
     // Rotates the starting player on each rematch (reset on a fresh New Game).
     let rematchOffset = 0;
+    // Undo: deep-cloned game-state snapshots taken before each counting dart and
+    // each player switch. Scoped to the current leg (cleared on new game/leg).
+    const undoStack = [];
+
+    function snapshotForUndo() {
+        return JSON.parse(JSON.stringify(getGame().getState()));
+    }
+
+    // Undo is offered only for the simple cases: something on the stack and the
+    // game/leg not yet over (the leg/game-ending dart and cross-leg undo are out
+    // of scope and stay disabled).
+    function updateUndoButton() {
+        const panel = getPanel();
+        const game = getGame();
+        if (panel && panel.undoBtn) {
+            panel.undoBtn.disabled = !(undoStack.length > 0 && game && !game.getState().isGameOver);
+        }
+    }
+
+    function undo() {
+        const game = getGame();
+        if (!game || undoStack.length === 0) {
+            return;
+        }
+        game.loadState(undoStack.pop());
+        const state = game.getState();
+        board.clearHighlight(); // drop the reverted (false) hit's highlight
+        getPanel().update(state, null, match);
+        showTargetLed(state, 0); // restore the target LED for the reverted position
+        headline.update();
+        persistState();
+        updateUndoButton();
+        log.logEvent('Undo', 'game');
+    }
 
     function persistState() {
         const game = getGame();
@@ -198,6 +232,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         if (!game) {
             return;
         }
+        undoStack.push(snapshotForUndo()); // allow undoing the switch (rolls back the turn)
         playSwitch();
         ledSwitch();
         board.clearHighlight(); // don't carry the previous player's last hit over
@@ -220,6 +255,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
             handleGameOutcome(state, event);
         }
         headline.update();
+        updateUndoButton();
     }
 
     function handleEndGame() {
@@ -231,6 +267,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         currentGameOpts = null;
         match = null;
         pendingNextLeg = false;
+        undoStack.length = 0;
         log.logEvent('Game ended', 'game');
         headline.update();
         winDisplay.hide();
@@ -262,11 +299,13 @@ export function createGameController({ gameArea, board, headline, log, winDispla
     function startGameInstance(startIndex) {
         ledsOff();
         board.clearHighlight(); // start each game/leg with no stale highlight
+        undoStack.length = 0; // undo is scoped to the current leg
         // opts carries numPlayers + playerUuids from the setup panel's roster
         startGame(currentGameType, { ...currentGameOpts, startingPlayerIndex: startIndex }, gameArea, {
             onNextPlayer: handleNextPlayer,
             onEndGame: requestEndGame,
             onRematch: rematch,
+            onUndo: undo,
         });
         refreshPanel();
         headline.update();
@@ -429,6 +468,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
             const game = getGame();
             const panel = getPanel();
             if (game && panel) {
+                const undoSnap = snapshotForUndo(); // capture state before the dart mutates it
                 const { state, event: gameEvent, callouts } = game.onDart(event.ring, event.segment);
                 // In match play a win ends a leg, not the match — suppress the
                 // generic "wins!" banner so handleMatchWin can show leg/set text.
@@ -455,6 +495,9 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                 }
                 showTargetLed(state, 800);
                 persistState();
+                if (!ignored) {
+                    undoStack.push(undoSnap); // the dart counted — it can be undone
+                }
                 if (matchWin) {
                     handleMatchWin(state);
                 } else {
@@ -465,6 +508,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                 } else {
                     headline.update();
                 }
+                updateUndoButton();
             } else {
                 log.logEvent(formatHit(event), 'hit');
                 playHit(event.ring);

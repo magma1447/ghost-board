@@ -35,5 +35,5 @@ export function createAroundTheClockPanel(container, callbacks) {
         }
     }
 
-    return { update, destroy: panel.destroy, nextBtn: panel.nextBtn, rematchBtn: panel.rematchBtn, showBanner: panel.showBanner };
+    return { update, destroy: panel.destroy, nextBtn: panel.nextBtn, rematchBtn: panel.rematchBtn, undoBtn: panel.undoBtn, showBanner: panel.showBanner };
 }

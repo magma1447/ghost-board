@@ -16,7 +16,7 @@ import { createPlayer } from '../state/players.js';
 import { isMatchPlay, matchPositionLabel, playerMatchLabel, matchRanks } from './match.js';
 import { openMatchHistory } from '../ui/match-history.js';
 
-export function createGamePanel(container, { onNextPlayer, onEndGame, onRematch }) {
+export function createGamePanel(container, { onNextPlayer, onEndGame, onRematch, onUndo }) {
     const el = document.createElement('div');
     el.className = 'game-panel';
 
@@ -50,6 +50,13 @@ export function createGamePanel(container, { onNextPlayer, onEndGame, onRematch 
     nextBtn.textContent = 'Next Player';
     nextBtn.addEventListener('click', onNextPlayer);
 
+    // Undo the last dart/switch — disabled when there's nothing to undo
+    const undoBtn = document.createElement('button');
+    undoBtn.className = 'btn';
+    undoBtn.textContent = 'Undo';
+    undoBtn.disabled = true;
+    undoBtn.addEventListener('click', () => onUndo && onUndo());
+
     const endBtn = document.createElement('button');
     endBtn.className = 'btn btn-danger';
     endBtn.textContent = 'End Game';
@@ -62,7 +69,7 @@ export function createGamePanel(container, { onNextPlayer, onEndGame, onRematch 
     rematchBtn.hidden = true;
     rematchBtn.addEventListener('click', () => onRematch && onRematch());
 
-    btnRow.append(nextBtn, endBtn, rematchBtn);
+    btnRow.append(nextBtn, undoBtn, endBtn, rematchBtn);
     el.appendChild(btnRow);
 
     container.appendChild(el);
@@ -111,7 +118,7 @@ export function createGamePanel(container, { onNextPlayer, onEndGame, onRematch 
         el.remove();
     }
 
-    return { el, rulesLabel, roundLabel, scoreboard, banner, nextBtn, endBtn, rematchBtn, showBanner, setRules, setRound, destroy };
+    return { el, rulesLabel, roundLabel, scoreboard, banner, nextBtn, endBtn, rematchBtn, undoBtn, showBanner, setRules, setRound, destroy };
 }
 
 function defaultName(p) {
