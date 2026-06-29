@@ -46,6 +46,12 @@ body {
     white-space: nowrap;
     text-shadow: 0 0 16px rgba(0, 0, 0, 0.85);
     -webkit-text-stroke: 3px rgba(0, 0, 0, 0.8);
+    transition: opacity 1s ease;
+}
+
+/* Turn is over (darts used up / locked) — fade the number out entirely */
+.board-headline.faded {
+    opacity: 0;
 }
 
 /* Size adapts to length so long values don't overflow the board */

@@ -30,6 +30,7 @@ export function createX01({
 
     const state = {
         type: 'x01',
+        dartsPerTurn,
         startingScore,
         doubleIn,
         doubleOut,

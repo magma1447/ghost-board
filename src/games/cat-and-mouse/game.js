@@ -45,6 +45,7 @@ export function createCatAndMouse({
 
     const state = {
         type: 'cat-and-mouse',
+        dartsPerTurn,
         gap,
         hitMode,
         multiStep,

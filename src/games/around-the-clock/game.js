@@ -31,6 +31,7 @@ export function createAroundTheClock({
 
     const state = {
         type: 'around-the-clock',
+        dartsPerTurn,
         bullFinish,
         hitMode,
         multiStep,

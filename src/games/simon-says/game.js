@@ -44,6 +44,7 @@ export function createSimonSays({
 
     const state = {
         type: 'simon-says',
+        dartsPerTurn,
         hitMode,
         scoring,
         maxRounds,

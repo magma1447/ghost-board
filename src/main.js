@@ -54,7 +54,14 @@ function setBoardHeadline(text) {
 function updateHeadline() {
     const game = getGame();
     if (game && settings().display.bigNumber) {
+        const state = game.getState();
         setBoardHeadline(game.getHeadline());
+        // Fade the number out once the turn is over (darts used up, or locked
+        // after a bust) so a target no longer reads as live; it cues "press
+        // Next Player". Restored on the next turn / switch.
+        const turnComplete = !state.gameOver
+            && (state.turnDarts.length >= state.dartsPerTurn || state.turnLocked);
+        boardHeadline.classList.toggle('faded', turnComplete);
     } else {
         setBoardHeadline('');
     }
