@@ -365,7 +365,7 @@ body {
     font-size: 0.8rem;
 }
 
-.new-game-btn:hover {
+.new-game-btn:hover:not(:disabled) {
     background: #3a3a3a;
 }
 
@@ -383,8 +383,14 @@ body {
     font-size: 0.8rem;
 }
 
-.players-btn:hover {
+.players-btn:hover:not(:disabled) {
     background: #3a3a3a;
+}
+
+.new-game-btn:disabled,
+.players-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
 }
 
 /* -- Player configuration overlay -- */

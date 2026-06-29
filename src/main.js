@@ -295,6 +295,13 @@ playersBtn.addEventListener('click', () => openPlayerConfig());
 
 statusMenu.append(newGameBtn, playersBtn);
 
+// Disable the menu actions while a game is running (avoids abandoning a game
+// by misclick, and slims the UI during play).
+function setMenuDisabled(disabled) {
+    newGameBtn.disabled = disabled;
+    playersBtn.disabled = disabled;
+}
+
 // Track current game type and options for persistence
 let currentGameType = null;
 let currentGameOpts = null;
@@ -370,6 +377,7 @@ function handleEndGame() {
     currentGameOpts = null;
     log.logEvent('Game ended', 'game');
     updateHeadline();
+    setMenuDisabled(false);
 }
 
 // New Game from the persistent menu: abandon any active game / in-flight
@@ -397,6 +405,7 @@ function launchGame(type, opts, resumed = false) {
     const who = names.length > 0 ? ` · ${names.join(', ')}` : '';
     log.logEvent(`Game ${resumed ? 'resumed' : 'started'} — ${GAME_LABELS[type] || type}${who}`, 'game');
     updateHeadline();
+    setMenuDisabled(true);
 }
 
 const GAME_LABELS = {
