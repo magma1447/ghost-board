@@ -346,6 +346,7 @@ function handleNextPlayer() {
     }
     playSwitch();
     ledSwitch();
+    board.clearHighlight(); // don't carry the previous player's last hit over
     const { state, event, callouts } = game.nextPlayer();
     getPanel().update(state, event);
     processCallouts(callouts);
