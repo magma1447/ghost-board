@@ -47,7 +47,18 @@ body {
 .status-bar {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.status-menu {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.status-icons {
+    display: flex;
+    align-items: center;
     gap: 0.5rem;
 }
 
@@ -312,7 +323,6 @@ body {
 }
 
 .new-game-btn {
-    align-self: flex-start;
     padding: 0.3rem 0.75rem;
     border: 1px solid #555;
     border-radius: 4px;
@@ -327,16 +337,6 @@ body {
 }
 
 .new-game-btn[hidden] {
-    display: none;
-}
-
-.home-actions {
-    display: flex;
-    gap: 0.5rem;
-    align-self: flex-start;
-}
-
-.home-actions[hidden] {
     display: none;
 }
 

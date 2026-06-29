@@ -46,7 +46,16 @@ const connControl = createConnectionControl({
     onDisconnect: () => ble.disconnect(),
 });
 
-statusBar.append(connControl.element, settingsBtn);
+// Top bar = persistent menu. Left group holds the app actions (New Game /
+// Players, populated below); right group holds the connection + settings icons.
+const statusMenu = document.createElement('div');
+statusMenu.className = 'status-menu';
+
+const statusIcons = document.createElement('div');
+statusIcons.className = 'status-icons';
+statusIcons.append(connControl.element, settingsBtn);
+
+statusBar.append(statusMenu, statusIcons);
 panelSidebar.appendChild(statusBar);
 
 // -- Settings menu (floating overlay) --
@@ -224,10 +233,7 @@ const gameArea = document.createElement('div');
 gameArea.className = 'game-area';
 panelSidebar.appendChild(gameArea);
 
-// -- Home screen actions (New Game + Players) --
-const homeActions = document.createElement('div');
-homeActions.className = 'home-actions';
-
+// -- Top-bar menu actions (New Game + Players) --
 const newGameBtn = document.createElement('button');
 newGameBtn.className = 'new-game-btn';
 newGameBtn.textContent = 'New Game';
@@ -237,8 +243,7 @@ playersBtn.className = 'players-btn';
 playersBtn.textContent = 'Players';
 playersBtn.addEventListener('click', () => openPlayerConfig());
 
-homeActions.append(newGameBtn, playersBtn);
-gameArea.appendChild(homeActions);
+statusMenu.append(newGameBtn, playersBtn);
 
 // Track current game type and options for persistence
 let currentGameType = null;
@@ -302,7 +307,16 @@ function handleEndGame() {
     ledsOn();
     currentGameType = null;
     currentGameOpts = null;
-    homeActions.hidden = false;
+}
+
+// New Game from the persistent menu: abandon any active game / in-flight
+// picker/setup, clear the area, then show the picker.
+function startNewGameFlow() {
+    if (getGame()) {
+        handleEndGame();
+    }
+    gameArea.innerHTML = '';
+    showGamePicker();
 }
 
 function launchGame(type, opts) {
@@ -359,7 +373,6 @@ function showGamePicker() {
     cancelBtn.textContent = 'Cancel';
     cancelBtn.addEventListener('click', () => {
         picker.remove();
-        homeActions.hidden = false;
     });
     picker.appendChild(cancelBtn);
 
@@ -367,14 +380,12 @@ function showGamePicker() {
 }
 
 newGameBtn.addEventListener('click', () => {
-    homeActions.hidden = true;
-    showGamePicker();
+    startNewGameFlow();
 });
 
 // -- Restore saved game on load --
 const savedGameData = loadGame();
 if (savedGameData && GAME_SETUPS[savedGameData.type]) {
-    homeActions.hidden = true;
     launchGame(savedGameData.type, savedGameData.options);
     const game = getGame();
     if (game) {
