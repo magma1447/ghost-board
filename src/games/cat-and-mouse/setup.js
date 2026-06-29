@@ -1,13 +1,9 @@
 // Cat and Mouse game setup panel
 
-import '../game-panel.css';
 import { formatBool, formatRounds } from '../format.js';
-import { createPlayerRoster } from '../roster.js';
-import { attachOptionInfo } from '../option-info.js';
-import { openRules } from '../../ui/rules-dialog.js';
+import { createGameSetup } from '../setup-factory.js';
 import { meta } from './meta.js';
 import rulesMd from './rules.md?raw';
-import { settings, updateSettings } from '../../state/settings.js';
 
 const D = {
     gap: 1,
@@ -21,144 +17,56 @@ const D = {
 const ROUND_LIMIT_LABELS = { mouse: 'mouse wins', draw: 'draw' };
 
 export function createCatAndMouseSetup(container, onStart, onCancel) {
-    const el = document.createElement('div');
-    el.className = 'game-setup';
-
-    const saved = { ...D, ...(settings().catAndMouse || {}) };
-
-    el.innerHTML = `
-    <div class="game-setup-header">
-      <h3 class="game-setup-title">Cat and Mouse</h3>
-      <button type="button" class="btn btn-small game-setup-rules">Rules</button>
-    </div>
-    <p class="game-setup-synopsis">${meta.short}</p>
-    <div data-roster></div>
-    <div class="game-setup-fields">
-      <div class="game-setup-row">
-        <label>Head start <span class="game-setup-default">(default: ${D.gap})</span></label>
-        <select data-field="gap">
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-        </select>
-      </div>
-      <div class="game-setup-row">
-        <label>Hit mode <span class="game-setup-default">(default: ${D.hitMode})</span></label>
-        <select data-field="hitMode">
-          <option value="any">Any</option>
-          <option value="doubles">Doubles only</option>
-          <option value="triples">Triples only</option>
-        </select>
-      </div>
-      <div class="game-setup-row">
-        <label>Multi-step <span class="game-setup-default">(default: ${formatBool(D.multiStep)})</span></label>
-        <input type="checkbox" data-field="multiStep">
-      </div>
-      <div class="game-setup-row">
-        <label>Sprint <span class="game-setup-default">(default: ${formatBool(D.sprint)})</span></label>
-        <input type="checkbox" data-field="sprint">
-      </div>
-      <div class="game-setup-row">
-        <label>Max rounds <span class="game-setup-default">(default: ${formatRounds(D.maxRounds)})</span></label>
-        <select data-field="maxRounds">
-          <option value="0">No limit</option>
-          <option value="10">10</option>
-          <option value="15">15</option>
-          <option value="20">20</option>
-          <option value="30">30</option>
-        </select>
-      </div>
-      <div class="game-setup-row">
-        <label>Round limit result <span class="game-setup-default">(default: ${ROUND_LIMIT_LABELS[D.roundLimitResult]})</span></label>
-        <select data-field="roundLimitResult">
-          <option value="mouse">Mouse wins</option>
-          <option value="draw">Draw</option>
-        </select>
-      </div>
-    </div>
-    <div class="game-setup-buttons">
-      <button class="btn game-setup-back">Back</button>
-      <button class="btn btn-primary game-setup-start">Start Game</button>
-      <button class="btn btn-small btn-danger game-setup-restore">Restore defaults</button>
-    </div>
-  `;
-
-    // Cat and Mouse is always exactly 2 players (Mouse vs Cat)
-    const roster = createPlayerRoster(el.querySelector('[data-roster]'), { min: 2, max: 2 });
-
-    const fields = {
-        gap: el.querySelector('[data-field="gap"]'),
-        hitMode: el.querySelector('[data-field="hitMode"]'),
-        multiStep: el.querySelector('[data-field="multiStep"]'),
-        sprint: el.querySelector('[data-field="sprint"]'),
-        maxRounds: el.querySelector('[data-field="maxRounds"]'),
-        roundLimitResult: el.querySelector('[data-field="roundLimitResult"]'),
-    };
-
-    function applyValues(vals) {
-        fields.gap.value = String(vals.gap);
-        fields.hitMode.value = vals.hitMode;
-        fields.multiStep.checked = vals.multiStep;
-        fields.sprint.checked = vals.sprint;
-        fields.maxRounds.value = String(vals.maxRounds);
-        fields.roundLimitResult.value = vals.roundLimitResult;
-    }
-
-    function readValues() {
-        return {
-            gap: parseInt(fields.gap.value, 10),
-            hitMode: fields.hitMode.value,
-            multiStep: fields.multiStep.checked,
-            sprint: fields.sprint.checked,
-            maxRounds: parseInt(fields.maxRounds.value, 10),
-            roundLimitResult: fields.roundLimitResult.value,
-        };
-    }
-
-    applyValues(saved);
-
-    attachOptionInfo(el, meta.options);
-
-    el.querySelector('.game-setup-rules').addEventListener('click', () => {
-        openRules(rulesMd);
+    return createGameSetup(container, onStart, onCancel, {
+        title: 'Cat and Mouse',
+        settingsKey: 'catAndMouse',
+        defaults: D,
+        meta,
+        rulesMd,
+        // Cat and Mouse is always exactly 2 players (Mouse vs Cat)
+        roster: { min: 2, max: 2 },
+        fields: [
+            {
+                name: 'gap', label: 'Head start', type: 'select', valueType: 'int',
+                defaultHint: String(D.gap),
+                options: [1, 2, 3, 4, 5].map((v) => ({ value: v, label: String(v) })),
+            },
+            {
+                name: 'hitMode', label: 'Hit mode', type: 'select',
+                defaultHint: D.hitMode,
+                options: [
+                    { value: 'any', label: 'Any' },
+                    { value: 'doubles', label: 'Doubles only' },
+                    { value: 'triples', label: 'Triples only' },
+                ],
+            },
+            {
+                name: 'multiStep', label: 'Multi-step', type: 'checkbox',
+                defaultHint: formatBool(D.multiStep),
+            },
+            {
+                name: 'sprint', label: 'Sprint', type: 'checkbox',
+                defaultHint: formatBool(D.sprint),
+            },
+            {
+                name: 'maxRounds', label: 'Max rounds', type: 'select', valueType: 'int',
+                defaultHint: formatRounds(D.maxRounds),
+                options: [
+                    { value: 0, label: 'No limit' },
+                    { value: 10, label: '10' },
+                    { value: 15, label: '15' },
+                    { value: 20, label: '20' },
+                    { value: 30, label: '30' },
+                ],
+            },
+            {
+                name: 'roundLimitResult', label: 'Round limit result', type: 'select',
+                defaultHint: ROUND_LIMIT_LABELS[D.roundLimitResult],
+                options: [
+                    { value: 'mouse', label: 'Mouse wins' },
+                    { value: 'draw', label: 'Draw' },
+                ],
+            },
+        ],
     });
-
-    el.querySelector('.game-setup-restore').addEventListener('click', () => {
-        applyValues(D);
-    });
-
-    el.querySelector('.game-setup-back').addEventListener('click', () => {
-        el.remove();
-        onCancel();
-    });
-
-    el.querySelector('.game-setup-start').addEventListener('click', () => {
-        const opts = readValues();
-
-        updateSettings('catAndMouse.gap', opts.gap);
-        updateSettings('catAndMouse.hitMode', opts.hitMode);
-        updateSettings('catAndMouse.multiStep', opts.multiStep);
-        updateSettings('catAndMouse.sprint', opts.sprint);
-        updateSettings('catAndMouse.maxRounds', opts.maxRounds);
-        updateSettings('catAndMouse.roundLimitResult', opts.roundLimitResult);
-
-        const playerUuids = roster.commit();
-        if (!playerUuids) {
-            return; // need exactly 2 players — roster shows the error
-        }
-
-        el.remove();
-        onStart({ ...opts, playerUuids });
-    });
-
-    container.appendChild(el);
-
-    function destroy() {
-        roster.destroy();
-        el.remove();
-    }
-
-    return { destroy };
 }
