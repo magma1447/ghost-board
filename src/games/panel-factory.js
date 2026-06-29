@@ -13,6 +13,7 @@
 import './game-panel.css';
 import { formatDart } from './format.js';
 import { createPlayer } from '../state/players.js';
+import { isMatchPlay, matchPositionLabel, playerMatchLabel, matchRanks } from './match.js';
 
 export function createGamePanel(container, { onNextPlayer, onEndGame }) {
     const el = document.createElement('div');
@@ -79,12 +80,19 @@ export function createGamePanel(container, { onNextPlayer, onEndGame }) {
         rulesLabel.hidden = !text;
     }
 
+    // Set the round line. During match play the Set/Leg position is shown in
+    // front of the game's round text.
+    function setRound(text, match) {
+        const prefix = (match && isMatchPlay(match)) ? `${matchPositionLabel(match)} | ` : '';
+        roundLabel.textContent = prefix + text;
+    }
+
     function destroy() {
         clearTimeout(bannerTimeout);
         el.remove();
     }
 
-    return { el, rulesLabel, roundLabel, scoreboard, banner, nextBtn, endBtn, showBanner, setRules, destroy };
+    return { el, rulesLabel, roundLabel, scoreboard, banner, nextBtn, endBtn, showBanner, setRules, setRound, destroy };
 }
 
 function defaultName(p) {
@@ -104,7 +112,10 @@ export function renderScoreboard(scoreboard, state, options = {}) {
         infoFor = null,
         dartsFor = (s, p, isCurrent) => (isCurrent ? s.turnDarts : (p.lastDarts || [])),
         dartMode = 'hitmiss',
+        match = null,
     } = options;
+    const showMatch = match && isMatchPlay(match);
+    const ranks = showMatch ? matchRanks(match) : null;
 
     scoreboard.innerHTML = '';
     for (let i = 0; i < state.players.length; i++) {
@@ -139,6 +150,28 @@ export function renderScoreboard(scoreboard, state, options = {}) {
         value.textContent = valueFor(p, state);
         head.appendChild(value);
 
+        // Per-player legs/sets tally (match play only)
+        let matchLine = null;
+        if (showMatch) {
+            matchLine = document.createElement('div');
+            matchLine.className = 'game-player-match';
+            const tally = playerMatchLabel(match, p.uuid);
+            // When there's a spread, the rank + tally live in one coloured pill
+            // (#1 highlighted green); otherwise show the tally plain.
+            const rank = ranks ? ranks[match.playerUuids.indexOf(p.uuid)] : null;
+            if (rank) {
+                const pill = document.createElement('span');
+                pill.className = 'game-player-rank' + (rank === 1 ? ' game-player-rank-lead' : '');
+                const num = document.createElement('span');
+                num.className = 'game-player-rank-num';
+                num.textContent = `#${rank}:`;
+                pill.append(num, document.createTextNode(tally));
+                matchLine.appendChild(pill);
+            } else {
+                matchLine.textContent = tally;
+            }
+        }
+
         // Turn darts: live for the current player, last completed for others
         const turn = document.createElement('div');
         turn.className = 'game-player-turn';
@@ -160,7 +193,11 @@ export function renderScoreboard(scoreboard, state, options = {}) {
             }
         }
 
-        block.append(head, turn);
+        if (matchLine) {
+            block.append(head, matchLine, turn);
+        } else {
+            block.append(head, turn);
+        }
         scoreboard.appendChild(block);
     }
 }

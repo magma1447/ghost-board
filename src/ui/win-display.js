@@ -1,9 +1,10 @@
 // Full-screen win / draw celebration overlay.
 //
 // On a win it shows the winner's name above a large gold "WINS"; on a draw,
-// just "DRAW". Covers everything (readable across the room). Click anywhere
-// or press Escape to dismiss; it's also hidden when the game ends or a new
-// game starts.
+// just "DRAW". A leg/set win (match play) uses the same big treatment in a
+// more discreet colour, reserving gold for taking the whole match. Covers
+// everything (readable across the room). Click anywhere or press Escape to
+// dismiss; it's also hidden when the game ends or a new game starts.
 
 export function createWinDisplay() {
     const el = document.createElement('div');
@@ -24,13 +25,24 @@ export function createWinDisplay() {
     }
 
     function showWin(winnerName) {
+        el.classList.remove('win-display-leg');
         name.textContent = winnerName;
         name.hidden = false;
         label.textContent = 'WINS';
         el.hidden = false;
     }
 
+    // Leg or set win during match play — same big overlay, discreet colour.
+    function showLegWin(winnerName, what) {
+        el.classList.add('win-display-leg');
+        name.textContent = winnerName;
+        name.hidden = false;
+        label.textContent = what === 'set' ? 'WINS THE SET' : 'WINS THE LEG';
+        el.hidden = false;
+    }
+
     function showDraw() {
+        el.classList.remove('win-display-leg');
         name.hidden = true;
         label.textContent = 'DRAW';
         el.hidden = false;
@@ -44,5 +56,5 @@ export function createWinDisplay() {
         }
     });
 
-    return { showWin, showDraw, hide };
+    return { showWin, showLegWin, showDraw, hide };
 }

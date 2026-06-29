@@ -25,6 +25,7 @@ export function createCatAndMouseSetup(container, onStart, onCancel) {
         rulesMd,
         // Cat and Mouse is always exactly 2 players (Mouse vs Cat)
         roster: { min: 2, max: 2 },
+        matchLock: { field: 'roundLimitResult', value: 'mouse' },
         fields: [
             {
                 name: 'gap', label: 'Head start', type: 'select', valueType: 'int',

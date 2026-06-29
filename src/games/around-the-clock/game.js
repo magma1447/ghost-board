@@ -23,6 +23,7 @@ export function createAroundTheClock({
     hitMode = 'any',
     multiStep = false,
     maxRounds = 0,
+    startingPlayerIndex = 0,
 } = {}) {
     const finalTarget = bullFinish === 'off' ? 20 : 21; // 21 = bull
 
@@ -40,7 +41,7 @@ export function createAroundTheClock({
         maxRounds,
         finalTarget,
         players,
-        currentPlayerIndex: 0,
+        currentPlayerIndex: startingPlayerIndex, // rotates each leg in match play
         turnDarts: [],
         turnLocked: false,
         round: 1,

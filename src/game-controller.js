@@ -23,6 +23,10 @@ import { meta as x01Meta } from './games/x01/meta.js';
 import { meta as aroundTheClockMeta } from './games/around-the-clock/meta.js';
 import { meta as catAndMouseMeta } from './games/cat-and-mouse/meta.js';
 import { meta as simonSaysMeta } from './games/simon-says/meta.js';
+import {
+    createMatchState, isMatchPlay, startingPlayerIndex, recordLegWin,
+    advanceLeg, currentSetNumber, currentLegNumber, firstToWin,
+} from './games/match.js';
 
 const GAME_LABELS = {
     x01: 'X01',
@@ -75,11 +79,26 @@ export function createGameController({ gameArea, board, headline, log, winDispla
     let currentGameOpts = null;
     // Last round number logged, so we emit "Round X" only when it changes
     let lastLoggedRound = 0;
+    // Match state (legs/sets) for the running game, null between games. The
+    // Set/Leg position and per-player tallies are rendered inside the game panel
+    // (passed as a 3rd arg to panel.update). pendingNextLeg means a leg just
+    // ended and the advance button starts the next leg.
+    let match = null;
+    let pendingNextLeg = false;
 
     function persistState() {
         const game = getGame();
         if (game && currentGameType && currentGameOpts) {
-            saveGame({ type: currentGameType, options: currentGameOpts, state: game.getState() });
+            saveGame({ type: currentGameType, options: currentGameOpts, state: game.getState(), match });
+        }
+    }
+
+    // Re-render the panel for the current game with the latest match state, so
+    // the Set/Leg position and per-player legs/sets refresh.
+    function refreshPanel(event = null) {
+        const game = getGame();
+        if (game) {
+            getPanel().update(game.getState(), event, match);
         }
     }
 
@@ -105,7 +124,45 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         }
     }
 
+    // Arm the (now-disabled) Next Player button to start the next leg, labeled
+    // for whether a leg or a set was just won.
+    function armNextLeg(level) {
+        const panel = getPanel();
+        pendingNextLeg = true;
+        panel.nextBtn.disabled = false;
+        panel.nextBtn.textContent = level === 'set' ? 'Next set · leg 1' : 'Next leg →';
+    }
+
+    // A leg was won during match play. Record it against the winning player
+    // (by uuid, so it's stable even when Cat and Mouse swaps roles), update the
+    // bar, and either end the match (full overlay) or arm the advance button for
+    // the next leg.
+    function handleMatchWin(state) {
+        const winnerUuid = state.players[state.winner].uuid;
+        const winnerIndex = currentGameOpts.playerUuids.indexOf(winnerUuid);
+        const winnerName = createPlayer(winnerUuid).getName();
+        const outcome = recordLegWin(match, winnerIndex);
+        refreshPanel(); // re-render with updated tallies / position
+        persistState();
+
+        if (outcome.level === 'match') {
+            log.logEvent(`${winnerName} wins the match`, 'game');
+            winDisplay.showWin(winnerName); // full gold overlay
+            return;
+        }
+
+        const what = outcome.level; // 'leg' | 'set'
+        log.logEvent(`${winnerName} wins the ${what} — legs ${match.legsWon.join('–')}, sets ${match.setsWon.join('–')}`, 'game');
+        winDisplay.showLegWin(winnerName, what); // big overlay, discreet colour
+        armNextLeg(what);
+    }
+
     function handleNextPlayer() {
+        // During match play, after a leg ends the advance button starts the next leg.
+        if (pendingNextLeg) {
+            startNextLeg();
+            return;
+        }
         const game = getGame();
         if (!game) {
             return;
@@ -114,7 +171,11 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         ledSwitch();
         board.clearHighlight(); // don't carry the previous player's last hit over
         const { state, event, callouts } = game.nextPlayer();
-        getPanel().update(state, event);
+        // In match play a win (e.g. Cat and Mouse at the round limit) ends a leg,
+        // not the whole match — suppress the generic banner and route it to the
+        // match handler instead.
+        const matchWin = event === 'win' && isMatchPlay(match);
+        getPanel().update(state, matchWin ? null : event, match);
         processCallouts(callouts);
         showTargetLed(state, 1000);
         persistState();
@@ -122,6 +183,8 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         logRound(state);
         if (event === 'switch') {
             log.logEvent(`Player: ${playerLabel(state.players[state.currentPlayerIndex])}`, 'player');
+        } else if (matchWin) {
+            handleMatchWin(state);
         } else {
             handleGameOutcome(state, event);
         }
@@ -134,17 +197,22 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         ledsOn();
         currentGameType = null;
         currentGameOpts = null;
+        match = null;
+        pendingNextLeg = false;
         log.logEvent('Game ended', 'game');
         headline.update();
         winDisplay.hide();
         setMenuDisabled(false);
     }
 
-    // End Game button: confirm first while a game is still in progress (an
-    // accidental press would wipe it). Skip the prompt once the game is over.
+    // End Game button: confirm first while play is still in progress (an
+    // accidental press would wipe it). Skip the prompt only when nothing is
+    // running. In match play a finished leg leaves the game gameOver while the
+    // match continues (pendingNextLeg) — that still needs confirming.
     function requestEndGame() {
         const game = getGame();
-        if (!game || game.getState().gameOver) {
+        const inProgress = game && (!game.getState().gameOver || pendingNextLeg);
+        if (!inProgress) {
             handleEndGame();
             return;
         }
@@ -155,23 +223,51 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         });
     }
 
+    // Create (or recreate, for a new leg) the game instance for the current
+    // type/opts with the given starting player. Shared by launchGame and
+    // startNextLeg. startGame() destroys the previous panel and renders the
+    // fresh one; refreshPanel() then layers in the current match display.
+    function startGameInstance(startIndex) {
+        ledsOff();
+        // opts carries numPlayers + playerUuids from the setup panel's roster
+        startGame(currentGameType, { ...currentGameOpts, startingPlayerIndex: startIndex }, gameArea, {
+            onNextPlayer: handleNextPlayer,
+            onEndGame: requestEndGame,
+        });
+        refreshPanel();
+        headline.update();
+        winDisplay.hide();
+    }
+
     function launchGame(type, opts, resumed = false) {
         currentGameType = type;
         currentGameOpts = opts;
         lastLoggedRound = 0;
-        ledsOff();
-        // opts carries numPlayers + playerUuids from the setup panel's roster
-        startGame(type, opts, gameArea, {
-            onNextPlayer: handleNextPlayer,
-            onEndGame: requestEndGame,
-        });
+        pendingNextLeg = false;
+        // Best-of 1/1 = single game; the match layer stays inactive.
+        match = createMatchState(opts.legsBestOf || 1, opts.setsBestOf || 1, opts.playerUuids || []);
+        startGameInstance(startingPlayerIndex(match));
 
         const names = (opts.playerUuids || []).map((uuid) => createPlayer(uuid).getName());
         const who = names.length > 0 ? ` · ${names.join(', ')}` : '';
         log.logEvent(`Game ${resumed ? 'resumed' : 'started'} — ${GAME_LABELS[type] || type}${who}`, 'game');
-        headline.update();
-        winDisplay.hide();
         setMenuDisabled(true);
+    }
+
+    // Start the next leg after a leg/set win: rotate the starter and recreate
+    // the game. A fresh panel is built, so its Next Player button resets.
+    function startNextLeg() {
+        pendingNextLeg = false;
+        advanceLeg(match);
+        startGameInstance(startingPlayerIndex(match));
+        const game = getGame();
+        if (game) {
+            lastLoggedRound = 0;
+            showTargetLed(game.getState(), 500);
+            processCallouts(game.getCallouts());
+            log.logEvent(`Leg ${currentLegNumber(match)} — set ${currentSetNumber(match)}`, 'game');
+            logRound(game.getState());
+        }
     }
 
     function showGamePicker() {
@@ -235,13 +331,42 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         const savedGameData = loadGame();
         if (savedGameData && GAME_SETUPS[savedGameData.type]) {
             launchGame(savedGameData.type, savedGameData.options, true);
+            // Overlay the saved progress onto the freshly-built match (which
+            // already has playerUuids / best-of from the options). Older saves
+            // may lack some fields, so copy defensively.
+            const savedMatch = savedGameData.match;
+            if (savedMatch) {
+                if (savedMatch.legsWon) {
+                    match.legsWon = savedMatch.legsWon;
+                }
+                if (savedMatch.setsWon) {
+                    match.setsWon = savedMatch.setsWon;
+                }
+                if (savedMatch.legNumber) {
+                    match.legNumber = savedMatch.legNumber;
+                }
+            }
             const game = getGame();
             if (game) {
                 game.loadState(savedGameData.state);
-                getPanel().update(game.getState(), null);
-                showTargetLed(game.getState(), 500);
-                logRound(game.getState());
+                const state = game.getState();
+                const panel = getPanel();
+                panel.update(state, null, match);
+                showTargetLed(state, 500);
+                logRound(state);
                 headline.update();
+                // If a leg ended mid-match before "Next leg" was pressed, re-arm
+                // the advance button (and re-show the result banner) so play can
+                // continue after a reload.
+                if (isMatchPlay(match) && state.gameOver) {
+                    const matchOver = match.setsWon.some((s) => s >= firstToWin(match.setsBestOf));
+                    if (!matchOver) {
+                        const level = currentLegNumber(match) === 1 ? 'set' : 'leg';
+                        const winnerName = createPlayer(state.players[state.winner].uuid).getName();
+                        winDisplay.showLegWin(winnerName, level);
+                        armNextLeg(level);
+                    }
+                }
             }
         }
     }
@@ -257,7 +382,10 @@ export function createGameController({ gameArea, board, headline, log, winDispla
             const panel = getPanel();
             if (game && panel) {
                 const { state, event: gameEvent, callouts } = game.onDart(event.ring, event.segment);
-                panel.update(state, gameEvent);
+                // In match play a win ends a leg, not the match — suppress the
+                // generic "wins!" banner so handleMatchWin can show leg/set text.
+                const matchWin = gameEvent === 'win' && isMatchPlay(match);
+                panel.update(state, matchWin ? null : gameEvent, match);
                 // 'ignored' = dart didn't count (turn complete/locked or game over):
                 // stay silent so it doesn't sound like progress, and mark it in the
                 // log. LEDs + board highlight still fire; audio follows game logic.
@@ -279,7 +407,11 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                 }
                 showTargetLed(state, 800);
                 persistState();
-                handleGameOutcome(state, gameEvent);
+                if (matchWin) {
+                    handleMatchWin(state);
+                } else {
+                    handleGameOutcome(state, gameEvent);
+                }
                 if (gameEvent === 'sprint') {
                     headline.flash('SPRINT', 1500);
                 } else {

@@ -1,9 +1,10 @@
 // Shared setup-panel factory.
 //
 // Every game's setup panel is the same shell — a header with a Rules button, a
-// one-line synopsis, a player roster, a list of option rows, and Back / Start /
-// Restore buttons. Only the option fields differ between games, so each game
-// declares its fields and the factory builds the rest.
+// one-line synopsis, a player roster, a list of option rows, a shared Match
+// format section (legs / sets), and Back / Start / Restore buttons. Only the
+// game option fields differ, so each game declares its fields and the factory
+// builds the rest.
 //
 // A field is:
 //   { name, label, type: 'select' | 'checkbox', defaultHint,
@@ -13,12 +14,48 @@
 // `defaultHint` is the pre-formatted "(default: …)" text; games format it with
 // their own helpers (formatBool, formatRounds, label maps) so the factory stays
 // generic.
+//
+// config may also include `matchLock: { field, value }` — a game option that
+// would allow a drawn leg (e.g. a round limit). When match play is selected
+// (best-of legs/sets > 1) that option is forced to its no-draw value and
+// disabled, since a leg must produce a winner.
 
 import '../games/game-panel.css';
 import { createPlayerRoster } from './roster.js';
 import { attachOptionInfo } from '../ui/option-info.js';
 import { openRules } from '../ui/rules-dialog.js';
 import { settings, updateSettings } from '../state/settings.js';
+
+// Legs / sets are a cross-game concept, so they're built in here rather than
+// declared per game. Best-of-1 means a single leg/set (match layer inactive).
+const MATCH_FIELDS = [
+    {
+        name: 'legsBestOf', label: 'Legs', type: 'select', valueType: 'int',
+        defaultHint: 'single leg',
+        options: [
+            { value: 1, label: 'Single leg' },
+            { value: 3, label: 'Best of 3' },
+            { value: 5, label: 'Best of 5' },
+            { value: 7, label: 'Best of 7' },
+        ],
+    },
+    {
+        name: 'setsBestOf', label: 'Sets', type: 'select', valueType: 'int',
+        defaultHint: 'single set',
+        options: [
+            { value: 1, label: 'Single set' },
+            { value: 3, label: 'Best of 3' },
+            { value: 5, label: 'Best of 5' },
+        ],
+    },
+];
+
+const MATCH_DEFAULTS = { legsBestOf: 1, setsBestOf: 1 };
+
+const MATCH_OPTION_INFO = {
+    legsBestOf: 'How many legs decide a set (best of N — first to the majority). A leg is one full game. Single leg = no leg play.',
+    setsBestOf: 'How many sets decide the match (best of N). A set goes to whoever takes the majority of its legs. Single set = no set play.',
+};
 
 function fieldControl(field) {
     if (field.type === 'checkbox') {
@@ -39,14 +76,19 @@ function fieldRow(field) {
       </div>`;
 }
 
-// config: { title, settingsKey, defaults, fields, roster: { min, max }, meta, rulesMd }
+// config: { title, settingsKey, defaults, fields, roster: { min, max }, meta,
+//           rulesMd, matchLock? }
 export function createGameSetup(container, onStart, onCancel, config) {
-    const { title, settingsKey, defaults, fields, roster: rosterLimits, meta, rulesMd } = config;
+    const { title, settingsKey, defaults, fields, roster: rosterLimits, meta, rulesMd, matchLock } = config;
+
+    // Game fields plus the shared match fields; defaults extended likewise.
+    const allFields = [...fields, ...MATCH_FIELDS];
+    const allDefaults = { ...defaults, ...MATCH_DEFAULTS };
 
     const el = document.createElement('div');
     el.className = 'game-setup';
 
-    const saved = { ...defaults, ...(settings()[settingsKey] || {}) };
+    const saved = { ...allDefaults, ...(settings()[settingsKey] || {}) };
 
     el.innerHTML = `
     <div class="game-setup-header">
@@ -56,6 +98,9 @@ export function createGameSetup(container, onStart, onCancel, config) {
     <p class="game-setup-synopsis">${meta.short}</p>
     <div data-roster></div>
     <div class="game-setup-fields">
+      <div class="game-setup-section">Match format</div>
+      ${MATCH_FIELDS.map(fieldRow).join('\n      ')}
+      <div class="game-setup-section">Game options</div>
       ${fields.map(fieldRow).join('\n      ')}
     </div>
     <div class="game-setup-buttons">
@@ -68,12 +113,77 @@ export function createGameSetup(container, onStart, onCancel, config) {
     const roster = createPlayerRoster(el.querySelector('[data-roster]'), rosterLimits);
 
     const inputs = {};
-    fields.forEach((field) => {
+    allFields.forEach((field) => {
         inputs[field.name] = el.querySelector(`[data-field="${field.name}"]`);
     });
 
+    // --- Match lock: force the draw-prone option to its no-draw value while
+    // match play is selected (a leg must have a winner). ---
+    const lockInput = matchLock ? inputs[matchLock.field] : null;
+    let lockNote = null;
+    if (lockInput) {
+        const row = lockInput.closest('.game-setup-row');
+        lockNote = document.createElement('span');
+        lockNote.className = 'game-setup-lock-note';
+        lockNote.textContent = ' · locked for match play';
+        lockNote.hidden = true;
+        row.querySelector('label').appendChild(lockNote);
+    }
+    let locked = false;
+    let lockPrevValue = null;
+
+    // --- Sets require more than one leg (a set wraps multiple legs — sets of a
+    // single leg are just legs). Lock Sets to 1 until Legs is Best-of-3+. ---
+    const setsInput = inputs.setsBestOf;
+    const setsNote = document.createElement('span');
+    setsNote.className = 'game-setup-lock-note';
+    setsNote.textContent = ' · needs multiple legs';
+    setsNote.hidden = true;
+    setsInput.closest('.game-setup-row').querySelector('label').appendChild(setsNote);
+
+    function applySetsAvailability() {
+        const legsActive = parseInt(inputs.legsBestOf.value, 10) > 1;
+        setsInput.disabled = !legsActive;
+        setsNote.hidden = legsActive;
+        if (!legsActive) {
+            setsInput.value = '1';
+        }
+    }
+
+    function isMatchSelected() {
+        return parseInt(inputs.legsBestOf.value, 10) > 1 || parseInt(inputs.setsBestOf.value, 10) > 1;
+    }
+
+    function applyMatchLock() {
+        if (!lockInput) {
+            return;
+        }
+        const match = isMatchSelected();
+        if (match && !locked) {
+            lockPrevValue = lockInput.value;
+            lockInput.value = String(matchLock.value);
+            lockInput.disabled = true;
+            lockNote.hidden = false;
+            locked = true;
+        } else if (!match && locked) {
+            lockInput.value = lockPrevValue;
+            lockInput.disabled = false;
+            lockNote.hidden = true;
+            locked = false;
+        }
+    }
+
+    function resetLock() {
+        if (lockInput) {
+            lockInput.disabled = false;
+            lockNote.hidden = true;
+        }
+        locked = false;
+        lockPrevValue = null;
+    }
+
     function applyValues(vals) {
-        fields.forEach((field) => {
+        allFields.forEach((field) => {
             const input = inputs[field.name];
             if (field.type === 'checkbox') {
                 input.checked = vals[field.name];
@@ -81,11 +191,15 @@ export function createGameSetup(container, onStart, onCancel, config) {
                 input.value = String(vals[field.name]);
             }
         });
+        // Re-sync sets availability + the no-draw lock from the applied values
+        applySetsAvailability();
+        resetLock();
+        applyMatchLock();
     }
 
     function readValues() {
         const result = {};
-        fields.forEach((field) => {
+        allFields.forEach((field) => {
             const input = inputs[field.name];
             if (field.type === 'checkbox') {
                 result[field.name] = input.checked;
@@ -98,11 +212,18 @@ export function createGameSetup(container, onStart, onCancel, config) {
         return result;
     }
 
+    // Re-evaluate sets availability + the no-draw lock when the format changes
+    inputs.legsBestOf.addEventListener('change', () => {
+        applySetsAvailability();
+        applyMatchLock();
+    });
+    inputs.setsBestOf.addEventListener('change', applyMatchLock);
+
     // Load user's saved preferences
     applyValues(saved);
 
-    // "?" info popovers per option
-    attachOptionInfo(el, meta.options);
+    // "?" info popovers per option (game options + the match fields)
+    attachOptionInfo(el, { ...meta.options, ...MATCH_OPTION_INFO });
 
     el.querySelector('.game-setup-rules').addEventListener('click', () => {
         openRules(rulesMd);
@@ -110,7 +231,7 @@ export function createGameSetup(container, onStart, onCancel, config) {
 
     // Restore defaults button — resets to real defaults, not user's saved prefs
     el.querySelector('.game-setup-restore').addEventListener('click', () => {
-        applyValues(defaults);
+        applyValues(allDefaults);
     });
 
     el.querySelector('.game-setup-back').addEventListener('click', () => {
@@ -121,8 +242,12 @@ export function createGameSetup(container, onStart, onCancel, config) {
     el.querySelector('.game-setup-start').addEventListener('click', () => {
         const opts = readValues();
 
-        // Persist as user's defaults for next time
+        // Persist as user's defaults for next time. Skip the match-locked field
+        // while it's forced, so the user's own (non-match) choice survives.
         Object.keys(opts).forEach((key) => {
+            if (locked && matchLock && key === matchLock.field) {
+                return;
+            }
             updateSettings(`${settingsKey}.${key}`, opts[key]);
         });
 

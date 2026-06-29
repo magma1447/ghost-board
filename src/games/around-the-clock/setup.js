@@ -28,6 +28,7 @@ export function createAroundTheClockSetup(container, onStart, onCancel) {
         meta,
         rulesMd,
         roster: { min: 1, max: 8 },
+        matchLock: { field: 'maxRounds', value: 0 },
         fields: [
             {
                 name: 'bullFinish', label: 'Bull finish', type: 'select',

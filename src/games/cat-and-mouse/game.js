@@ -26,6 +26,7 @@ export function createCatAndMouse({
     maxRounds = 0,
     roundLimitResult = 'mouse',
     sprint = false,
+    startingPlayerIndex = 0,
 } = {}) {
     // Map absolute progress to a board segment number.
     // Mouse starts at BOARD_ORDER[0] = 20, cat starts `gap` positions behind.
@@ -38,11 +39,15 @@ export function createCatAndMouse({
         return BOARD_ORDER[((20 - gap) + progress) % 20];
     }
 
-    // Always exactly 2 players. The Mouse/Cat roles are fixed; the human
-    // names come from the roster and are shown alongside the role in the panel.
+    // Always exactly 2 players. The human names come from the roster and are
+    // shown alongside the role in the panel. In match play the roles swap each
+    // leg (startingPlayerIndex rotates), so both players get equal time as the
+    // mouse with its head start. The mouse always throws first.
+    const mouseUuid = playerUuids[startingPlayerIndex % 2];
+    const catUuid = playerUuids[(startingPlayerIndex + 1) % 2];
     const players = [
-        { uuid: playerUuids[0], role: 'Mouse', progress: 0, currentTarget: computeTarget(0, 0), lastDarts: [] },
-        { uuid: playerUuids[1], role: 'Cat', progress: 0, currentTarget: computeTarget(1, 0), lastDarts: [] },
+        { uuid: mouseUuid, role: 'Mouse', progress: 0, currentTarget: computeTarget(0, 0), lastDarts: [] },
+        { uuid: catUuid, role: 'Cat', progress: 0, currentTarget: computeTarget(1, 0), lastDarts: [] },
     ];
     void numPlayers;
 

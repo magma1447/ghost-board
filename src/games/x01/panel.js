@@ -23,14 +23,15 @@ export function createX01Panel(container, callbacks) {
         return tags.length > 0 ? tags.join(' · ') : '';
     }
 
-    function update(state, event) {
+    function update(state, event, match) {
         panel.setRules(buildRulesText(state));
-        panel.roundLabel.textContent = formatRoundLabel(state.round, state.maxRounds);
+        panel.setRound(formatRoundLabel(state.round, state.maxRounds), match);
 
         renderScoreboard(panel.scoreboard, state, {
             infoFor: (p) => (p.visits > 0 ? `Avg ${(p.scored / p.visits).toFixed(2)}` : 'Avg —'),
             valueFor: (p) => String(p.score),
             dartMode: 'total',
+            match,
         });
 
         panel.nextBtn.disabled = state.gameOver;
@@ -44,5 +45,5 @@ export function createX01Panel(container, callbacks) {
         }
     }
 
-    return { update, destroy: panel.destroy };
+    return { update, destroy: panel.destroy, nextBtn: panel.nextBtn, showBanner: panel.showBanner };
 }

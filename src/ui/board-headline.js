@@ -30,14 +30,15 @@ export function createBoardHeadline(parent) {
     // Refresh the overlay from the active game, respecting the Display setting.
     function update() {
         const game = getGame();
-        if (game && settings().display.bigNumber) {
+        // Clear the number once the game is over (won/drawn) — a target or score
+        // shouldn't linger as if still live.
+        if (game && settings().display.bigNumber && !game.getState().gameOver) {
             const state = game.getState();
             set(game.getHeadline());
             // Fade the number out once the turn is over (darts used up, or locked
             // after a bust) so a target no longer reads as live; it cues "press
             // Next Player". Restored on the next turn / switch.
-            const turnComplete = !state.gameOver
-                && (state.turnDarts.length >= state.dartsPerTurn || state.turnLocked);
+            const turnComplete = state.turnDarts.length >= state.dartsPerTurn || state.turnLocked;
             el.classList.toggle('faded', turnComplete);
         } else {
             set('');

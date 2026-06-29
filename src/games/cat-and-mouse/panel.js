@@ -28,9 +28,9 @@ export function createCatAndMousePanel(container, callbacks) {
         return tags.join(' · ');
     }
 
-    function update(state, event) {
+    function update(state, event, match) {
         panel.setRules(buildRulesText(state));
-        panel.roundLabel.textContent = formatRoundLabel(state.round, state.maxRounds);
+        panel.setRound(formatRoundLabel(state.round, state.maxRounds), match);
 
         renderScoreboard(panel.scoreboard, state, {
             // Show the human name with the fixed role, e.g. "Luke the Nuke (Cat)"
@@ -41,6 +41,7 @@ export function createCatAndMousePanel(container, callbacks) {
             valueFor: (p) => '→ ' + p.currentTarget,
             // turnDisplay accumulates across sprint sets
             dartsFor: (s, p, isCurrent) => (isCurrent ? s.turnDisplay : (p.lastDarts || [])),
+            match,
         });
 
         // Chase gap, from the mouse's perspective (it starts ahead and the
@@ -58,5 +59,5 @@ export function createCatAndMousePanel(container, callbacks) {
         }
     }
 
-    return { update, destroy: panel.destroy };
+    return { update, destroy: panel.destroy, nextBtn: panel.nextBtn, showBanner: panel.showBanner };
 }

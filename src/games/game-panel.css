@@ -30,11 +30,14 @@
     gap: 0.25rem;
 }
 
-/* Per-player block: head (name/score) + their turn darts below */
+/* Per-player block: head (name/score) + their turn darts below. The block's
+   base size is the default for secondary rows (match tally, turn darts); the
+   name and score are the explicit exceptions. */
 .game-player-block {
     padding: 0.5rem 0.75rem;
     border-radius: 4px;
     background: #1e1e1e;
+    font-size: 0.85rem;
 }
 
 .game-player-block.active {
@@ -50,7 +53,6 @@
 
 .game-player-turn {
     margin-top: 0.25rem;
-    font-size: 0.85rem;
     color: #aaa;
     /* Fixed one-line height so the card doesn't grow/shrink as the turn
        appears, clears, or would otherwise wrap */
@@ -68,6 +70,7 @@
 }
 
 .game-player-name {
+    font-size: 1rem;
     font-weight: 500;
 }
 
@@ -75,6 +78,32 @@
     font-size: 0.75rem;
     color: #888;
     font-variant-numeric: tabular-nums;
+}
+
+/* Per-player legs/sets tally (match play) — same size as the turn line */
+.game-player-match {
+    margin-top: 0.15rem;
+    color: #8fcaa8;
+    letter-spacing: 0.03em;
+}
+
+/* Standings pill wrapping the rank + legs/sets tally; #1 (leader) is green */
+.game-player-rank {
+    display: inline-block;
+    padding: 0.05rem 0.45rem;
+    border-radius: 3px;
+    background: #333;
+    color: #ddd;
+    font-weight: 600;
+}
+
+.game-player-rank-num {
+    margin-right: 0.45em;
+}
+
+.game-player-rank-lead {
+    background: #4caf50;
+    color: #11210f;
 }
 
 .game-player-value {
@@ -348,6 +377,27 @@
 .game-setup-default {
     color: #666;
     font-size: 0.75rem;
+}
+
+/* Sub-heading dividing the game options from the shared match-format section */
+.game-setup-section {
+    margin-top: 0.5rem;
+    padding: 0 0.25rem;
+    color: #888;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+/* "locked for match play" note on an option forced by legs/sets */
+.game-setup-lock-note {
+    color: #c8a44c;
+    font-size: 0.72rem;
+}
+
+.game-setup-row select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .game-setup-row select {

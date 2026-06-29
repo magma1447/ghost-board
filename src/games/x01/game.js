@@ -23,6 +23,7 @@ export function createX01({
     bullMode = '25/50',
     maxRounds = 0,
     checkoutThreshold = 170,
+    startingPlayerIndex = 0,
 } = {}) {
     const players = [];
     for (let i = 0; i < numPlayers; i++) {
@@ -38,7 +39,7 @@ export function createX01({
         bullMode,
         maxRounds,
         players,
-        currentPlayerIndex: 0,
+        currentPlayerIndex: startingPlayerIndex, // rotates each leg in match play
         turnDarts: [],
         turnStartScore: startingScore, // saved to revert on bust
         turnLocked: false, // true after bust — blocks remaining darts

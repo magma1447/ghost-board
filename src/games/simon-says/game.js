@@ -21,6 +21,7 @@ export function createSimonSays({
     scoring = 'flat',
     maxRounds = 10,
     onDraw = 'draw',
+    startingPlayerIndex = 0,
 } = {}) {
     function generateSequence() {
         // Pick 3 unique numbers from 1–20
@@ -55,7 +56,7 @@ export function createSimonSays({
         targetsHit: [false, false, false],
         targetSegments: [],
         players,
-        currentPlayerIndex: 0,
+        currentPlayerIndex: startingPlayerIndex, // rotates each leg in match play
         turnDarts: [],
         turnLocked: false,
         round: 1,

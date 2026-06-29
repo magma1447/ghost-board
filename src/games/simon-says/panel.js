@@ -44,18 +44,20 @@ export function createSimonSaysPanel(container, callbacks) {
         }
     }
 
-    function update(state, event) {
+    function update(state, event, match) {
         panel.setRules(buildRulesText(state));
 
         // Past the round limit but still playing → sudden death (play-until-winner)
-        panel.roundLabel.textContent = (!state.gameOver && state.maxRounds > 0 && state.round > state.maxRounds)
+        const roundText = (!state.gameOver && state.maxRounds > 0 && state.round > state.maxRounds)
             ? `Sudden death · round ${state.round}`
             : formatRoundLabel(state.round, state.maxRounds);
+        panel.setRound(roundText, match);
 
         renderSequence(state);
 
         renderScoreboard(panel.scoreboard, state, {
             valueFor: (p) => String(p.score),
+            match,
         });
 
         panel.nextBtn.disabled = state.gameOver;
@@ -67,5 +69,5 @@ export function createSimonSaysPanel(container, callbacks) {
         }
     }
 
-    return { update, destroy: panel.destroy };
+    return { update, destroy: panel.destroy, nextBtn: panel.nextBtn, showBanner: panel.showBanner };
 }

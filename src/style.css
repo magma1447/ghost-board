@@ -272,7 +272,7 @@ body {
 .win-display-name {
     color: #ffd54f;
     font-weight: 800;
-    font-size: min(14vh, 10vw);
+    font-size: min(28vh, 20vw);
     line-height: 1;
 }
 
@@ -283,8 +283,14 @@ body {
 .win-display-label {
     color: #ffd54f;
     font-weight: 900;
-    font-size: min(26vh, 20vw);
+    font-size: min(11vh, 9vw);
     line-height: 1;
+}
+
+/* Leg / set win — same big treatment, discreet colour (gold = whole match) */
+.win-display-leg .win-display-name,
+.win-display-leg .win-display-label {
+    color: #80cbc4;
 }
 
 /* -- Rules modal -- */

@@ -22,6 +22,7 @@ export function createSimonSaysSetup(container, onStart, onCancel) {
         meta,
         rulesMd,
         roster: { min: 1, max: 8 },
+        matchLock: { field: 'onDraw', value: 'continue' },
         fields: [
             {
                 name: 'hitMode', label: 'Hit mode', type: 'select',
