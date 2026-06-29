@@ -2,6 +2,7 @@
 
 import '../game-panel.css';
 import { formatBool, formatRounds } from '../format.js';
+import { createPlayerRoster } from '../roster.js';
 import { settings, updateSettings } from '../../state/settings.js';
 
 const D = {
@@ -19,6 +20,7 @@ export function createCatAndMouseSetup(container, onStart) {
 
     el.innerHTML = `
     <h3 class="game-setup-title">Cat and Mouse</h3>
+    <div data-roster></div>
     <div class="game-setup-fields">
       <div class="game-setup-row">
         <label>Head start <span class="game-setup-default">(default: ${D.gap})</span></label>
@@ -59,6 +61,9 @@ export function createCatAndMouseSetup(container, onStart) {
     </div>
   `;
 
+    // Cat and Mouse is always exactly 2 players (Mouse vs Cat)
+    const roster = createPlayerRoster(el.querySelector('[data-roster]'), { min: 2, max: 2 });
+
     const fields = {
         gap: el.querySelector('[data-field="gap"]'),
         hitMode: el.querySelector('[data-field="hitMode"]'),
@@ -96,13 +101,19 @@ export function createCatAndMouseSetup(container, onStart) {
         updateSettings('catAndMouse.multiStep', opts.multiStep);
         updateSettings('catAndMouse.maxRounds', opts.maxRounds);
 
+        const playerUuids = roster.commit();
+        if (!playerUuids) {
+            return; // need exactly 2 players — roster shows the error
+        }
+
         el.remove();
-        onStart(opts);
+        onStart({ ...opts, playerUuids });
     });
 
     container.appendChild(el);
 
     function destroy() {
+        roster.destroy();
         el.remove();
     }
 

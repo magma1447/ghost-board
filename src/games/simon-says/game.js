@@ -13,6 +13,7 @@
 
 export function createSimonSays({
     numPlayers = 2,
+    playerUuids = [],
     dartsPerTurn = 3,
     hitMode = 'any',
     scoring = 'flat',
@@ -38,7 +39,7 @@ export function createSimonSays({
 
     const players = [];
     for (let i = 0; i < numPlayers; i++) {
-        players.push({ name: `Player ${i + 1}`, score: 0 });
+        players.push({ uuid: playerUuids[i], score: 0 });
     }
 
     const state = {

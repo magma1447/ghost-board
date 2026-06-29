@@ -2,6 +2,7 @@
 
 import '../game-panel.css';
 import { formatDart } from '../format.js';
+import { createPlayer } from '../../state/players.js';
 
 export function createX01Panel(container, { onNextPlayer, onEndGame }) {
     const el = document.createElement('div');
@@ -100,7 +101,17 @@ export function createX01Panel(container, { onNextPlayer, onEndGame }) {
             const p = state.players[i];
             const row = document.createElement('div');
             row.className = 'game-score-row' + (i === state.currentPlayerIndex ? ' active' : '');
-            row.innerHTML = `<span class="game-player-name">${p.name}</span><span class="game-player-value">${p.score}</span>`;
+
+            // Use textContent (not innerHTML) — names are user-entered
+            const name = document.createElement('span');
+            name.className = 'game-player-name';
+            name.textContent = createPlayer(p.uuid).getName();
+
+            const value = document.createElement('span');
+            value.className = 'game-player-value';
+            value.textContent = p.score;
+
+            row.append(name, value);
             scoreboard.appendChild(row);
         }
 
@@ -117,7 +128,7 @@ export function createX01Panel(container, { onNextPlayer, onEndGame }) {
         if (event === 'bust') {
             showBanner('BUST!', 'bust');
         } else if (event === 'win') {
-            showBanner(`${state.players[state.winner].name} wins!`, 'win');
+            showBanner(`${createPlayer(state.players[state.winner].uuid).getName()} wins!`, 'win');
         } else if (event === 'draw') {
             showBanner('Draw — round limit reached', 'draw');
         }

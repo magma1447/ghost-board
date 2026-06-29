@@ -2,6 +2,7 @@
 
 import '../game-panel.css';
 import { formatRounds } from '../format.js';
+import { createPlayerRoster } from '../roster.js';
 import { settings, updateSettings } from '../../state/settings.js';
 
 const D = {
@@ -18,6 +19,7 @@ export function createSimonSaysSetup(container, onStart) {
 
     el.innerHTML = `
     <h3 class="game-setup-title">Simon Says</h3>
+    <div data-roster></div>
     <div class="game-setup-fields">
       <div class="game-setup-row">
         <label>Hit mode <span class="game-setup-default">(default: ${D.hitMode})</span></label>
@@ -50,6 +52,8 @@ export function createSimonSaysSetup(container, onStart) {
       <button class="game-setup-restore">Restore defaults</button>
     </div>
   `;
+
+    const roster = createPlayerRoster(el.querySelector('[data-roster]'), { min: 1, max: 8 });
 
     const fields = {
         hitMode: el.querySelector('[data-field="hitMode"]'),
@@ -84,13 +88,19 @@ export function createSimonSaysSetup(container, onStart) {
         updateSettings('simonSays.scoring', opts.scoring);
         updateSettings('simonSays.maxRounds', opts.maxRounds);
 
+        const playerUuids = roster.commit();
+        if (!playerUuids) {
+            return; // too few players selected — roster shows the error
+        }
+
         el.remove();
-        onStart(opts);
+        onStart({ ...opts, numPlayers: playerUuids.length, playerUuids });
     });
 
     container.appendChild(el);
 
     function destroy() {
+        roster.destroy();
         el.remove();
     }
 

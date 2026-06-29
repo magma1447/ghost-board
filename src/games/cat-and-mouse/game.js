@@ -16,6 +16,7 @@ const BOARD_ORDER = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14
 
 export function createCatAndMouse({
     numPlayers = 2,
+    playerUuids = [],
     dartsPerTurn = 3,
     gap = 1,
     hitMode = 'any',
@@ -33,11 +34,12 @@ export function createCatAndMouse({
         return BOARD_ORDER[((20 - gap) + progress) % 20];
     }
 
+    // Always exactly 2 players. The Mouse/Cat roles are fixed; the human
+    // names come from the roster and are shown alongside the role in the panel.
     const players = [
-        { name: 'Mouse', progress: 0, currentTarget: computeTarget(0, 0) },
-        { name: 'Cat', progress: 0, currentTarget: computeTarget(1, 0) },
+        { uuid: playerUuids[0], role: 'Mouse', progress: 0, currentTarget: computeTarget(0, 0) },
+        { uuid: playerUuids[1], role: 'Cat', progress: 0, currentTarget: computeTarget(1, 0) },
     ];
-    // Ignore numPlayers — always exactly 2
     void numPlayers;
 
     const state = {

@@ -15,6 +15,7 @@
 
 export function createAroundTheClock({
     numPlayers = 2,
+    playerUuids = [],
     dartsPerTurn = 3,
     bullFinish = 'single',
     hitMode = 'any',
@@ -25,7 +26,7 @@ export function createAroundTheClock({
 
     const players = [];
     for (let i = 0; i < numPlayers; i++) {
-        players.push({ name: `Player ${i + 1}`, currentTarget: 1 });
+        players.push({ uuid: playerUuids[i], currentTarget: 1 });
     }
 
     const state = {

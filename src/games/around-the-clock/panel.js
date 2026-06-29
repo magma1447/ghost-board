@@ -2,6 +2,7 @@
 
 import '../game-panel.css';
 import { formatDart } from '../format.js';
+import { createPlayer } from '../../state/players.js';
 
 export function createAroundTheClockPanel(container, { onNextPlayer, onEndGame }) {
     const el = document.createElement('div');
@@ -106,7 +107,7 @@ export function createAroundTheClockPanel(container, { onNextPlayer, onEndGame }
 
             const name = document.createElement('span');
             name.className = 'game-player-name';
-            name.textContent = p.name;
+            name.textContent = createPlayer(p.uuid).getName();
 
             const target = document.createElement('span');
             target.className = 'game-player-value';
@@ -135,7 +136,7 @@ export function createAroundTheClockPanel(container, { onNextPlayer, onEndGame }
         nextBtn.disabled = state.gameOver;
 
         if (event === 'win') {
-            showBanner(`${state.players[state.winner].name} wins!`, 'win');
+            showBanner(`${createPlayer(state.players[state.winner].uuid).getName()} wins!`, 'win');
         } else if (event === 'draw') {
             showBanner('Draw \u2014 round limit reached', 'draw');
         }

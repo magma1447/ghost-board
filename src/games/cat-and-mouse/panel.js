@@ -2,6 +2,7 @@
 
 import '../game-panel.css';
 import { formatDart } from '../format.js';
+import { createPlayer } from '../../state/players.js';
 
 export function createCatAndMousePanel(container, { onNextPlayer, onEndGame }) {
     const el = document.createElement('div');
@@ -93,7 +94,9 @@ export function createCatAndMousePanel(container, { onNextPlayer, onEndGame }) {
 
             const name = document.createElement('span');
             name.className = 'game-player-name';
-            name.textContent = p.name;
+            // Show the human name with the fixed role, e.g. "Luke the Nuke (Cat)"
+            const playerName = createPlayer(p.uuid).getName();
+            name.textContent = p.role ? `${playerName} (${p.role})` : playerName;
 
             const target = document.createElement('span');
             target.className = 'game-player-value';
@@ -123,7 +126,7 @@ export function createCatAndMousePanel(container, { onNextPlayer, onEndGame }) {
 
         if (event === 'win') {
             const winner = state.players[state.winner];
-            showBanner(`${winner.name} wins!`, 'win');
+            showBanner(`${createPlayer(winner.uuid).getName()} wins!`, 'win');
         } else if (event === 'draw') {
             showBanner('Draw \u2014 round limit reached', 'draw');
         }

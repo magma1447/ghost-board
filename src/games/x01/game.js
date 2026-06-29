@@ -15,6 +15,7 @@ import { calcPoints } from '../../ble/protocol.js';
 export function createX01({
     startingScore = 501,
     numPlayers = 2,
+    playerUuids = [],
     dartsPerTurn = 3,
     doubleIn = false,
     doubleOut = false,
@@ -24,7 +25,7 @@ export function createX01({
 } = {}) {
     const players = [];
     for (let i = 0; i < numPlayers; i++) {
-        players.push({ name: `Player ${i + 1}`, score: startingScore });
+        players.push({ uuid: playerUuids[i], score: startingScore });
     }
 
     const state = {

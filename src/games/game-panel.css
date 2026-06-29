@@ -145,6 +145,117 @@
     color: #e88;
 }
 
+/* -- Player roster (setup) -- */
+.game-roster {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.game-roster-title {
+    font-size: 0.8rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.game-roster-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.game-roster-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.game-roster-input {
+    flex: 1;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background: #2a2a2a;
+    color: #e0e0e0;
+    font-size: 0.85rem;
+}
+
+.game-roster-select {
+    flex: 1;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background: #2a2a2a;
+    color: #e0e0e0;
+    font-size: 0.85rem;
+}
+
+.game-roster-error {
+    border-color: #c44;
+}
+
+.game-roster-new {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex: 1;
+}
+
+.game-roster-confirm {
+    flex: 0 0 auto;
+    width: 1.8rem;
+    height: 1.8rem;
+    border: 1px solid #4caf50;
+    border-radius: 4px;
+    background: none;
+    color: #4caf50;
+    cursor: pointer;
+    font-size: 0.8rem;
+    line-height: 1;
+}
+
+.game-roster-confirm:hover {
+    background: #1a3a1a;
+}
+
+.game-roster-remove {
+    flex: 0 0 auto;
+    width: 1.8rem;
+    height: 1.8rem;
+    border: 1px solid #633;
+    border-radius: 4px;
+    background: none;
+    color: #e88;
+    cursor: pointer;
+    font-size: 0.8rem;
+    line-height: 1;
+}
+
+.game-roster-remove:hover {
+    background: #3a2a2a;
+}
+
+.game-roster-add {
+    align-self: flex-start;
+    padding: 0.3rem 0.7rem;
+    border: 1px dashed #555;
+    border-radius: 4px;
+    background: none;
+    color: #aaa;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.game-roster-add:hover {
+    color: #ccc;
+    border-color: #888;
+}
+
+.game-roster-add[hidden] {
+    display: none;
+}
+
 /* -- Setup panel -- */
 .game-setup {
     display: flex;

@@ -2,6 +2,7 @@
 
 import '../game-panel.css';
 import { formatBool, formatRounds } from '../format.js';
+import { createPlayerRoster } from '../roster.js';
 import { settings, updateSettings } from '../../state/settings.js';
 
 const D = {
@@ -21,6 +22,7 @@ export function createAroundTheClockSetup(container, onStart) {
 
     el.innerHTML = `
     <h3 class="game-setup-title">Around the Clock</h3>
+    <div data-roster></div>
     <div class="game-setup-fields">
       <div class="game-setup-row">
         <label>Bull finish <span class="game-setup-default">(default: ${BULL_LABELS[D.bullFinish]})</span></label>
@@ -59,6 +61,8 @@ export function createAroundTheClockSetup(container, onStart) {
     </div>
   `;
 
+    const roster = createPlayerRoster(el.querySelector('[data-roster]'), { min: 1, max: 8 });
+
     const fields = {
         bullFinish: el.querySelector('[data-field="bullFinish"]'),
         hitMode: el.querySelector('[data-field="hitMode"]'),
@@ -96,13 +100,19 @@ export function createAroundTheClockSetup(container, onStart) {
         updateSettings('aroundTheClock.multiStep', opts.multiStep);
         updateSettings('aroundTheClock.maxRounds', opts.maxRounds);
 
+        const playerUuids = roster.commit();
+        if (!playerUuids) {
+            return; // too few players selected — roster shows the error
+        }
+
         el.remove();
-        onStart(opts);
+        onStart({ ...opts, numPlayers: playerUuids.length, playerUuids });
     });
 
     container.appendChild(el);
 
     function destroy() {
+        roster.destroy();
         el.remove();
     }
 

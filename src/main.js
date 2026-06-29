@@ -14,6 +14,7 @@ import { createX01Setup } from './games/x01/setup.js';
 import { createAroundTheClockSetup } from './games/around-the-clock/setup.js';
 import { createCatAndMouseSetup } from './games/cat-and-mouse/setup.js';
 import { createSimonSaysSetup } from './games/simon-says/setup.js';
+import { openPlayerConfig } from './ui/player-config.js';
 
 const app = document.getElementById('app');
 
@@ -224,11 +225,21 @@ const gameArea = document.createElement('div');
 gameArea.className = 'game-area';
 panelSidebar.appendChild(gameArea);
 
-// -- New Game button --
+// -- Home screen actions (New Game + Players) --
+const homeActions = document.createElement('div');
+homeActions.className = 'home-actions';
+
 const newGameBtn = document.createElement('button');
 newGameBtn.className = 'new-game-btn';
 newGameBtn.textContent = 'New Game';
-gameArea.appendChild(newGameBtn);
+
+const playersBtn = document.createElement('button');
+playersBtn.className = 'players-btn';
+playersBtn.textContent = 'Players';
+playersBtn.addEventListener('click', () => openPlayerConfig());
+
+homeActions.append(newGameBtn, playersBtn);
+gameArea.appendChild(homeActions);
 
 // Track current game type and options for persistence
 let currentGameType = null;
@@ -292,14 +303,15 @@ function handleEndGame() {
     ledsOn();
     currentGameType = null;
     currentGameOpts = null;
-    newGameBtn.hidden = false;
+    homeActions.hidden = false;
 }
 
 function launchGame(type, opts) {
     currentGameType = type;
     currentGameOpts = opts;
     ledsOff();
-    startGame(type, { ...opts, numPlayers: 2 }, gameArea, {
+    // opts carries numPlayers + playerNames from the setup panel's roster
+    startGame(type, opts, gameArea, {
         onNextPlayer: handleNextPlayer,
         onEndGame: handleEndGame,
     });
@@ -339,14 +351,14 @@ function showGamePicker() {
 }
 
 newGameBtn.addEventListener('click', () => {
-    newGameBtn.hidden = true;
+    homeActions.hidden = true;
     showGamePicker();
 });
 
 // -- Restore saved game on load --
 const savedGameData = loadGame();
 if (savedGameData && GAME_SETUPS[savedGameData.type]) {
-    newGameBtn.hidden = true;
+    homeActions.hidden = true;
     launchGame(savedGameData.type, savedGameData.options);
     const game = getGame();
     if (game) {

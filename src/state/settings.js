@@ -3,6 +3,10 @@
 const STORAGE_KEY = 'ghost-board-settings';
 
 const DEFAULTS = {
+    // Global player registry — array of { uuid, name }, shared across games
+    players: [],
+    // Last-used player selection (array of UUIDs), for pre-filling setup
+    lastPlayers: [],
     audio: {
         theme: 'impact',
         voice: '',
