@@ -402,14 +402,74 @@
     font-size: 0.75rem;
 }
 
-/* Sub-heading dividing the game options from the shared match-format section */
+/* Collapsible option group (Match format / Game options) */
+.game-setup-group {
+    border: 1px solid #2a2a2a;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* Clickable section header: chevron + title (left) + summary (right) */
 .game-setup-section {
-    margin-top: 0.5rem;
-    padding: 0 0.25rem;
-    color: #888;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.45rem 0.6rem;
+    background: #1a1a1a;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+}
+
+.game-setup-section:hover {
+    background: #222;
+}
+
+/* Right-pointing triangle that rotates down when the section is open */
+.game-setup-section-chevron {
+    flex: 0 0 auto;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 4px 0 4px 6px;
+    border-color: transparent transparent transparent #888;
+    transition: transform 0.15s;
+}
+
+.game-setup-section.open .game-setup-section-chevron {
+    transform: rotate(90deg);
+}
+
+.game-setup-section-title {
+    flex: 0 0 auto;
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
+}
+
+.game-setup-section-summary {
+    flex: 1;
+    min-width: 0;
+    text-align: right;
+    color: #bbb;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.game-setup-group-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem;
+}
+
+.game-setup-group-body[hidden] {
+    display: none;
 }
 
 /* "locked for match play" note on an option forced by legs/sets */

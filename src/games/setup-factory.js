@@ -76,6 +76,21 @@ function fieldRow(field) {
       </div>`;
 }
 
+// A collapsible section: a header (chevron + title + live summary) over a body
+// of field rows. Collapsed by default; the header toggles it.
+function sectionGroup(title, fieldList, key) {
+    return `<div class="game-setup-group">
+      <button type="button" class="game-setup-section" data-toggle="${key}">
+        <span class="game-setup-section-chevron" aria-hidden="true"></span>
+        <span class="game-setup-section-title">${title}</span>
+        <span class="game-setup-section-summary" data-summary="${key}"></span>
+      </button>
+      <div class="game-setup-group-body" data-body="${key}" hidden>
+        ${fieldList.map(fieldRow).join('\n        ')}
+      </div>
+    </div>`;
+}
+
 // config: { title, settingsKey, defaults, fields, roster: { min, max }, meta,
 //           rulesMd, matchLock? }
 export function createGameSetup(container, onStart, onCancel, config) {
@@ -98,10 +113,8 @@ export function createGameSetup(container, onStart, onCancel, config) {
     <p class="game-setup-synopsis">${meta.short}</p>
     <div data-roster></div>
     <div class="game-setup-fields">
-      <div class="game-setup-section">Match format</div>
-      ${MATCH_FIELDS.map(fieldRow).join('\n      ')}
-      <div class="game-setup-section">Game options</div>
-      ${fields.map(fieldRow).join('\n      ')}
+      ${sectionGroup('Match format', MATCH_FIELDS, 'match')}
+      ${sectionGroup('Game options', fields, 'options')}
     </div>
     <div class="game-setup-buttons">
       <button class="btn game-setup-back">Back</button>
@@ -195,6 +208,45 @@ export function createGameSetup(container, onStart, onCancel, config) {
         applySetsAvailability();
         resetLock();
         applyMatchLock();
+        updateSummaries();
+    }
+
+    // Collapsed-section summaries, so the config is visible without expanding.
+    function summarizeMatch(vals) {
+        if (vals.legsBestOf <= 1 && vals.setsBestOf <= 1) {
+            return 'Single game';
+        }
+        const parts = [];
+        if (vals.legsBestOf > 1) {
+            parts.push(`Best of ${vals.legsBestOf} legs`);
+        }
+        if (vals.setsBestOf > 1) {
+            parts.push(`best of ${vals.setsBestOf} sets`);
+        }
+        return parts.join(', ');
+    }
+
+    // Show checked toggles and any select changed from its default.
+    function summarizeOptions(vals) {
+        const tokens = [];
+        fields.forEach((field) => {
+            const value = vals[field.name];
+            if (field.type === 'checkbox') {
+                if (value) {
+                    tokens.push(field.label);
+                }
+            } else if (String(value) !== String(defaults[field.name])) {
+                const opt = field.options.find((o) => String(o.value) === String(value));
+                tokens.push(opt ? opt.label : String(value));
+            }
+        });
+        return tokens.length > 0 ? tokens.join(', ') : 'Defaults';
+    }
+
+    function updateSummaries() {
+        const vals = readValues();
+        el.querySelector('[data-summary="match"]').textContent = summarizeMatch(vals);
+        el.querySelector('[data-summary="options"]').textContent = summarizeOptions(vals);
     }
 
     function readValues() {
@@ -218,6 +270,19 @@ export function createGameSetup(container, onStart, onCancel, config) {
         applyMatchLock();
     });
     inputs.setsBestOf.addEventListener('change', applyMatchLock);
+
+    // Collapsible section headers
+    el.querySelectorAll('.game-setup-section').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const body = el.querySelector(`[data-body="${btn.dataset.toggle}"]`);
+            const willOpen = body.hidden;
+            body.hidden = !willOpen;
+            btn.classList.toggle('open', willOpen);
+        });
+    });
+
+    // Keep the section summaries in sync with any field change
+    el.querySelector('.game-setup-fields').addEventListener('change', updateSummaries);
 
     // Load user's saved preferences
     applyValues(saved);
