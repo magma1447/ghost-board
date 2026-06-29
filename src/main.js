@@ -2,9 +2,9 @@
 
 import { createDartboard } from './board/dartboard.js';
 import { createConnection } from './ble/connection.js';
-import { calcPoints } from './ble/protocol.js';
+import { createLog } from './ui/log.js';
 import { init as initLeds, onHit as ledHit, onSwitch as ledSwitch, sweep as ledSweep, allOff as ledsOff, allOn as ledsOn, showSegment as ledShowSegment, showSegments as ledShowSegments } from './ble/leds.js';
-import { LED_COLOR } from './ble/protocol.js';
+import { LED_COLOR, calcPoints } from './ble/protocol.js';
 import { playHit, playSwitch, playBust, playWin, playChime, speakScore, setTheme, setVoice, getThemeNames, getVoiceNames, ensureAudio } from './audio/sounds.js';
 import { settings, updateSettings } from './state/settings.js';
 import { saveGame, loadGame, clearGame } from './state/game-store.js';
@@ -17,6 +17,7 @@ import { createAroundTheClockSetup } from './games/around-the-clock/setup.js';
 import { createCatAndMouseSetup } from './games/cat-and-mouse/setup.js';
 import { createSimonSaysSetup } from './games/simon-says/setup.js';
 import { openPlayerConfig } from './ui/player-config.js';
+import { createPlayer } from './state/players.js';
 
 const app = document.getElementById('app');
 
@@ -233,6 +234,10 @@ const gameArea = document.createElement('div');
 gameArea.className = 'game-area';
 panelSidebar.appendChild(gameArea);
 
+// Global event log (collapsible console). Created before the game flow so
+// game start/restore can log into it.
+const log = createLog(panelSidebar);
+
 // -- Top-bar menu actions (New Game + Players) --
 const newGameBtn = document.createElement('button');
 newGameBtn.className = 'new-game-btn';
@@ -248,6 +253,8 @@ statusMenu.append(newGameBtn, playersBtn);
 // Track current game type and options for persistence
 let currentGameType = null;
 let currentGameOpts = null;
+// Last round number logged, so we emit "Round X" only when it changes
+let lastLoggedRound = 0;
 
 function persistState() {
     const game = getGame();
@@ -299,6 +306,13 @@ function handleNextPlayer() {
     processCallouts(callouts);
     showTargetLed(state, 1000);
     persistState();
+
+    logRound(state);
+    if (event === 'switch') {
+        log.logEvent(`Player: ${playerLabel(state.players[state.currentPlayerIndex])}`, 'player');
+    } else {
+        logGameOutcome(state, event);
+    }
 }
 
 function handleEndGame() {
@@ -307,6 +321,7 @@ function handleEndGame() {
     ledsOn();
     currentGameType = null;
     currentGameOpts = null;
+    log.logEvent('Game ended', 'game');
 }
 
 // New Game from the persistent menu: abandon any active game / in-flight
@@ -319,16 +334,28 @@ function startNewGameFlow() {
     showGamePicker();
 }
 
-function launchGame(type, opts) {
+function launchGame(type, opts, resumed = false) {
     currentGameType = type;
     currentGameOpts = opts;
+    lastLoggedRound = 0;
     ledsOff();
-    // opts carries numPlayers + playerNames from the setup panel's roster
+    // opts carries numPlayers + playerUuids from the setup panel's roster
     startGame(type, opts, gameArea, {
         onNextPlayer: handleNextPlayer,
         onEndGame: handleEndGame,
     });
+
+    const names = (opts.playerUuids || []).map((uuid) => createPlayer(uuid).getName());
+    const who = names.length > 0 ? ` · ${names.join(', ')}` : '';
+    log.logEvent(`Game ${resumed ? 'resumed' : 'started'} — ${GAME_LABELS[type] || type}${who}`, 'game');
 }
+
+const GAME_LABELS = {
+    x01: 'X01',
+    'around-the-clock': 'Around the Clock',
+    'cat-and-mouse': 'Cat and Mouse',
+    'simon-says': 'Simon Says',
+};
 
 const GAME_SETUPS = {
     x01: createX01Setup,
@@ -345,7 +372,7 @@ function showGamePicker() {
     gamesRow.className = 'game-picker-row';
     picker.appendChild(gamesRow);
 
-    for (const [type, label] of [['x01', 'X01'], ['around-the-clock', 'Around the Clock'], ['cat-and-mouse', 'Cat and Mouse'], ['simon-says', 'Simon Says']]) {
+    for (const [type, label] of Object.entries(GAME_LABELS)) {
         const btn = document.createElement('button');
         btn.className = 'game-picker-btn';
         btn.textContent = label;
@@ -358,6 +385,7 @@ function showGamePicker() {
                 if (game) {
                     showTargetLed(game.getState(), 500);
                     processCallouts(game.getCallouts());
+                    logRound(game.getState());
                 }
             }, () => {
                 // Back from setup → return to the game picker
@@ -386,32 +414,22 @@ newGameBtn.addEventListener('click', () => {
 // -- Restore saved game on load --
 const savedGameData = loadGame();
 if (savedGameData && GAME_SETUPS[savedGameData.type]) {
-    launchGame(savedGameData.type, savedGameData.options);
+    launchGame(savedGameData.type, savedGameData.options, true);
     const game = getGame();
     if (game) {
         game.loadState(savedGameData.state);
         getPanel().update(game.getState(), null);
         showTargetLed(game.getState(), 500);
+        logRound(game.getState());
     }
 }
 
-// -- Hit log --
-const hitLog = document.createElement('div');
-hitLog.className = 'hit-log';
-const hitTitle = document.createElement('h2');
-hitTitle.textContent = 'Hits';
-const hitList = document.createElement('ul');
-hitList.className = 'hit-list';
-hitLog.append(hitTitle, hitList);
-panelSidebar.appendChild(hitLog);
-
 app.appendChild(panelSidebar);
 
-const hits = [];
-
+// Format a dart hit for the log (e.g. "T20 (60)", "BULL (50)", "Miss")
 function formatHit(hit) {
     if (hit.ring === 'OUT') {
-        return 'Miss (0)';
+        return 'Miss';
     }
     if (hit.ring === 'DBULL') {
         return 'BULL (50)';
@@ -424,19 +442,36 @@ function formatHit(hit) {
     return `${prefix}${hit.segment} (${pts})`;
 }
 
+// Player name + short UUID, for log readability with traceability
+function playerLabel(player) {
+    const name = createPlayer(player.uuid).getName();
+    const shortId = player.uuid ? player.uuid.slice(0, 8) : '?';
+    return `${name} (${shortId})`;
+}
+
+// Log a round change once per round (skips finished games)
+function logRound(state) {
+    if (!state || state.gameOver || state.round === lastLoggedRound) {
+        return;
+    }
+    lastLoggedRound = state.round;
+    log.logEvent(`Round ${state.round}`, 'game');
+}
+
+// Log a win/draw outcome (no-op for other events)
+function logGameOutcome(state, gameEvent) {
+    if (gameEvent === 'win') {
+        log.logEvent(`${createPlayer(state.players[state.winner].uuid).getName()} wins`, 'game');
+    } else if (gameEvent === 'draw') {
+        log.logEvent('Draw', 'game');
+    }
+}
+
 function onEvent(event) {
     if (event.type === 'hit') {
         board.highlight(event.ring, event.segment);
         ledHit(event.ring, event.segment);
-        hits.unshift(event);
-
-        const li = document.createElement('li');
-        li.textContent = formatHit(event);
-        hitList.prepend(li);
-
-        if (hitList.children.length > 50) {
-            hitList.lastChild.remove();
-        }
+        log.logEvent(formatHit(event), 'hit');
 
         // Forward to active game — decide sound based on game result
         const game = getGame();
@@ -454,6 +489,7 @@ function onEvent(event) {
             }
             showTargetLed(state, 800);
             persistState();
+            logGameOutcome(state, gameEvent);
         } else {
             playHit(event.ring);
         }
@@ -466,6 +502,7 @@ function onEvent(event) {
 
 function onStatus({ status, detail }) {
     connControl.setStatus(status, detail);
+    log.logEvent(detail || status, status === 'error' ? 'error' : 'info');
 
     if (status === 'connected') {
         ledSweep();
