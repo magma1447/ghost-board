@@ -10,7 +10,10 @@ const D = {
     hitMode: 'any',
     multiStep: false,
     maxRounds: 0,
+    roundLimitResult: 'mouse',
 };
+
+const ROUND_LIMIT_LABELS = { mouse: 'mouse wins', draw: 'draw' };
 
 export function createCatAndMouseSetup(container, onStart, onCancel) {
     const el = document.createElement('div');
@@ -54,6 +57,13 @@ export function createCatAndMouseSetup(container, onStart, onCancel) {
           <option value="30">30</option>
         </select>
       </div>
+      <div class="game-setup-row">
+        <label>Round limit result <span class="game-setup-default">(default: ${ROUND_LIMIT_LABELS[D.roundLimitResult]})</span></label>
+        <select data-field="roundLimitResult">
+          <option value="mouse">Mouse wins</option>
+          <option value="draw">Draw</option>
+        </select>
+      </div>
     </div>
     <div class="game-setup-buttons">
       <button class="btn game-setup-back">Back</button>
@@ -70,6 +80,7 @@ export function createCatAndMouseSetup(container, onStart, onCancel) {
         hitMode: el.querySelector('[data-field="hitMode"]'),
         multiStep: el.querySelector('[data-field="multiStep"]'),
         maxRounds: el.querySelector('[data-field="maxRounds"]'),
+        roundLimitResult: el.querySelector('[data-field="roundLimitResult"]'),
     };
 
     function applyValues(vals) {
@@ -77,6 +88,7 @@ export function createCatAndMouseSetup(container, onStart, onCancel) {
         fields.hitMode.value = vals.hitMode;
         fields.multiStep.checked = vals.multiStep;
         fields.maxRounds.value = String(vals.maxRounds);
+        fields.roundLimitResult.value = vals.roundLimitResult;
     }
 
     function readValues() {
@@ -85,6 +97,7 @@ export function createCatAndMouseSetup(container, onStart, onCancel) {
             hitMode: fields.hitMode.value,
             multiStep: fields.multiStep.checked,
             maxRounds: parseInt(fields.maxRounds.value, 10),
+            roundLimitResult: fields.roundLimitResult.value,
         };
     }
 
@@ -106,6 +119,7 @@ export function createCatAndMouseSetup(container, onStart, onCancel) {
         updateSettings('catAndMouse.hitMode', opts.hitMode);
         updateSettings('catAndMouse.multiStep', opts.multiStep);
         updateSettings('catAndMouse.maxRounds', opts.maxRounds);
+        updateSettings('catAndMouse.roundLimitResult', opts.roundLimitResult);
 
         const playerUuids = roster.commit();
         if (!playerUuids) {

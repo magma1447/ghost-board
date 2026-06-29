@@ -22,6 +22,7 @@ export function createCatAndMouse({
     hitMode = 'any',
     multiStep = false,
     maxRounds = 0,
+    roundLimitResult = 'mouse',
 } = {}) {
     // Map absolute progress to a board segment number.
     // Mouse starts at BOARD_ORDER[0] = 20, cat starts `gap` positions behind.
@@ -71,8 +72,14 @@ export function createCatAndMouse({
 
         if (maxRounds > 0 && state.round > maxRounds) {
             state.gameOver = true;
-            state.winner = null;
-            return 'draw';
+            if (roundLimitResult === 'draw') {
+                state.winner = null;
+                return 'draw';
+            }
+            // Default: the cat never caught the mouse (or the game would have
+            // ended already), so the mouse escaped and wins.
+            state.winner = 0;
+            return 'win';
         }
         return null;
     }
@@ -114,14 +121,14 @@ export function createCatAndMouse({
 
     function nextPlayer() {
         const callouts = [];
-        const drawEvent = advancePlayer();
+        const endEvent = advancePlayer(); // 'win' / 'draw' on round limit, else null
 
         if (!state.gameOver) {
             const player = currentPlayer();
             callouts.push({ type: 'remaining', value: player.currentTarget });
         }
 
-        return { state, event: drawEvent || 'switch', callouts };
+        return { state, event: endEvent || 'switch', callouts };
     }
 
     function onDart(ring, segment) {
