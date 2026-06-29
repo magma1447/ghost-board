@@ -21,3 +21,8 @@ export function formatBool(value) {
 export function formatRounds(value) {
     return value === 0 ? 'no limit' : String(value);
 }
+
+// In-game round indicator: "Round 3 / 20", or "Round 3" when there's no limit
+export function formatRoundLabel(round, maxRounds) {
+    return maxRounds > 0 ? `Round ${round} / ${maxRounds}` : `Round ${round}`;
+}

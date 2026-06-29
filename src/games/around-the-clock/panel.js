@@ -1,7 +1,7 @@
 // Around the Clock game panel
 
 import '../game-panel.css';
-import { formatDart } from '../format.js';
+import { formatDart, formatRoundLabel } from '../format.js';
 import { createPlayer } from '../../state/players.js';
 
 export function createAroundTheClockPanel(container, { onNextPlayer, onEndGame }) {
@@ -93,10 +93,7 @@ export function createAroundTheClockPanel(container, { onNextPlayer, onEndGame }
         rulesLabel.hidden = !rulesText;
 
         // Round
-        const roundText = state.maxRounds > 0
-            ? `Round ${state.round} / ${state.maxRounds}`
-            : `Round ${state.round}`;
-        roundLabel.textContent = roundText;
+        roundLabel.textContent = formatRoundLabel(state.round, state.maxRounds);
 
         // Scoreboard
         scoreboard.innerHTML = '';

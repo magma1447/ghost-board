@@ -19,7 +19,7 @@
 
 .game-round {
     font-size: 0.8rem;
-    color: #888;
+    color: #e0e0e0;
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
@@ -71,6 +71,20 @@
     color: #aaa;
     min-height: 1.2em;
     font-variant-numeric: tabular-nums;
+}
+
+.game-summary {
+    padding: 0.5rem 0.75rem;
+    background: #1e1e1e;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #e0e0e0;
+}
+
+.game-summary[hidden] {
+    display: none;
 }
 
 .game-dart-hit {

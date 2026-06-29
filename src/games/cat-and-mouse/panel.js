@@ -1,7 +1,7 @@
 // Cat and Mouse game panel
 
 import '../game-panel.css';
-import { formatDart } from '../format.js';
+import { formatDart, formatRoundLabel } from '../format.js';
 import { createPlayer } from '../../state/players.js';
 
 export function createCatAndMousePanel(container, { onNextPlayer, onEndGame }) {
@@ -22,6 +22,11 @@ export function createCatAndMousePanel(container, { onNextPlayer, onEndGame }) {
     const scoreboard = document.createElement('div');
     scoreboard.className = 'game-scoreboard';
     el.appendChild(scoreboard);
+
+    // Chase summary (single line — the gap is the same for both players)
+    const gapLine = document.createElement('div');
+    gapLine.className = 'game-summary';
+    el.appendChild(gapLine);
 
     // Turn info
     const turnInfo = document.createElement('div');
@@ -80,10 +85,7 @@ export function createCatAndMousePanel(container, { onNextPlayer, onEndGame }) {
         rulesLabel.hidden = false;
 
         // Round
-        const roundText = state.maxRounds > 0
-            ? `Round ${state.round} / ${state.maxRounds}`
-            : `Round ${state.round}`;
-        roundLabel.textContent = roundText;
+        roundLabel.textContent = formatRoundLabel(state.round, state.maxRounds);
 
         // Scoreboard
         scoreboard.innerHTML = '';
@@ -105,6 +107,12 @@ export function createCatAndMousePanel(container, { onNextPlayer, onEndGame }) {
             row.append(name, target);
             scoreboard.appendChild(row);
         }
+
+        // Chase gap, from the mouse's perspective (it starts ahead and the
+        // cat catches when this reaches 0). = gap + mouse.progress - cat.progress.
+        const ahead = state.gap + state.players[0].progress - state.players[1].progress;
+        gapLine.textContent = `Mouse is ${ahead} ahead`;
+        gapLine.hidden = state.gameOver;
 
         // Turn darts
         if (state.turnDarts.length > 0) {

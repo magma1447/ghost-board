@@ -1,7 +1,7 @@
 // X01 game panel — renders x01 game state
 
 import '../game-panel.css';
-import { formatDart } from '../format.js';
+import { formatDart, formatRoundLabel } from '../format.js';
 import { createPlayer } from '../../state/players.js';
 
 export function createX01Panel(container, { onNextPlayer, onEndGame }) {
@@ -91,10 +91,7 @@ export function createX01Panel(container, { onNextPlayer, onEndGame }) {
         rulesLabel.hidden = !rulesText;
 
         // Round
-        const roundText = state.maxRounds > 0
-            ? `Round ${state.round} / ${state.maxRounds}`
-            : `Round ${state.round}`;
-        roundLabel.textContent = roundText;
+        roundLabel.textContent = formatRoundLabel(state.round, state.maxRounds);
 
         scoreboard.innerHTML = '';
         for (let i = 0; i < state.players.length; i++) {
