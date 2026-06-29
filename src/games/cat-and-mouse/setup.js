@@ -48,9 +48,9 @@ export function createCatAndMouseSetup(container, onStart, onCancel) {
         <label>Max rounds <span class="game-setup-default">(default: ${formatRounds(D.maxRounds)})</span></label>
         <select data-field="maxRounds">
           <option value="0">No limit</option>
+          <option value="10">10</option>
           <option value="15">15</option>
           <option value="20">20</option>
-          <option value="25">25</option>
           <option value="30">30</option>
         </select>
       </div>
