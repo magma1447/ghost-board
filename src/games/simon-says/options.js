@@ -1,0 +1,53 @@
+// Simon Says option schema — the defaults and field definitions, shared by the
+// setup panel (createGameSetup) and the in-game settings line
+// (describeSettings).
+
+import { formatRounds } from '../format.js';
+
+export const defaults = {
+    hitMode: 'any',
+    scoring: 'flat',
+    maxRounds: 10,
+    onDraw: 'draw',
+};
+
+const ON_DRAW_LABELS = { draw: 'draw', continue: 'play until a winner' };
+
+export const fields = [
+    {
+        name: 'hitMode', label: 'Hit mode', type: 'select',
+        defaultHint: defaults.hitMode,
+        options: [
+            { value: 'any', label: 'Any' },
+            { value: 'doubles', label: 'Doubles only' },
+            { value: 'triples', label: 'Triples only' },
+        ],
+    },
+    {
+        name: 'scoring', label: 'Scoring', type: 'select',
+        defaultHint: defaults.scoring,
+        options: [
+            { value: 'flat', label: 'Flat (1, 1, 1)' },
+            { value: 'staggered', label: 'Staggered (1, 2, 3)' },
+        ],
+    },
+    {
+        name: 'maxRounds', label: 'Rounds', type: 'select', valueType: 'int',
+        defaultHint: formatRounds(defaults.maxRounds),
+        options: [
+            { value: 0, label: 'No limit' },
+            { value: 5, label: '5' },
+            { value: 10, label: '10' },
+            { value: 15, label: '15' },
+            { value: 20, label: '20' },
+        ],
+    },
+    {
+        name: 'onDraw', label: 'On a tie', type: 'select',
+        defaultHint: ON_DRAW_LABELS[defaults.onDraw],
+        options: [
+            { value: 'draw', label: 'Draw' },
+            { value: 'continue', label: 'Play until a winner' },
+        ],
+    },
+];

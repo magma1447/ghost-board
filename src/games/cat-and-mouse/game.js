@@ -54,32 +54,31 @@ export function createCatAndMouse({
     const state = {
         type: 'cat-and-mouse',
         dartsPerTurn,
-        gap,
-        hitMode,
-        multiStep,
-        maxRounds,
+        options: { gap, hitMode, multiStep, maxRounds, sprint, roundLimitResult },
         players,
         currentPlayerIndex: 0,
-        turnDarts: [], // current set of 3 (reset on sprint) — gates turn-full logic
-        turnDisplay: [], // all darts shown for the ongoing turn (accumulates across sprints)
-        turnLocked: false,
+        turn: {
+            darts: [], // current set of 3 (reset on sprint) — gates turn-full logic
+            display: [], // all darts shown for the ongoing turn (accumulates across sprints)
+            locked: false,
+        },
         round: 1,
-        gameOver: false,
+        isGameOver: false,
         winner: null,
     };
 
     function advancePlayer() {
-        currentPlayer(state).lastDarts = state.turnDisplay; // full turn, including sprint sets
-        state.turnDarts = [];
-        state.turnDisplay = [];
-        state.turnLocked = false;
+        currentPlayer(state).lastDarts = state.turn.display; // full turn, including sprint sets
+        state.turn.darts = [];
+        state.turn.display = [];
+        state.turn.locked = false;
         state.currentPlayerIndex = (state.currentPlayerIndex + 1) % 2;
         if (state.currentPlayerIndex === 0) {
             state.round++;
         }
 
         if (maxRounds > 0 && state.round > maxRounds) {
-            state.gameOver = true;
+            state.isGameOver = true;
             if (roundLimitResult === 'draw') {
                 state.winner = null;
                 return 'draw';
@@ -108,7 +107,7 @@ export function createCatAndMouse({
         const callouts = [];
         const endEvent = advancePlayer(); // 'win' / 'draw' on round limit, else null
 
-        if (!state.gameOver) {
+        if (!state.isGameOver) {
             const player = currentPlayer(state);
             callouts.push({ type: 'remaining', value: player.currentTarget });
         }
@@ -119,10 +118,10 @@ export function createCatAndMouse({
     function onDart(ring, segment) {
         // Dart didn't count (game over, or turn already complete/locked) —
         // 'ignored' lets the UI skip audio while LEDs still flash.
-        if (state.gameOver) {
+        if (state.isGameOver) {
             return { state, event: 'ignored', callouts: [] };
         }
-        if (state.turnLocked || state.turnDarts.length >= dartsPerTurn) {
+        if (state.turn.locked || state.turn.darts.length >= dartsPerTurn) {
             return { state, event: 'ignored', callouts: [] };
         }
 
@@ -135,8 +134,8 @@ export function createCatAndMouse({
 
         if (!isHit) {
             const dart = { ring, segment, hit: false };
-            state.turnDarts.push(dart);
-            state.turnDisplay.push(dart);
+            state.turn.darts.push(dart);
+            state.turn.display.push(dart);
             return { state, event: 'miss', callouts: [] };
         }
 
@@ -145,38 +144,38 @@ export function createCatAndMouse({
         player.progress += steps;
         player.currentTarget = computeTarget(idx, player.progress);
         const dart = { ring, segment, hit: true };
-        state.turnDarts.push(dart);
-        state.turnDisplay.push(dart);
+        state.turn.darts.push(dart);
+        state.turn.display.push(dart);
 
         // Check win conditions
         if (idx === 0 && checkMouseFinished()) {
-            state.gameOver = true;
+            state.isGameOver = true;
             state.winner = 0;
             return { state, event: 'win', callouts: [] };
         }
         if (idx === 1 && checkCatCaught()) {
-            state.gameOver = true;
+            state.isGameOver = true;
             state.winner = 1;
             return { state, event: 'win', callouts: [] };
         }
 
         // Sprint: a perfect set (all darts in the turn hit) earns another full
         // set — reset the darts so the same player keeps throwing.
-        if (sprint && state.turnDarts.length >= dartsPerTurn && state.turnDarts.every((d) => d.hit)) {
-            state.turnDarts = [];
+        if (sprint && state.turn.darts.length >= dartsPerTurn && state.turn.darts.every((d) => d.hit)) {
+            state.turn.darts = [];
             return { state, event: 'sprint', callouts: [] };
         }
 
         // Call out next target (not on last dart)
         const callouts = [];
-        if (state.turnDarts.length < dartsPerTurn) {
+        if (state.turn.darts.length < dartsPerTurn) {
             callouts.push({ type: 'checkout', value: player.currentTarget });
         }
         return { state, event: null, callouts };
     }
 
     function getCallouts() {
-        if (state.gameOver) {
+        if (state.isGameOver) {
             return [];
         }
         return [{ type: 'remaining', value: currentPlayer(state).currentTarget }];

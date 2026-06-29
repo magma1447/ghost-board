@@ -44,16 +44,16 @@ export function stepsForRing(ring, multiStep) {
 // otherwise null. Games with custom turn state (e.g. Cat and Mouse's sprint
 // display, or Simon's per-round sequence) handle their own advance.
 export function advancePlayerBase(state, maxRounds) {
-    currentPlayer(state).lastDarts = state.turnDarts; // keep this turn visible until their next
-    state.turnDarts = [];
-    state.turnLocked = false;
+    currentPlayer(state).lastDarts = state.turn.darts; // keep this turn visible until their next
+    state.turn.darts = [];
+    state.turn.locked = false;
     state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
     if (state.currentPlayerIndex === 0) {
         state.round++;
     }
 
     if (maxRounds > 0 && state.round > maxRounds) {
-        state.gameOver = true;
+        state.isGameOver = true;
         state.winner = null;
         return 'draw';
     }

@@ -106,7 +106,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
 
     // Log a round change once per round (skips finished games)
     function logRound(state) {
-        if (!state || state.gameOver || state.round === lastLoggedRound) {
+        if (!state || state.isGameOver || state.round === lastLoggedRound) {
             return;
         }
         lastLoggedRound = state.round;
@@ -243,7 +243,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
     // match continues (pendingNextLeg) — that still needs confirming.
     function requestEndGame() {
         const game = getGame();
-        const inProgress = game && (!game.getState().gameOver || pendingNextLeg);
+        const inProgress = game && (!game.getState().isGameOver || pendingNextLeg);
         if (!inProgress) {
             handleEndGame();
             return;
@@ -400,7 +400,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                 // the advance button (and re-show the result banner) so play can
                 // continue after a reload. If the game/match is fully over,
                 // offer a rematch instead.
-                if (state.gameOver) {
+                if (state.isGameOver) {
                     if (isMatchPlay(match)) {
                         const matchOver = match.setsWon.some((s) => s >= firstToWin(match.setsBestOf));
                         if (matchOver) {

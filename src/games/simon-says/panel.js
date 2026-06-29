@@ -1,7 +1,8 @@
 // Simon Says game panel — shows targets, scores, and hit/miss feedback
 
-import { formatRoundLabel } from '../format.js';
+import { formatRoundLabel, settingsLine } from '../format.js';
 import { createGamePanel, renderScoreboard, winnerName } from '../panel-factory.js';
+import { defaults, fields } from './options.js';
 
 export function createSimonSaysPanel(container, callbacks) {
     const panel = createGamePanel(container, callbacks);
@@ -10,20 +11,6 @@ export function createSimonSaysPanel(container, callbacks) {
     const sequenceLabel = document.createElement('div');
     sequenceLabel.className = 'game-sequence';
     panel.el.insertBefore(sequenceLabel, panel.scoreboard);
-
-    function buildRulesText(state) {
-        const tags = [];
-        if (state.hitMode !== 'any') {
-            tags.push(state.hitMode === 'doubles' ? 'Doubles' : 'Triples');
-        }
-        if (state.scoring === 'staggered') {
-            tags.push('1-2-3');
-        }
-        if (state.maxRounds > 0) {
-            tags.push(`${state.maxRounds} rnd`);
-        }
-        return tags.length > 0 ? tags.join(' · ') : '';
-    }
 
     function renderSequence(state) {
         sequenceLabel.innerHTML = '';
@@ -45,12 +32,12 @@ export function createSimonSaysPanel(container, callbacks) {
     }
 
     function update(state, event, match) {
-        panel.setRules(buildRulesText(state));
+        panel.setRules(settingsLine(fields, state.options, defaults));
 
         // Past the round limit but still playing → sudden death (play-until-winner)
-        const roundText = (!state.gameOver && state.maxRounds > 0 && state.round > state.maxRounds)
+        const roundText = (!state.isGameOver && state.options.maxRounds > 0 && state.round > state.options.maxRounds)
             ? `Sudden death · round ${state.round}`
-            : formatRoundLabel(state.round, state.maxRounds);
+            : formatRoundLabel(state.round, state.options.maxRounds);
         panel.setRound(roundText, match);
 
         renderSequence(state);
@@ -60,7 +47,7 @@ export function createSimonSaysPanel(container, callbacks) {
             match,
         });
 
-        panel.nextBtn.disabled = state.gameOver;
+        panel.nextBtn.disabled = state.isGameOver;
 
         if (event === 'win') {
             panel.showBanner(`${winnerName(state)} wins!`, 'win');

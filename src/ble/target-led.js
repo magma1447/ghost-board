@@ -13,7 +13,7 @@ let targetLedTimeout = null;
 
 export function showTargetLed(state, delayMs) {
     clearTimeout(targetLedTimeout);
-    if (state.gameOver) {
+    if (state.isGameOver) {
         return;
     }
 

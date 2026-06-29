@@ -129,7 +129,7 @@ export function renderScoreboard(scoreboard, state, options = {}) {
         nameFor = defaultName,
         valueFor,
         infoFor = null,
-        dartsFor = (s, p, isCurrent) => (isCurrent ? s.turnDarts : (p.lastDarts || [])),
+        dartsFor = (s, p, isCurrent) => (isCurrent ? s.turn.darts : (p.lastDarts || [])),
         dartMode = 'hitmiss',
         match = null,
     } = options;

@@ -33,18 +33,14 @@ export function createX01({
     const state = {
         type: 'x01',
         dartsPerTurn,
-        startingScore,
-        doubleIn,
-        doubleOut,
-        bullMode,
-        maxRounds,
+        options: { startingScore, doubleIn, doubleOut, bullMode, maxRounds, checkoutThreshold },
         players,
         currentPlayerIndex: startingPlayerIndex, // rotates each leg in match play
-        turnDarts: [],
-        turnStartScore: startingScore, // saved to revert on bust
-        turnLocked: false, // true after bust — blocks remaining darts
+        // The in-progress turn: darts thrown, the score to revert to on bust,
+        // and whether further darts are locked out (after a bust).
+        turn: { darts: [], startScore: startingScore, locked: false },
         round: 1,
-        gameOver: false,
+        isGameOver: false,
         winner: null,
         opened: new Array(numPlayers).fill(!doubleIn), // per-player: has hit a double to "open"
     };
@@ -59,23 +55,23 @@ export function createX01({
         // Every turn counts, including a missed turn that scored 0 (darts that
         // miss the board register nothing) and a bust (score reverted → 0).
         const leaving = currentPlayer(state);
-        leaving.scored += state.turnStartScore - leaving.score;
+        leaving.scored += state.turn.startScore - leaving.score;
         leaving.visits++;
 
         const drawEvent = advancePlayerBase(state, maxRounds);
-        state.turnStartScore = currentPlayer(state).score;
+        state.turn.startScore = currentPlayer(state).score;
         return drawEvent;
     }
 
     function turnTotal() {
-        return state.turnDarts.reduce((sum, d) => sum + d.points, 0);
+        return state.turn.darts.reduce((sum, d) => sum + d.points, 0);
     }
 
     function nextPlayer() {
         const callouts = [];
 
         // Turn total if not already spoken after 3rd dart
-        if (!turnTotalReturned && state.turnDarts.length > 0) {
+        if (!turnTotalReturned && state.turn.darts.length > 0) {
             callouts.push({ type: 'turnTotal', value: turnTotal() });
         }
 
@@ -83,7 +79,7 @@ export function createX01({
         turnTotalReturned = false;
 
         // Remaining for the incoming player
-        if (!state.gameOver) {
+        if (!state.isGameOver) {
             callouts.push({ type: 'remaining', value: currentPlayer(state).score });
         }
 
@@ -105,10 +101,10 @@ export function createX01({
     function onDart(ring, segment) {
         // Dart didn't count (game over, or turn already complete/locked) —
         // 'ignored' lets the UI skip audio while LEDs still flash.
-        if (state.gameOver) {
+        if (state.isGameOver) {
             return { state, event: 'ignored', callouts: [] };
         }
-        if (state.turnLocked || state.turnDarts.length >= dartsPerTurn) {
+        if (state.turn.locked || state.turn.darts.length >= dartsPerTurn) {
             return { state, event: 'ignored', callouts: [] };
         }
 
@@ -120,7 +116,7 @@ export function createX01({
             if (isDouble(ring)) {
                 state.opened[idx] = true;
             } else {
-                state.turnDarts.push({ ring, segment, points: 0 });
+                state.turn.darts.push({ ring, segment, points: 0 });
                 return { state, event: null, callouts: [] };
             }
         }
@@ -130,28 +126,28 @@ export function createX01({
 
         // Bust: score went negative, or landed on 1 with double-out (impossible to finish)
         if (newScore < 0 || (doubleOut && newScore === 1)) {
-            player.score = state.turnStartScore;
-            state.turnLocked = true;
+            player.score = state.turn.startScore;
+            state.turn.locked = true;
             turnTotalReturned = true; // suppress on switch
             return { state, event: 'bust', callouts: [] };
         }
 
         player.score = newScore;
-        state.turnDarts.push({ ring, segment, points });
+        state.turn.darts.push({ ring, segment, points });
 
         // Reached exactly 0 — but with double-out, must finish on a double
         if (newScore === 0) {
             if (doubleOut && !isDouble(ring)) {
-                player.score = state.turnStartScore;
-                state.turnLocked = true;
+                player.score = state.turn.startScore;
+                state.turn.locked = true;
                 turnTotalReturned = true;
                 return { state, event: 'bust', callouts: [] };
             }
             // Record the winning visit (no advancePlayer follows a win)
-            player.scored += state.turnStartScore - player.score;
+            player.scored += state.turn.startScore - player.score;
             player.visits++;
-            player.lastDarts = state.turnDarts.slice();
-            state.gameOver = true;
+            player.lastDarts = state.turn.darts.slice();
+            state.isGameOver = true;
             state.winner = state.currentPlayerIndex;
             turnTotalReturned = true;
             return { state, event: 'win', callouts: [] };
@@ -159,7 +155,7 @@ export function createX01({
 
         // Build callouts
         const callouts = [];
-        if (state.turnDarts.length >= dartsPerTurn) {
+        if (state.turn.darts.length >= dartsPerTurn) {
             // 3rd dart — call turn total
             callouts.push({ type: 'turnTotal', value: turnTotal() });
             turnTotalReturned = true;
@@ -171,7 +167,7 @@ export function createX01({
     }
 
     function getCallouts() {
-        if (state.gameOver) {
+        if (state.isGameOver) {
             return [];
         }
         return [{ type: 'remaining', value: currentPlayer(state).score }];

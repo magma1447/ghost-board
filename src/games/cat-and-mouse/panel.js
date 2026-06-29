@@ -1,8 +1,9 @@
 // Cat and Mouse game panel
 
-import { formatRoundLabel } from '../format.js';
+import { formatRoundLabel, settingsLine } from '../format.js';
 import { createPlayer } from '../../state/players.js';
 import { createGamePanel, renderScoreboard, winnerName } from '../panel-factory.js';
+import { defaults, fields } from './options.js';
 
 export function createCatAndMousePanel(container, callbacks) {
     const panel = createGamePanel(container, callbacks);
@@ -13,24 +14,9 @@ export function createCatAndMousePanel(container, callbacks) {
     gapLine.className = 'game-summary';
     panel.el.insertBefore(gapLine, panel.banner);
 
-    function buildRulesText(state) {
-        const tags = [];
-        tags.push(`Gap ${state.gap}`);
-        if (state.hitMode !== 'any') {
-            tags.push(state.hitMode === 'doubles' ? 'Doubles' : 'Triples');
-        }
-        if (state.multiStep) {
-            tags.push('Multi-step');
-        }
-        if (state.maxRounds > 0) {
-            tags.push(`${state.maxRounds} rnd`);
-        }
-        return tags.join(' · ');
-    }
-
     function update(state, event, match) {
-        panel.setRules(buildRulesText(state));
-        panel.setRound(formatRoundLabel(state.round, state.maxRounds), match);
+        panel.setRules(settingsLine(fields, state.options, defaults));
+        panel.setRound(formatRoundLabel(state.round, state.options.maxRounds), match);
 
         renderScoreboard(panel.scoreboard, state, {
             // Show the human name with the fixed role, e.g. "Luke the Nuke (Cat)"
@@ -39,18 +25,18 @@ export function createCatAndMousePanel(container, callbacks) {
                 return p.role ? `${playerName} (${p.role})` : playerName;
             },
             valueFor: (p) => '→ ' + p.currentTarget,
-            // turnDisplay accumulates across sprint sets
-            dartsFor: (s, p, isCurrent) => (isCurrent ? s.turnDisplay : (p.lastDarts || [])),
+            // turn.display accumulates across sprint sets
+            dartsFor: (s, p, isCurrent) => (isCurrent ? s.turn.display : (p.lastDarts || [])),
             match,
         });
 
         // Chase gap, from the mouse's perspective (it starts ahead and the
         // cat catches when this reaches 0). = gap + mouse.progress - cat.progress.
-        const ahead = state.gap + state.players[0].progress - state.players[1].progress;
+        const ahead = state.options.gap + state.players[0].progress - state.players[1].progress;
         gapLine.textContent = `Mouse is ${ahead} ahead`;
-        gapLine.hidden = state.gameOver;
+        gapLine.hidden = state.isGameOver;
 
-        panel.nextBtn.disabled = state.gameOver;
+        panel.nextBtn.disabled = state.isGameOver;
 
         if (event === 'win') {
             panel.showBanner(`${winnerName(state)} wins!`, 'win');

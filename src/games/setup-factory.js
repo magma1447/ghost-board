@@ -24,6 +24,7 @@ import '../games/game-panel.css';
 import { createPlayerRoster } from './roster.js';
 import { attachOptionInfo } from '../ui/option-info.js';
 import { openRules } from '../ui/rules-dialog.js';
+import { describeSettings, SETTINGS_SEPARATOR } from './format.js';
 import { settings, updateSettings } from '../state/settings.js';
 
 // Legs / sets are a cross-game concept, so they're built in here rather than
@@ -226,21 +227,10 @@ export function createGameSetup(container, onStart, onCancel, config) {
         return parts.join(', ');
     }
 
-    // Show checked toggles and any select changed from its default.
+    // Checked toggles + any select changed from default, via the shared helper.
     function summarizeOptions(vals) {
-        const tokens = [];
-        fields.forEach((field) => {
-            const value = vals[field.name];
-            if (field.type === 'checkbox') {
-                if (value) {
-                    tokens.push(field.label);
-                }
-            } else if (String(value) !== String(defaults[field.name])) {
-                const opt = field.options.find((o) => String(o.value) === String(value));
-                tokens.push(opt ? opt.label : String(value));
-            }
-        });
-        return tokens.length > 0 ? tokens.join(', ') : 'Defaults';
+        const tokens = describeSettings(fields, vals, defaults);
+        return tokens.length > 0 ? tokens.join(SETTINGS_SEPARATOR) : 'Defaults';
     }
 
     function updateSummaries() {

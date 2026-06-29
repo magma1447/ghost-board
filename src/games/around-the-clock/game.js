@@ -35,17 +35,13 @@ export function createAroundTheClock({
     const state = {
         type: 'around-the-clock',
         dartsPerTurn,
-        bullFinish,
-        hitMode,
-        multiStep,
-        maxRounds,
+        options: { bullFinish, hitMode, multiStep, maxRounds },
         finalTarget,
         players,
         currentPlayerIndex: startingPlayerIndex, // rotates each leg in match play
-        turnDarts: [],
-        turnLocked: false,
+        turn: { darts: [], locked: false },
         round: 1,
-        gameOver: false,
+        isGameOver: false,
         winner: null,
     };
 
@@ -85,7 +81,7 @@ export function createAroundTheClock({
         const callouts = [];
         const drawEvent = advancePlayerBase(state, maxRounds);
 
-        if (!state.gameOver) {
+        if (!state.isGameOver) {
             callouts.push({ type: 'remaining', value: formatTarget(currentPlayer(state).currentTarget) });
         }
 
@@ -95,10 +91,10 @@ export function createAroundTheClock({
     function onDart(ring, segment) {
         // Dart didn't count (game over, or turn already complete/locked) —
         // 'ignored' lets the UI skip audio while LEDs still flash.
-        if (state.gameOver) {
+        if (state.isGameOver) {
             return { state, event: 'ignored', callouts: [] };
         }
-        if (state.turnLocked || state.turnDarts.length >= dartsPerTurn) {
+        if (state.turn.locked || state.turn.darts.length >= dartsPerTurn) {
             return { state, event: 'ignored', callouts: [] };
         }
 
@@ -109,32 +105,32 @@ export function createAroundTheClock({
         const isHit = segmentMatches(segment, target) && ringMatches(ring, target);
 
         if (!isHit) {
-            state.turnDarts.push({ ring, segment, hit: false });
+            state.turn.darts.push({ ring, segment, hit: false });
             return { state, event: 'miss', callouts: [] };
         }
 
         // Hit — advance target (capped at finalTarget + 1 to indicate completion)
         const steps = stepsForRing(ring, multiStep);
         player.currentTarget = Math.min(player.currentTarget + steps, finalTarget + 1);
-        state.turnDarts.push({ ring, segment, hit: true });
+        state.turn.darts.push({ ring, segment, hit: true });
 
         // Check win
         if (player.currentTarget > finalTarget) {
-            state.gameOver = true;
+            state.isGameOver = true;
             state.winner = state.currentPlayerIndex;
             return { state, event: 'win', callouts: [] };
         }
 
         // Call out the next target (but not on last dart — switch will handle it)
         const callouts = [];
-        if (state.turnDarts.length < dartsPerTurn) {
+        if (state.turn.darts.length < dartsPerTurn) {
             callouts.push({ type: 'checkout', value: formatTarget(player.currentTarget) });
         }
         return { state, event: null, callouts };
     }
 
     function getCallouts() {
-        if (state.gameOver) {
+        if (state.isGameOver) {
             return [];
         }
         return [{ type: 'remaining', value: formatTarget(currentPlayer(state).currentTarget) }];

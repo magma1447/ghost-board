@@ -49,18 +49,15 @@ export function createSimonSays({
     const state = {
         type: 'simon-says',
         dartsPerTurn,
-        hitMode,
-        scoring,
-        maxRounds,
+        options: { hitMode, scoring, maxRounds, onDraw },
         sequence: generateSequence(),
         targetsHit: [false, false, false],
         targetSegments: [],
         players,
         currentPlayerIndex: startingPlayerIndex, // rotates each leg in match play
-        turnDarts: [],
-        turnLocked: false,
+        turn: { darts: [], locked: false },
         round: 1,
-        gameOver: false,
+        isGameOver: false,
         winner: null,
     };
 
@@ -93,10 +90,10 @@ export function createSimonSays({
     function onDart(ring, segment) {
         // Dart didn't count (game over, or turn already complete/locked) —
         // 'ignored' lets the UI skip audio while LEDs still flash.
-        if (state.gameOver) {
+        if (state.isGameOver) {
             return { state, event: 'ignored', callouts: [] };
         }
-        if (state.turnLocked || state.turnDarts.length >= dartsPerTurn) {
+        if (state.turn.locked || state.turn.darts.length >= dartsPerTurn) {
             return { state, event: 'ignored', callouts: [] };
         }
 
@@ -117,16 +114,16 @@ export function createSimonSays({
             currentPlayer(state).score += scoring === 'staggered' ? hitsThisTurn : 1;
         }
 
-        state.turnDarts.push({ ring, segment, hit: isHit });
+        state.turn.darts.push({ ring, segment, hit: isHit });
         updateTargetSegments();
 
         return { state, event: isHit ? null : 'miss', callouts: [] };
     }
 
     function nextPlayer() {
-        currentPlayer(state).lastDarts = state.turnDarts; // keep this turn visible until their next
-        state.turnDarts = [];
-        state.turnLocked = false;
+        currentPlayer(state).lastDarts = state.turn.darts; // keep this turn visible until their next
+        state.turn.darts = [];
+        state.turn.locked = false;
         state.targetsHit = [false, false, false];
         state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
 
@@ -134,12 +131,12 @@ export function createSimonSays({
             // All players completed this round — advance
             state.round++;
 
-            if (state.maxRounds > 0 && state.round > state.maxRounds) {
+            if (maxRounds > 0 && state.round > maxRounds) {
                 const winner = determineWinner();
                 // End at the limit unless it's a tie and we play until a winner
                 // (sudden death — keep playing further rounds until one leads).
                 if (winner !== null || onDraw === 'draw') {
-                    state.gameOver = true;
+                    state.isGameOver = true;
                     state.targetSegments = [];
                     state.winner = winner;
                     const event = winner !== null ? 'win' : 'draw';
@@ -154,7 +151,7 @@ export function createSimonSays({
 
         // Announce all 3 targets: chime + first number, then second and third
         const callouts = [];
-        if (!state.gameOver) {
+        if (!state.isGameOver) {
             callouts.push({ type: 'remaining', value: state.sequence[0] });
             callouts.push({ type: 'checkout', value: state.sequence[1] });
             callouts.push({ type: 'checkout', value: state.sequence[2] });
@@ -165,7 +162,7 @@ export function createSimonSays({
 
     // Initial callouts for game start (first player never gets a nextPlayer call)
     function getCallouts() {
-        if (state.gameOver) {
+        if (state.isGameOver) {
             return [];
         }
         return [
