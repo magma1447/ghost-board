@@ -150,3 +150,18 @@ export function generateLabels(cx, cy) {
         };
     });
 }
+
+// Simulated LED ring — an annular band of per-number arcs around the scoring
+// area, reaching out toward the bezel where the LEDs sit. With a radial
+// gradient (bright outer, fading inward) + blur, this mimics the physical
+// board's acrylic-diffused RGB ring.
+export const LED_RING = { inner: RADII.BOARD - 2, outer: RADII.BOARD + 22 };
+
+export function generateLedArcs(cx, cy) {
+    const pad = 0.75; // shrink each arc so adjacent LEDs leave a small dark gap
+    return BOARD_ORDER.map((num, i) => {
+        const startDeg = i * SEGMENT_ANGLE - SEGMENT_ANGLE / 2 + pad;
+        const endDeg = i * SEGMENT_ANGLE + SEGMENT_ANGLE / 2 - pad;
+        return { num, path: arcPath(cx, cy, LED_RING.outer, LED_RING.inner, startDeg, endDeg) };
+    });
+}

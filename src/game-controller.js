@@ -10,7 +10,7 @@ import { startGame, stopGame, getGame, getPanel } from './games/manager.js';
 import { saveGame, loadGame, clearGame } from './state/game-store.js';
 import { createPlayer } from './state/players.js';
 import { calcPoints } from './ble/protocol.js';
-import { onHit as ledHit, onSwitch as ledSwitch, allOff as ledsOff, allOn as ledsOn } from './ble/leds.js';
+import { onHit as ledHit, onSwitch as ledSwitch, allOff as ledsOff, allOn as ledsOn } from './led-controller.js';
 import { showTargetLed } from './ble/target-led.js';
 import { playHit, playSwitch, playBust, playWin, playSprint } from './audio/sounds.js';
 import { processCallouts } from './audio/callouts.js';

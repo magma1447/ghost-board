@@ -9,7 +9,8 @@
 import { createDartboard } from './board/dartboard.js';
 import { createConnection } from './ble/connection.js';
 import { createLog } from './ui/log.js';
-import { init as initLeds, sweep as ledSweep } from './ble/leds.js';
+import { createPhysicalLeds } from './ble/leds.js';
+import { sweep as ledSweep, registerLedOutput } from './led-controller.js';
 import { setTheme, setVoice, getThemeNames, getVoiceNames, ensureAudio } from './audio/sounds.js';
 import { settings, updateSettings } from './state/settings.js';
 import { createMenu } from './ui/menu.js';
@@ -28,6 +29,9 @@ panelBoard.className = 'panel-board';
 app.appendChild(panelBoard);
 const board = createDartboard(panelBoard);
 const headline = createBoardHeadline(panelBoard);
+
+// The SVG board is one LED output (it mirrors LED state with no BLE involved).
+registerLedOutput(board.leds);
 
 // -- Right panel: status + hit log --
 const panelSidebar = document.createElement('div');
@@ -239,4 +243,5 @@ function onStatus({ status, detail }) {
 }
 
 const ble = createConnection(controller.handleEvent, onStatus);
-initLeds((data) => ble.write(data));
+// The physical board is the other LED output (encodes → BLE).
+registerLedOutput(createPhysicalLeds((data) => ble.write(data)));

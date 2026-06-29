@@ -6,7 +6,7 @@
 // and Mouse via player.currentTarget) and multi-target games (Simon Says via
 // state.targetSegments).
 
-import { showSegment as ledShowSegment, showSegments as ledShowSegments, allOff as ledsAllOff } from './leds.js';
+import { showSegment as ledShowSegment, showSegments as ledShowSegments, allOff as ledsAllOff } from '../led-controller.js';
 import { LED_COLOR } from './protocol.js';
 
 let targetLedTimeout = null;
