@@ -28,11 +28,6 @@ export function createSimonSaysPanel(container, { onNextPlayer, onEndGame }) {
     scoreboard.className = 'game-scoreboard';
     el.appendChild(scoreboard);
 
-    // Turn info (darts thrown)
-    const turnInfo = document.createElement('div');
-    turnInfo.className = 'game-turn-info';
-    el.appendChild(turnInfo);
-
     // Event banner (win / draw)
     const banner = document.createElement('div');
     banner.className = 'game-banner';
@@ -108,12 +103,17 @@ export function createSimonSaysPanel(container, { onNextPlayer, onEndGame }) {
             sequenceLabel.appendChild(span);
         }
 
-        // Scoreboard
+        // Scoreboard — one block per player, with their turn darts below
         scoreboard.innerHTML = '';
         for (let i = 0; i < state.players.length; i++) {
             const p = state.players[i];
-            const row = document.createElement('div');
-            row.className = 'game-score-row' + (i === state.currentPlayerIndex ? ' active' : '');
+            const isCurrent = i === state.currentPlayerIndex;
+
+            const block = document.createElement('div');
+            block.className = 'game-player-block' + (isCurrent ? ' active' : '');
+
+            const head = document.createElement('div');
+            head.className = 'game-player-head';
 
             const name = document.createElement('span');
             name.className = 'game-player-name';
@@ -123,24 +123,24 @@ export function createSimonSaysPanel(container, { onNextPlayer, onEndGame }) {
             score.className = 'game-player-value';
             score.textContent = String(p.score);
 
-            row.append(name, score);
-            scoreboard.appendChild(row);
-        }
+            head.append(name, score);
 
-        // Turn darts
-        if (state.turnDarts.length > 0) {
-            turnInfo.innerHTML = '';
-            for (const d of state.turnDarts) {
+            // Turn darts: live for the current player, last completed for others
+            const turn = document.createElement('div');
+            turn.className = 'game-player-turn';
+            const darts = isCurrent ? state.turnDarts : (p.lastDarts || []);
+            for (const d of darts) {
                 const span = document.createElement('span');
                 span.className = d.hit ? 'game-dart-hit' : 'game-dart-miss';
                 span.textContent = formatDart(d);
-                if (turnInfo.childNodes.length > 0) {
-                    turnInfo.appendChild(document.createTextNode(', '));
+                if (turn.childNodes.length > 0) {
+                    turn.appendChild(document.createTextNode(', '));
                 }
-                turnInfo.appendChild(span);
+                turn.appendChild(span);
             }
-        } else {
-            turnInfo.textContent = '';
+
+            block.append(head, turn);
+            scoreboard.appendChild(block);
         }
 
         nextBtn.disabled = state.gameOver;

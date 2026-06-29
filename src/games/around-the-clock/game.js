@@ -26,7 +26,7 @@ export function createAroundTheClock({
 
     const players = [];
     for (let i = 0; i < numPlayers; i++) {
-        players.push({ uuid: playerUuids[i], currentTarget: 1 });
+        players.push({ uuid: playerUuids[i], currentTarget: 1, lastDarts: [] });
     }
 
     const state = {
@@ -50,6 +50,7 @@ export function createAroundTheClock({
     }
 
     function advancePlayer() {
+        currentPlayer().lastDarts = state.turnDarts; // keep this turn visible until their next
         state.turnDarts = [];
         state.turnLocked = false;
         state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;

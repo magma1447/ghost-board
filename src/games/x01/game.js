@@ -25,7 +25,7 @@ export function createX01({
 } = {}) {
     const players = [];
     for (let i = 0; i < numPlayers; i++) {
-        players.push({ uuid: playerUuids[i], score: startingScore, visits: 0, scored: 0 });
+        players.push({ uuid: playerUuids[i], score: startingScore, visits: 0, scored: 0, lastDarts: [] });
     }
 
     const state = {
@@ -62,6 +62,7 @@ export function createX01({
         const leaving = currentPlayer();
         leaving.scored += state.turnStartScore - leaving.score;
         leaving.visits++;
+        leaving.lastDarts = state.turnDarts; // keep this turn visible until their next
         state.turnDarts = [];
         state.turnLocked = false;
         state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
@@ -161,6 +162,7 @@ export function createX01({
             // Record the winning visit (no advancePlayer follows a win)
             player.scored += state.turnStartScore - player.score;
             player.visits++;
+            player.lastDarts = state.turnDarts.slice();
             state.gameOver = true;
             state.winner = state.currentPlayerIndex;
             turnTotalReturned = true;

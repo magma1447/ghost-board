@@ -23,11 +23,6 @@ export function createX01Panel(container, { onNextPlayer, onEndGame }) {
     scoreboard.className = 'game-scoreboard';
     el.appendChild(scoreboard);
 
-    // Turn info
-    const turnInfo = document.createElement('div');
-    turnInfo.className = 'game-turn-info';
-    el.appendChild(turnInfo);
-
     // Event banner (bust / win / draw)
     const banner = document.createElement('div');
     banner.className = 'game-banner';
@@ -96,10 +91,15 @@ export function createX01Panel(container, { onNextPlayer, onEndGame }) {
         scoreboard.innerHTML = '';
         for (let i = 0; i < state.players.length; i++) {
             const p = state.players[i];
-            const row = document.createElement('div');
-            row.className = 'game-score-row' + (i === state.currentPlayerIndex ? ' active' : '');
+            const isCurrent = i === state.currentPlayerIndex;
 
-            // Name + 3-dart average stacked on the left
+            const block = document.createElement('div');
+            block.className = 'game-player-block' + (isCurrent ? ' active' : '');
+
+            // Head: name + 3-dart average (left), score (right)
+            const head = document.createElement('div');
+            head.className = 'game-player-head';
+
             const info = document.createElement('div');
             info.className = 'game-player-info';
 
@@ -118,16 +118,19 @@ export function createX01Panel(container, { onNextPlayer, onEndGame }) {
             value.className = 'game-player-value';
             value.textContent = p.score;
 
-            row.append(info, value);
-            scoreboard.appendChild(row);
-        }
+            head.append(info, value);
 
-        if (state.turnDarts.length > 0) {
-            const dartStrs = state.turnDarts.map(formatDart);
-            const turnTotal = state.turnDarts.reduce((sum, d) => sum + d.points, 0);
-            turnInfo.textContent = `${dartStrs.join(', ')}  (${turnTotal})`;
-        } else {
-            turnInfo.textContent = '';
+            // Turn darts: live for the current player, last completed for others
+            const turn = document.createElement('div');
+            turn.className = 'game-player-turn';
+            const darts = isCurrent ? state.turnDarts : (p.lastDarts || []);
+            if (darts.length > 0) {
+                const total = darts.reduce((sum, d) => sum + d.points, 0);
+                turn.textContent = `${darts.map(formatDart).join(', ')}  (${total})`;
+            }
+
+            block.append(head, turn);
+            scoreboard.appendChild(block);
         }
 
         nextBtn.disabled = state.gameOver;

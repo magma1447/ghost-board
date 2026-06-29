@@ -28,11 +28,6 @@ export function createCatAndMousePanel(container, { onNextPlayer, onEndGame }) {
     gapLine.className = 'game-summary';
     el.appendChild(gapLine);
 
-    // Turn info
-    const turnInfo = document.createElement('div');
-    turnInfo.className = 'game-turn-info';
-    el.appendChild(turnInfo);
-
     // Event banner (win / draw)
     const banner = document.createElement('div');
     banner.className = 'game-banner';
@@ -87,12 +82,17 @@ export function createCatAndMousePanel(container, { onNextPlayer, onEndGame }) {
         // Round
         roundLabel.textContent = formatRoundLabel(state.round, state.maxRounds);
 
-        // Scoreboard
+        // Scoreboard \u2014 one block per player, with their turn darts below
         scoreboard.innerHTML = '';
         for (let i = 0; i < state.players.length; i++) {
             const p = state.players[i];
-            const row = document.createElement('div');
-            row.className = 'game-score-row' + (i === state.currentPlayerIndex ? ' active' : '');
+            const isCurrent = i === state.currentPlayerIndex;
+
+            const block = document.createElement('div');
+            block.className = 'game-player-block' + (isCurrent ? ' active' : '');
+
+            const head = document.createElement('div');
+            head.className = 'game-player-head';
 
             const name = document.createElement('span');
             name.className = 'game-player-name';
@@ -104,8 +104,24 @@ export function createCatAndMousePanel(container, { onNextPlayer, onEndGame }) {
             target.className = 'game-player-value';
             target.textContent = '\u2192 ' + p.currentTarget;
 
-            row.append(name, target);
-            scoreboard.appendChild(row);
+            head.append(name, target);
+
+            // Turn darts: live for the current player, last completed for others
+            const turn = document.createElement('div');
+            turn.className = 'game-player-turn';
+            const darts = isCurrent ? state.turnDarts : (p.lastDarts || []);
+            for (const d of darts) {
+                const span = document.createElement('span');
+                span.className = d.hit ? 'game-dart-hit' : 'game-dart-miss';
+                span.textContent = formatDart(d);
+                if (turn.childNodes.length > 0) {
+                    turn.appendChild(document.createTextNode(', '));
+                }
+                turn.appendChild(span);
+            }
+
+            block.append(head, turn);
+            scoreboard.appendChild(block);
         }
 
         // Chase gap, from the mouse's perspective (it starts ahead and the
@@ -113,22 +129,6 @@ export function createCatAndMousePanel(container, { onNextPlayer, onEndGame }) {
         const ahead = state.gap + state.players[0].progress - state.players[1].progress;
         gapLine.textContent = `Mouse is ${ahead} ahead`;
         gapLine.hidden = state.gameOver;
-
-        // Turn darts
-        if (state.turnDarts.length > 0) {
-            turnInfo.innerHTML = '';
-            for (const d of state.turnDarts) {
-                const span = document.createElement('span');
-                span.className = d.hit ? 'game-dart-hit' : 'game-dart-miss';
-                span.textContent = formatDart(d);
-                if (turnInfo.childNodes.length > 0) {
-                    turnInfo.appendChild(document.createTextNode(', '));
-                }
-                turnInfo.appendChild(span);
-            }
-        } else {
-            turnInfo.textContent = '';
-        }
 
         nextBtn.disabled = state.gameOver;
 

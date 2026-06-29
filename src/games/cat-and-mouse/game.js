@@ -38,8 +38,8 @@ export function createCatAndMouse({
     // Always exactly 2 players. The Mouse/Cat roles are fixed; the human
     // names come from the roster and are shown alongside the role in the panel.
     const players = [
-        { uuid: playerUuids[0], role: 'Mouse', progress: 0, currentTarget: computeTarget(0, 0) },
-        { uuid: playerUuids[1], role: 'Cat', progress: 0, currentTarget: computeTarget(1, 0) },
+        { uuid: playerUuids[0], role: 'Mouse', progress: 0, currentTarget: computeTarget(0, 0), lastDarts: [] },
+        { uuid: playerUuids[1], role: 'Cat', progress: 0, currentTarget: computeTarget(1, 0), lastDarts: [] },
     ];
     void numPlayers;
 
@@ -63,6 +63,7 @@ export function createCatAndMouse({
     }
 
     function advancePlayer() {
+        currentPlayer().lastDarts = state.turnDarts; // keep this turn visible until their next
         state.turnDarts = [];
         state.turnLocked = false;
         state.currentPlayerIndex = (state.currentPlayerIndex + 1) % 2;

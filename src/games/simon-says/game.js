@@ -39,7 +39,7 @@ export function createSimonSays({
 
     const players = [];
     for (let i = 0; i < numPlayers; i++) {
-        players.push({ uuid: playerUuids[i], score: 0 });
+        players.push({ uuid: playerUuids[i], score: 0, lastDarts: [] });
     }
 
     const state = {
@@ -133,6 +133,7 @@ export function createSimonSays({
     }
 
     function nextPlayer() {
+        currentPlayer().lastDarts = state.turnDarts; // keep this turn visible until their next
         state.turnDarts = [];
         state.turnLocked = false;
         state.targetsHit = [false, false, false];
