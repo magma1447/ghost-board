@@ -12,6 +12,7 @@
 
 import { calcPoints } from '../../ble/protocol.js';
 import { currentPlayer, advancePlayerBase } from '../game-helpers.js';
+import { checkoutFor } from './checkout-sequence.js';
 
 export function createX01({
     startingScore = 501,
@@ -43,6 +44,7 @@ export function createX01({
         isGameOver: false,
         winner: null,
         opened: new Array(numPlayers).fill(!doubleIn), // per-player: has hit a double to "open"
+        targetSegments: [], // checkout numbers to light on the board (kept in sync below)
     };
 
     // Ephemeral — tracks whether onDart already returned a turnTotal callout
@@ -180,6 +182,7 @@ export function createX01({
     function loadState(saved) {
         Object.assign(state, saved);
         turnTotalReturned = false;
+        refreshCheckoutTargets();
     }
 
     // Big heads-up number for the current player: points remaining
@@ -187,5 +190,50 @@ export function createX01({
         return String(currentPlayer(state).score);
     }
 
-    return { onDart, nextPlayer, getCallouts, getHeadline, getState, loadState };
+    // Numbers (1–20) in the current player's checkout, for the board LED
+    // highlight. Bull has no ring LED so it's dropped; treble/double collapse to
+    // their number. Empty when there's no checkout.
+    function checkoutTargetNumbers() {
+        const path = checkoutFor(state);
+        if (!path) {
+            return [];
+        }
+        const numbers = [];
+        for (const label of path) {
+            if (label === 'D-Bull' || label === '25') {
+                continue;
+            }
+            const n = parseInt(label.replace(/^[TD]/, ''), 10);
+            if (n >= 1 && n <= 20 && !numbers.includes(n)) {
+                numbers.push(n);
+            }
+        }
+        return numbers;
+    }
+
+    // Keep the checkout LED targets in sync — showTargetLed lights targetSegments.
+    function refreshCheckoutTargets() {
+        state.targetSegments = checkoutTargetNumbers();
+    }
+
+    refreshCheckoutTargets();
+
+    return {
+        // Wrap the turn-advancing methods so the checkout LED targets refresh
+        // after every dart and switch.
+        onDart: (ring, segment) => {
+            const result = onDart(ring, segment);
+            refreshCheckoutTargets();
+            return result;
+        },
+        nextPlayer: () => {
+            const result = nextPlayer();
+            refreshCheckoutTargets();
+            return result;
+        },
+        getCallouts,
+        getHeadline,
+        getState,
+        loadState,
+    };
 }

@@ -6,7 +6,7 @@
 // and Mouse via player.currentTarget) and multi-target games (Simon Says via
 // state.targetSegments).
 
-import { showSegment as ledShowSegment, showSegments as ledShowSegments } from './leds.js';
+import { showSegment as ledShowSegment, showSegments as ledShowSegments, allOff as ledsAllOff } from './leds.js';
 import { LED_COLOR } from './protocol.js';
 
 let targetLedTimeout = null;
@@ -17,15 +17,23 @@ export function showTargetLed(state, delayMs) {
         return;
     }
 
-    // Multi-target: light up all remaining targets (Simon Says)
-    if (state.targetSegments && state.targetSegments.length > 0) {
+    // Games with explicit segment targets (Simon Says targets, X01 checkout
+    // numbers). An empty list means there's nothing to aim at right now, so
+    // clear the ring rather than leaving stale segments lit.
+    if (state.targetSegments) {
+        const segments = state.targetSegments;
         targetLedTimeout = setTimeout(() => {
-            ledShowSegments(state.targetSegments, LED_COLOR.GREEN);
+            if (segments.length > 0) {
+                ledShowSegments(segments, LED_COLOR.GREEN);
+            } else {
+                ledsAllOff();
+            }
         }, delayMs);
         return;
     }
 
-    // Single target: light up the current player's target
+    // Single target: light up the current player's target (Around the Clock,
+    // Cat and Mouse). Bull (target > 20) has no ring LED.
     const player = state.players[state.currentPlayerIndex];
     if (!player || !player.currentTarget || player.currentTarget > 20) {
         return;
