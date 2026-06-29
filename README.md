@@ -76,6 +76,12 @@ docker compose -f docker/compose.yml up
 
 Then open `http://localhost:3501` and click **Connect** to pair with your Granboard.
 
+## Secure Context
+
+WebBluetooth only works in a [secure context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts). `http://localhost` counts as secure, so running the app and opening it on the **same machine** works out of the box.
+
+Accessing the app from another device over the network (e.g. `http://192.168.1.x:3501`) over plain HTTP will **not** work — the browser blocks WebBluetooth. For that you need to serve the app over HTTPS.
+
 ## Browser Support
 
 Ghost Board requires **WebBluetooth**, which is supported in:
