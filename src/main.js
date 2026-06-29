@@ -19,6 +19,7 @@ import { createSimonSaysSetup } from './games/simon-says/setup.js';
 import { openPlayerConfig } from './ui/player-config.js';
 import { createPlayer } from './state/players.js';
 import { createWinDisplay } from './ui/win-display.js';
+import { confirmDialog } from './ui/confirm.js';
 
 const app = document.getElementById('app');
 
@@ -385,6 +386,21 @@ function handleEndGame() {
     setMenuDisabled(false);
 }
 
+// End Game button: confirm first while a game is still in progress (an
+// accidental press would wipe it). Skip the prompt once the game is over.
+function requestEndGame() {
+    const game = getGame();
+    if (!game || game.getState().gameOver) {
+        handleEndGame();
+        return;
+    }
+    confirmDialog({
+        message: 'End the current game?',
+        confirmLabel: 'End Game',
+        onConfirm: handleEndGame,
+    });
+}
+
 // New Game from the persistent menu: abandon any active game / in-flight
 // picker/setup, clear the area, then show the picker.
 function startNewGameFlow() {
@@ -403,7 +419,7 @@ function launchGame(type, opts, resumed = false) {
     // opts carries numPlayers + playerUuids from the setup panel's roster
     startGame(type, opts, gameArea, {
         onNextPlayer: handleNextPlayer,
-        onEndGame: handleEndGame,
+        onEndGame: requestEndGame,
     });
 
     const names = (opts.playerUuids || []).map((uuid) => createPlayer(uuid).getName());
