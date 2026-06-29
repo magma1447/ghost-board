@@ -30,6 +30,9 @@ export function createSimonSays({
             seq.push(pool[idx]);
             pool.splice(idx, 1);
         }
+        // Order doesn't matter for the player, so present targets in numeric
+        // order for consistent display and readout.
+        seq.sort((a, b) => a - b);
         return seq;
     }
 
