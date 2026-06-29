@@ -188,5 +188,10 @@ export function createSimonSays({
 
     updateTargetSegments();
 
-    return { onDart, nextPlayer, getCallouts, getState, loadState };
+    // Big heads-up number for the current player: their score
+    function getHeadline() {
+        return String(currentPlayer().score);
+    }
+
+    return { onDart, nextPlayer, getCallouts, getHeadline, getState, loadState };
 }

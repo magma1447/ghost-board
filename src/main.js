@@ -27,6 +27,37 @@ panelBoard.className = 'panel-board';
 app.appendChild(panelBoard);
 const board = createDartboard(panelBoard);
 
+// Big current-player number overlaid on the board (heads-up display).
+// pointer-events:none so board clicks (debug input) pass straight through.
+const boardHeadline = document.createElement('div');
+boardHeadline.className = 'board-headline';
+boardHeadline.hidden = true;
+panelBoard.appendChild(boardHeadline);
+
+// Set the overlay text (or hide it when empty). Font size adapts to length
+// via data-len so longer values (1001, "Bull") don't overflow the board.
+function setBoardHeadline(text) {
+    const str = (text === 0 || text) ? String(text) : '';
+    if (!str) {
+        boardHeadline.hidden = true;
+        boardHeadline.textContent = '';
+        return;
+    }
+    boardHeadline.dataset.len = str.length <= 2 ? 'short' : (str.length === 3 ? 'mid' : 'long');
+    boardHeadline.textContent = str;
+    boardHeadline.hidden = false;
+}
+
+// Refresh the overlay from the active game, respecting the Display setting
+function updateHeadline() {
+    const game = getGame();
+    if (game && settings().display.bigNumber) {
+        setBoardHeadline(game.getHeadline());
+    } else {
+        setBoardHeadline('');
+    }
+}
+
 // -- Right panel: status + hit log --
 const panelSidebar = document.createElement('div');
 panelSidebar.className = 'panel-sidebar';
@@ -143,6 +174,20 @@ const menu = createMenu(settingsBtn, [
                             selectEl.value = current || '(default)';
                         });
                     }
+                },
+            },
+        ],
+    },
+    {
+        label: 'Display',
+        children: [
+            {
+                label: 'Big number',
+                type: 'toggle',
+                value: settings().display.bigNumber,
+                onChange(enabled) {
+                    updateSettings('display.bigNumber', enabled);
+                    updateHeadline();
                 },
             },
         ],
@@ -313,6 +358,7 @@ function handleNextPlayer() {
     } else {
         logGameOutcome(state, event);
     }
+    updateHeadline();
 }
 
 function handleEndGame() {
@@ -322,6 +368,7 @@ function handleEndGame() {
     currentGameType = null;
     currentGameOpts = null;
     log.logEvent('Game ended', 'game');
+    updateHeadline();
 }
 
 // New Game from the persistent menu: abandon any active game / in-flight
@@ -348,6 +395,7 @@ function launchGame(type, opts, resumed = false) {
     const names = (opts.playerUuids || []).map((uuid) => createPlayer(uuid).getName());
     const who = names.length > 0 ? ` · ${names.join(', ')}` : '';
     log.logEvent(`Game ${resumed ? 'resumed' : 'started'} — ${GAME_LABELS[type] || type}${who}`, 'game');
+    updateHeadline();
 }
 
 const GAME_LABELS = {
@@ -421,6 +469,7 @@ if (savedGameData && GAME_SETUPS[savedGameData.type]) {
         getPanel().update(game.getState(), null);
         showTargetLed(game.getState(), 500);
         logRound(game.getState());
+        updateHeadline();
     }
 }
 
@@ -496,6 +545,7 @@ function onEvent(event) {
             showTargetLed(state, 800);
             persistState();
             logGameOutcome(state, gameEvent);
+            updateHeadline();
         } else {
             log.logEvent(formatHit(event), 'hit');
             playHit(event.ring);

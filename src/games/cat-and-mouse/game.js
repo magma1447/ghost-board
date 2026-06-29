@@ -187,5 +187,10 @@ export function createCatAndMouse({
         Object.assign(state, saved);
     }
 
-    return { onDart, nextPlayer, getCallouts, getState, loadState };
+    // Big heads-up number for the current player: their current target
+    function getHeadline() {
+        return String(currentPlayer().currentTarget);
+    }
+
+    return { onDart, nextPlayer, getCallouts, getHeadline, getState, loadState };
 }

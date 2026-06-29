@@ -186,5 +186,17 @@ export function createAroundTheClock({
         Object.assign(state, saved);
     }
 
-    return { onDart, nextPlayer, getCallouts, getState, loadState };
+    // Big heads-up number for the current player: their current target
+    function getHeadline() {
+        const target = currentPlayer().currentTarget;
+        if (target > finalTarget) {
+            return 'Done';
+        }
+        if (target === 21) {
+            return 'Bull';
+        }
+        return String(target);
+    }
+
+    return { onDart, nextPlayer, getCallouts, getHeadline, getState, loadState };
 }

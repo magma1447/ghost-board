@@ -14,6 +14,9 @@ const DEFAULTS = {
         callRemaining: true,
         callCheckout: true,
     },
+    display: {
+        bigNumber: true,
+    },
     debug: {
         mouseInput: false,
     },

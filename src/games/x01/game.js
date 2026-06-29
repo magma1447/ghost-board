@@ -185,5 +185,10 @@ export function createX01({
         turnTotalReturned = false;
     }
 
-    return { onDart, nextPlayer, getCallouts, getState, loadState };
+    // Big heads-up number for the current player: points remaining
+    function getHeadline() {
+        return String(currentPlayer().score);
+    }
+
+    return { onDart, nextPlayer, getCallouts, getHeadline, getState, loadState };
 }
