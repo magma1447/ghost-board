@@ -18,6 +18,7 @@ import { createCatAndMouseSetup } from './games/cat-and-mouse/setup.js';
 import { createSimonSaysSetup } from './games/simon-says/setup.js';
 import { openPlayerConfig } from './ui/player-config.js';
 import { createPlayer } from './state/players.js';
+import { createWinDisplay } from './ui/win-display.js';
 
 const app = document.getElementById('app');
 
@@ -283,6 +284,9 @@ panelSidebar.appendChild(gameArea);
 // game start/restore can log into it.
 const log = createLog(panelSidebar);
 
+// Full-screen win / draw celebration overlay
+const winDisplay = createWinDisplay();
+
 // -- Top-bar menu actions (New Game + Players) --
 const newGameBtn = document.createElement('button');
 newGameBtn.className = 'new-game-btn';
@@ -364,7 +368,7 @@ function handleNextPlayer() {
     if (event === 'switch') {
         log.logEvent(`Player: ${playerLabel(state.players[state.currentPlayerIndex])}`, 'player');
     } else {
-        logGameOutcome(state, event);
+        handleGameOutcome(state, event);
     }
     updateHeadline();
 }
@@ -377,6 +381,7 @@ function handleEndGame() {
     currentGameOpts = null;
     log.logEvent('Game ended', 'game');
     updateHeadline();
+    winDisplay.hide();
     setMenuDisabled(false);
 }
 
@@ -405,6 +410,7 @@ function launchGame(type, opts, resumed = false) {
     const who = names.length > 0 ? ` · ${names.join(', ')}` : '';
     log.logEvent(`Game ${resumed ? 'resumed' : 'started'} — ${GAME_LABELS[type] || type}${who}`, 'game');
     updateHeadline();
+    winDisplay.hide();
     setMenuDisabled(true);
 }
 
@@ -517,12 +523,16 @@ function logRound(state) {
     log.logEvent(`Round ${state.round}`, 'game');
 }
 
-// Log a win/draw outcome (no-op for other events)
-function logGameOutcome(state, gameEvent) {
+// Announce a win/draw outcome: log it and show the full-screen overlay
+// (no-op for other events)
+function handleGameOutcome(state, gameEvent) {
     if (gameEvent === 'win') {
-        log.logEvent(`${createPlayer(state.players[state.winner].uuid).getName()} wins`, 'game');
+        const name = createPlayer(state.players[state.winner].uuid).getName();
+        log.logEvent(`${name} wins`, 'game');
+        winDisplay.showWin(name);
     } else if (gameEvent === 'draw') {
         log.logEvent('Draw', 'game');
+        winDisplay.showDraw();
     }
 }
 
@@ -554,7 +564,7 @@ function onEvent(event) {
             }
             showTargetLed(state, 800);
             persistState();
-            logGameOutcome(state, gameEvent);
+            handleGameOutcome(state, gameEvent);
             updateHeadline();
         } else {
             log.logEvent(formatHit(event), 'hit');
