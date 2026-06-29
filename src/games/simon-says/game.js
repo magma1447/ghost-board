@@ -11,6 +11,8 @@
 // turn. targetSegments lists the remaining unhit segment numbers for LED
 // display (main.js reads this to light up multiple segments).
 
+import { currentPlayer, ringMatchesMode } from '../game-helpers.js';
+
 export function createSimonSays({
     numPlayers = 2,
     playerUuids = [],
@@ -61,20 +63,6 @@ export function createSimonSays({
         winner: null,
     };
 
-    function currentPlayer() {
-        return state.players[state.currentPlayerIndex];
-    }
-
-    function ringMatches(ring) {
-        if (hitMode === 'doubles') {
-            return ring === 'D';
-        }
-        if (hitMode === 'triples') {
-            return ring === 'T';
-        }
-        return ring === 'SO' || ring === 'SI' || ring === 'D' || ring === 'T';
-    }
-
     // Rebuild targetSegments from sequence and targetsHit
     function updateTargetSegments() {
         state.targetSegments = [];
@@ -114,7 +102,7 @@ export function createSimonSays({
         // Check if dart hits any remaining (unhit) target
         let hitIndex = -1;
         for (let i = 0; i < state.sequence.length; i++) {
-            if (!state.targetsHit[i] && segment === state.sequence[i] && ringMatches(ring)) {
+            if (!state.targetsHit[i] && segment === state.sequence[i] && ringMatchesMode(ring, hitMode)) {
                 hitIndex = i;
                 break;
             }
@@ -125,7 +113,7 @@ export function createSimonSays({
             state.targetsHit[hitIndex] = true;
             // Staggered: 1st hit = 1pt, 2nd = 2pt, 3rd = 3pt
             const hitsThisTurn = state.targetsHit.filter(Boolean).length;
-            currentPlayer().score += scoring === 'staggered' ? hitsThisTurn : 1;
+            currentPlayer(state).score += scoring === 'staggered' ? hitsThisTurn : 1;
         }
 
         state.turnDarts.push({ ring, segment, hit: isHit });
@@ -135,7 +123,7 @@ export function createSimonSays({
     }
 
     function nextPlayer() {
-        currentPlayer().lastDarts = state.turnDarts; // keep this turn visible until their next
+        currentPlayer(state).lastDarts = state.turnDarts; // keep this turn visible until their next
         state.turnDarts = [];
         state.turnLocked = false;
         state.targetsHit = [false, false, false];
@@ -198,7 +186,7 @@ export function createSimonSays({
 
     // Big heads-up number for the current player: their score
     function getHeadline() {
-        return String(currentPlayer().score);
+        return String(currentPlayer(state).score);
     }
 
     return { onDart, nextPlayer, getCallouts, getHeadline, getState, loadState };

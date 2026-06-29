@@ -11,6 +11,8 @@
 // This avoids circular comparison complexity — win conditions are simple
 // integer comparisons on progress values.
 
+import { currentPlayer, ringMatchesMode, stepsForRing } from '../game-helpers.js';
+
 // Standard dartboard clockwise order (physical layout, not numerical)
 const BOARD_ORDER = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
 
@@ -61,12 +63,8 @@ export function createCatAndMouse({
         winner: null,
     };
 
-    function currentPlayer() {
-        return state.players[state.currentPlayerIndex];
-    }
-
     function advancePlayer() {
-        currentPlayer().lastDarts = state.turnDisplay; // full turn, including sprint sets
+        currentPlayer(state).lastDarts = state.turnDisplay; // full turn, including sprint sets
         state.turnDarts = [];
         state.turnDisplay = [];
         state.turnLocked = false;
@@ -89,29 +87,6 @@ export function createCatAndMouse({
         return null;
     }
 
-    function ringMatches(ring) {
-        if (hitMode === 'doubles') {
-            return ring === 'D';
-        }
-        if (hitMode === 'triples') {
-            return ring === 'T';
-        }
-        return ring === 'SO' || ring === 'SI' || ring === 'D' || ring === 'T';
-    }
-
-    function stepsForRing(ring) {
-        if (!multiStep) {
-            return 1;
-        }
-        if (ring === 'D') {
-            return 2;
-        }
-        if (ring === 'T') {
-            return 3;
-        }
-        return 1;
-    }
-
     // Cat catches mouse when cat's progress lead equals or exceeds the gap.
     // Since cat starts `gap` positions behind, this means cat has physically
     // reached or passed the mouse on the board.
@@ -129,7 +104,7 @@ export function createCatAndMouse({
         const endEvent = advancePlayer(); // 'win' / 'draw' on round limit, else null
 
         if (!state.gameOver) {
-            const player = currentPlayer();
+            const player = currentPlayer(state);
             callouts.push({ type: 'remaining', value: player.currentTarget });
         }
 
@@ -146,12 +121,12 @@ export function createCatAndMouse({
             return { state, event: 'ignored', callouts: [] };
         }
 
-        const player = currentPlayer();
+        const player = currentPlayer(state);
         const idx = state.currentPlayerIndex;
         const target = player.currentTarget;
 
         // Check if dart hits current target
-        const isHit = segment === target && ringMatches(ring);
+        const isHit = segment === target && ringMatchesMode(ring, hitMode);
 
         if (!isHit) {
             const dart = { ring, segment, hit: false };
@@ -161,7 +136,7 @@ export function createCatAndMouse({
         }
 
         // Hit — advance
-        const steps = stepsForRing(ring);
+        const steps = stepsForRing(ring, multiStep);
         player.progress += steps;
         player.currentTarget = computeTarget(idx, player.progress);
         const dart = { ring, segment, hit: true };
@@ -199,7 +174,7 @@ export function createCatAndMouse({
         if (state.gameOver) {
             return [];
         }
-        return [{ type: 'remaining', value: currentPlayer().currentTarget }];
+        return [{ type: 'remaining', value: currentPlayer(state).currentTarget }];
     }
 
     function getState() {
@@ -212,7 +187,7 @@ export function createCatAndMouse({
 
     // Big heads-up number for the current player: their current target
     function getHeadline() {
-        return String(currentPlayer().currentTarget);
+        return String(currentPlayer(state).currentTarget);
     }
 
     return { onDart, nextPlayer, getCallouts, getHeadline, getState, loadState };

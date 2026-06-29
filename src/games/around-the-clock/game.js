@@ -13,6 +13,8 @@
 //   multiStep: doubles advance 2 targets, triples advance 3
 //   bullFinish: 'off' (end at 20) | 'single' | 'double' (must finish on bull)
 
+import { currentPlayer, ringMatchesMode, stepsForRing, advancePlayerBase } from '../game-helpers.js';
+
 export function createAroundTheClock({
     numPlayers = 2,
     playerUuids = [],
@@ -46,27 +48,6 @@ export function createAroundTheClock({
         winner: null,
     };
 
-    function currentPlayer() {
-        return state.players[state.currentPlayerIndex];
-    }
-
-    function advancePlayer() {
-        currentPlayer().lastDarts = state.turnDarts; // keep this turn visible until their next
-        state.turnDarts = [];
-        state.turnLocked = false;
-        state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
-        if (state.currentPlayerIndex === 0) {
-            state.round++;
-        }
-
-        if (maxRounds > 0 && state.round > maxRounds) {
-            state.gameOver = true;
-            state.winner = null;
-            return 'draw';
-        }
-        return null;
-    }
-
     // Convert internal target number to a speakable value for voice callouts.
     // Targets 1–20 are spoken as-is; target 21 (bull) is spoken as 25 or 50.
     function formatTarget(target) {
@@ -88,14 +69,7 @@ export function createAroundTheClock({
         }
 
         // Number targets — check hit mode
-        if (hitMode === 'doubles') {
-            return ring === 'D';
-        }
-        if (hitMode === 'triples') {
-            return ring === 'T';
-        }
-        // Any ring on the correct segment
-        return ring === 'SO' || ring === 'SI' || ring === 'D' || ring === 'T';
+        return ringMatchesMode(ring, hitMode);
     }
 
     function segmentMatches(segment, target) {
@@ -106,27 +80,12 @@ export function createAroundTheClock({
         return segment === target;
     }
 
-    // With multi-step enabled, doubles advance 2 targets and triples advance 3.
-    // E.g. target is 5, hit T5 → advance to 8 (skipping 6 and 7).
-    function stepsForRing(ring) {
-        if (!multiStep) {
-            return 1;
-        }
-        if (ring === 'D' || ring === 'DBULL') {
-            return 2;
-        }
-        if (ring === 'T') {
-            return 3;
-        }
-        return 1;
-    }
-
     function nextPlayer() {
         const callouts = [];
-        const drawEvent = advancePlayer();
+        const drawEvent = advancePlayerBase(state, maxRounds);
 
         if (!state.gameOver) {
-            callouts.push({ type: 'remaining', value: formatTarget(currentPlayer().currentTarget) });
+            callouts.push({ type: 'remaining', value: formatTarget(currentPlayer(state).currentTarget) });
         }
 
         return { state, event: drawEvent || 'switch', callouts };
@@ -142,7 +101,7 @@ export function createAroundTheClock({
             return { state, event: 'ignored', callouts: [] };
         }
 
-        const player = currentPlayer();
+        const player = currentPlayer(state);
         const target = player.currentTarget;
 
         // Check if this dart hits the current target
@@ -154,7 +113,7 @@ export function createAroundTheClock({
         }
 
         // Hit — advance target (capped at finalTarget + 1 to indicate completion)
-        const steps = stepsForRing(ring);
+        const steps = stepsForRing(ring, multiStep);
         player.currentTarget = Math.min(player.currentTarget + steps, finalTarget + 1);
         state.turnDarts.push({ ring, segment, hit: true });
 
@@ -177,7 +136,7 @@ export function createAroundTheClock({
         if (state.gameOver) {
             return [];
         }
-        return [{ type: 'remaining', value: formatTarget(currentPlayer().currentTarget) }];
+        return [{ type: 'remaining', value: formatTarget(currentPlayer(state).currentTarget) }];
     }
 
     function getState() {
@@ -190,7 +149,7 @@ export function createAroundTheClock({
 
     // Big heads-up number for the current player: their current target
     function getHeadline() {
-        const target = currentPlayer().currentTarget;
+        const target = currentPlayer(state).currentTarget;
         if (target > finalTarget) {
             return 'Done';
         }

@@ -11,6 +11,7 @@
 //   'checkout' (per-dart when score is below threshold)
 
 import { calcPoints } from '../../ble/protocol.js';
+import { currentPlayer, advancePlayerBase } from '../game-helpers.js';
 
 export function createX01({
     startingScore = 501,
@@ -50,34 +51,19 @@ export function createX01({
     // Ephemeral — tracks whether onDart already returned a turnTotal callout
     let turnTotalReturned = false;
 
-    function currentPlayer() {
-        return state.players[state.currentPlayerIndex];
-    }
-
     function advancePlayer() {
-        // Count the completed visit (for the 3-dart average): add the points
-        // actually scored this turn and bump the visit count together, so the
-        // average only changes at turn end — never mid-throw. Every turn
-        // counts, including a missed turn that scored 0 (darts that miss the
-        // board register nothing) and a bust (score reverted → 0 scored).
-        const leaving = currentPlayer();
+        // Count the completed visit (for the 3-dart average) before rotating:
+        // add the points actually scored this turn and bump the visit count
+        // together, so the average only changes at turn end — never mid-throw.
+        // Every turn counts, including a missed turn that scored 0 (darts that
+        // miss the board register nothing) and a bust (score reverted → 0).
+        const leaving = currentPlayer(state);
         leaving.scored += state.turnStartScore - leaving.score;
         leaving.visits++;
-        leaving.lastDarts = state.turnDarts; // keep this turn visible until their next
-        state.turnDarts = [];
-        state.turnLocked = false;
-        state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
-        if (state.currentPlayerIndex === 0) {
-            state.round++;
-        }
-        state.turnStartScore = currentPlayer().score;
 
-        if (maxRounds > 0 && state.round > maxRounds) {
-            state.gameOver = true;
-            state.winner = null;
-            return 'draw';
-        }
-        return null;
+        const drawEvent = advancePlayerBase(state, maxRounds);
+        state.turnStartScore = currentPlayer(state).score;
+        return drawEvent;
     }
 
     function turnTotal() {
@@ -97,7 +83,7 @@ export function createX01({
 
         // Remaining for the incoming player
         if (!state.gameOver) {
-            callouts.push({ type: 'remaining', value: currentPlayer().score });
+            callouts.push({ type: 'remaining', value: currentPlayer(state).score });
         }
 
         return { state, event: drawEvent || 'switch', callouts };
@@ -125,7 +111,7 @@ export function createX01({
             return { state, event: 'ignored', callouts: [] };
         }
 
-        const player = currentPlayer();
+        const player = currentPlayer(state);
         const idx = state.currentPlayerIndex;
 
         // Double-in: darts before first double don't score
@@ -187,7 +173,7 @@ export function createX01({
         if (state.gameOver) {
             return [];
         }
-        return [{ type: 'remaining', value: currentPlayer().score }];
+        return [{ type: 'remaining', value: currentPlayer(state).score }];
     }
 
     function getState() {
@@ -201,7 +187,7 @@ export function createX01({
 
     // Big heads-up number for the current player: points remaining
     function getHeadline() {
-        return String(currentPlayer().score);
+        return String(currentPlayer(state).score);
     }
 
     return { onDart, nextPlayer, getCallouts, getHeadline, getState, loadState };
