@@ -1,7 +1,7 @@
 // Adds a "?" info button to each setup option row that has a description,
 // revealing the option's one-liner in a click popover. Shared by game setups.
 
-import { showPopover } from '../ui/popover.js';
+import { showPopover } from './popover.js';
 
 export function attachOptionInfo(el, descriptions) {
     el.querySelectorAll('.game-setup-row').forEach((row) => {

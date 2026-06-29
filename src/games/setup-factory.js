@@ -16,7 +16,7 @@
 
 import '../games/game-panel.css';
 import { createPlayerRoster } from './roster.js';
-import { attachOptionInfo } from './option-info.js';
+import { attachOptionInfo } from '../ui/option-info.js';
 import { openRules } from '../ui/rules-dialog.js';
 import { settings, updateSettings } from '../state/settings.js';
 
