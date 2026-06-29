@@ -3,6 +3,7 @@
 // (click, not hover).
 
 let current = null;
+let currentAnchor = null;
 
 function close() {
     if (!current) {
@@ -10,12 +11,14 @@ function close() {
     }
     current.remove();
     current = null;
+    currentAnchor = null;
     document.removeEventListener('click', onDocClick, true);
     document.removeEventListener('keydown', onKey);
 }
 
 function onDocClick(e) {
-    if (current && !current.contains(e.target)) {
+    // Ignore clicks on the anchor itself — its own handler toggles the popover.
+    if (current && !current.contains(e.target) && !(currentAnchor && currentAnchor.contains(e.target))) {
         close();
     }
 }
@@ -27,6 +30,11 @@ function onKey(e) {
 }
 
 export function showPopover(anchor, text) {
+    // Second click on the same anchor toggles it closed.
+    if (current && currentAnchor === anchor) {
+        close();
+        return;
+    }
     close();
 
     const pop = document.createElement('div');
@@ -48,6 +56,7 @@ export function showPopover(anchor, text) {
     pop.style.left = `${left}px`;
 
     current = pop;
+    currentAnchor = anchor;
     // Defer so the opening click doesn't immediately dismiss it
     setTimeout(() => {
         document.addEventListener('click', onDocClick, true);
