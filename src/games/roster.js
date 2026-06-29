@@ -234,7 +234,7 @@ export function createPlayerRoster(container, { min = 1, max = 8 } = {}) {
             orderBar.appendChild(label);
 
             const ops = selection.length === 2
-                ? [['Swap', 'swap']]
+                ? [['Randomize', 'randomize'], ['Swap', 'swap']]
                 : [['Randomize', 'randomize'], ['Rotate', 'rotate'], ['Reverse', 'reverse']];
             for (const [text, op] of ops) {
                 const orderBtn = document.createElement('button');
