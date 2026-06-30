@@ -8,6 +8,29 @@ The Granboard itself is a fairly simple device — it detects where a dart lands
 
 Ghost Board is a web-based alternative to the official Granboard app. It connects to the board over Bluetooth Low Energy (BLE), receives hit events, and sends LED commands back. Everything else — game rules, scoring, sound effects, voice callouts, and the visual dartboard — runs entirely in the browser.
 
+## Screenshots
+
+<em>Click any image for full size.</em>
+
+<table>
+  <tr>
+    <td width="50%"><a href="screenshots/new-game-picker.png"><img src="screenshots/new-game-picker.png" width="100%" alt="New game picker"></a><br><sub>Choose a game — X01, Around the Clock, Cat &amp; Mouse, or Simon Says.</sub></td>
+    <td width="50%"><a href="screenshots/x01-setup.png"><img src="screenshots/x01-setup.png" width="100%" alt="X01 setup"></a><br><sub>X01 setup — players, match format (legs / sets), and game options.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><a href="screenshots/gameplay-cat-and-mouse.png"><img src="screenshots/gameplay-cat-and-mouse.png" width="100%" alt="Cat and Mouse gameplay"></a><br><sub>Cat &amp; Mouse in play — scoreboard, big on-board number, undo / end game.</sub></td>
+    <td width="50%"><a href="screenshots/game-options-help.png"><img src="screenshots/game-options-help.png" width="100%" alt="Game options with help tooltip"></a><br><sub>Collapsible game options with per-option help tooltips.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><a href="screenshots/game-rules.png"><img src="screenshots/game-rules.png" width="100%" alt="Game rules"></a><br><sub>Built-in rules and how-to-play for each game.</sub></td>
+    <td width="50%"><a href="screenshots/player-config.png"><img src="screenshots/player-config.png" width="100%" alt="Player configuration"></a><br><sub>Manage named players, reused across games.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><a href="screenshots/settings-menu.png"><img src="screenshots/settings-menu.png" width="100%" alt="Settings menu"></a><br><sub>Settings — sound theme, voice callouts, board theme, and more.</sub></td>
+    <td width="50%"><a href="screenshots/bluetooth-connection.png"><img src="screenshots/bluetooth-connection.png" width="100%" alt="Bluetooth connection"></a><br><sub>Bluetooth connection to the Granboard, with live status.</sub></td>
+  </tr>
+</table>
+
 ## Features
 
 - Interactive SVG dartboard with real-time hit highlighting
