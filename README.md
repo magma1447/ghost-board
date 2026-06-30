@@ -102,6 +102,10 @@ docker compose -f docker/compose.yml up
 
 Then open `http://localhost:3501` and click the Bluetooth icon to pair with your Granboard.
 
+## Install it like an app
+
+Ghost Board is a **PWA** (Progressive Web App) — which is just a website you can install. In a supported browser, look for an **Install** option in the address bar, or **Add to Home Screen** on a phone or tablet. Installing puts a Ghost Board icon on your home screen / desktop, opens it in its own window (no browser tabs or address bar), lets it work offline, and keeps it up to date automatically. You don't have to install it — it runs fine in a normal browser tab too.
+
 ## Secure Context
 
 WebBluetooth only works in a [secure context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts). `http://localhost` counts as secure, so running the app and opening it on the **same machine** works out of the box.
