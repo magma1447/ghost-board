@@ -5,6 +5,10 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    /* Fill the sidebar's game-area so the scoreboard (not the whole panel)
+       becomes the scroll region and the buttons stay pinned. */
+    height: 100%;
+    min-height: 0;
 }
 
 .game-rules {
@@ -51,6 +55,9 @@
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
 }
 
 /* Per-player block: head (name/score) + their turn darts below. The block's

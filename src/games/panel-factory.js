@@ -239,6 +239,17 @@ export function renderScoreboard(scoreboard, state, options = {}) {
         block.append(...children);
         scoreboard.appendChild(block);
     }
+
+    // Centre the active player's card in the scrollable scoreboard, but only
+    // when the active player changes (re-centering on every dart would jitter).
+    const activeKey = String(state.currentPlayerIndex);
+    if (scoreboard.dataset.activeKey !== activeKey) {
+        scoreboard.dataset.activeKey = activeKey;
+        const activeBlock = scoreboard.querySelector('.game-player-block.active');
+        if (activeBlock) {
+            activeBlock.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }
+    }
 }
 
 // Common winner-name lookup for "X wins!" banners.
