@@ -3,16 +3,19 @@
 // Standard dartboard order (clockwise from top)
 export const BOARD_ORDER = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
 
-// Radii (proportional to standard dartboard dimensions in mm)
+// Radii (proportional). The double/treble bands follow the soft-tip Granboard,
+// whose scoring rings are wider (~12) than a steel board's regulation 8mm —
+// measured off the product photos. The thick wire borders on the physical board
+// are structural and not drawn here.
 export const RADII = {
     BOARD: 170,
     DOUBLE_OUTER: 170,
-    DOUBLE_INNER: 162,
-    SINGLE_OUTER_OUTER: 162,
-    SINGLE_OUTER_INNER: 107,
-    TRIPLE_OUTER: 107,
-    TRIPLE_INNER: 99,
-    SINGLE_INNER_OUTER: 99,
+    DOUBLE_INNER: 158,
+    SINGLE_OUTER_OUTER: 158,
+    SINGLE_OUTER_INNER: 106,
+    TRIPLE_OUTER: 106,
+    TRIPLE_INNER: 94,
+    SINGLE_INNER_OUTER: 94,
     SINGLE_INNER_INNER: 16,
     BULL_OUTER: 16,
     BULL_INNER: 6.35,
