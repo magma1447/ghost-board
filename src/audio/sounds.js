@@ -282,6 +282,10 @@ function applyVoice(utterance) {
     const voice = getVoices().find((v) => v.name === selectedVoiceName);
     if (voice) {
         utterance.voice = voice;
+        // Android Chrome's TTS largely ignores `voice` and follows `lang`, so
+        // set both — this is what makes the spoken language actually switch on
+        // Android (desktop honours `voice` either way).
+        utterance.lang = voice.lang;
     }
 }
 
