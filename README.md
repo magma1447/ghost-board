@@ -19,6 +19,7 @@ Ghost Board is a web-based alternative to the official Granboard app. It connect
 - BLE connection with auto-reconnect; status shown in a Bluetooth icon (red / green / yellow) with toast messages
 - LED control — hit flash, player-switch sweep, target highlighting, game-aware on/off
 - Simulated LED ring on the SVG board — the web board mirrors the physical board's LEDs (targets, X01 checkout, switch sweep, hit flashes), so the full effect is visible without hardware
+- Board colour themes matching the LED Granboard range — Green / red (3S), Blue / red (3S), White (3S), and Granboard 132 — selectable in Settings → Display
 - Sound effects with three themes (impact, gunshot, arcade)
 - Voice callouts — turn total, remaining score, per-dart checkout calls; configurable voice via browser SpeechSynthesis
 - Per-game rules and per-option help, with collapsible setup sections that summarise the current config

@@ -7,7 +7,7 @@
 // glue live in their own modules.
 
 import { createDartboard } from './board/dartboard.js';
-import { BOARD_THEMES } from './board/segments.js';
+import { BOARD_THEMES, DEFAULT_BOARD_THEME } from './board/segments.js';
 import { createConnection } from './ble/connection.js';
 import { createLog } from './ui/log.js';
 import { createPhysicalLeds } from './ble/leds.js';
@@ -212,7 +212,7 @@ const menu = createMenu(settingsBtn, [
                 label: 'Board theme',
                 type: 'select',
                 options: Object.keys(BOARD_THEMES).map((key) => BOARD_THEMES[key].label),
-                value: (BOARD_THEMES[settings().display.boardTheme] || BOARD_THEMES.standard).label,
+                value: (BOARD_THEMES[settings().display.boardTheme] || BOARD_THEMES[DEFAULT_BOARD_THEME]).label,
                 onChange(label) {
                     const key = Object.keys(BOARD_THEMES).find((k) => BOARD_THEMES[k].label === label);
                     board.setTheme(key);

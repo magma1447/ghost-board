@@ -6,6 +6,19 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 const HIGHLIGHT_COLOR = '#ffff00';
 const HIGHLIGHT_OPACITY = '0.7';
 
+// Lighten (amount > 0, toward white) or darken (amount < 0, toward black) a
+// #rrggbb colour by a 0–1 fraction. Used to derive the bezel's edge shading.
+function shade(hex, amount) {
+    const n = parseInt(hex.slice(1), 16);
+    const target = amount < 0 ? 0 : 255;
+    const p = Math.abs(amount);
+    const mix = (channel) => Math.round(channel + (target - channel) * p);
+    const r = mix((n >> 16) & 0xff);
+    const g = mix((n >> 8) & 0xff);
+    const b = mix(n & 0xff);
+    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+}
+
 export function createDartboard(container) {
     const size = 420;
     const cx = size / 2;
@@ -37,6 +50,9 @@ export function createDartboard(container) {
         cyan: '#21d0d0', purple: '#9b6bff', white: '#f0f0f0',
     };
     const innerOffset = (LED_RING.inner / LED_RING.outer).toFixed(3);
+    // Inner/outer opacity is theme-tunable (white borders wash out semi-
+    // transparent colour, so they push the opacity up); set in setTheme.
+    const ledGradStops = [];
     for (const [name, hex] of Object.entries(LED_PALETTE)) {
         const grad = document.createElementNS(SVG_NS, 'radialGradient');
         grad.setAttribute('id', `led-${name}`);
@@ -54,7 +70,30 @@ export function createDartboard(container) {
         s2.setAttribute('stop-opacity', '0.95');
         grad.append(s1, s2);
         defs.appendChild(grad);
+        ledGradStops.push({ inner: s1, outer: s2 });
     }
+    // Bezel gradient — gives the border a raised, rounded (valved) cross-section:
+    // darker at the inner and outer edges, lighter along the crest, so it reads
+    // as a moulded ring rather than a flat band. Stop colours are derived from
+    // the theme's bezel colour in setTheme().
+    const bezelGrad = document.createElementNS(SVG_NS, 'radialGradient');
+    bezelGrad.setAttribute('id', 'bezel-grad');
+    bezelGrad.setAttribute('gradientUnits', 'userSpaceOnUse');
+    bezelGrad.setAttribute('cx', cx);
+    bezelGrad.setAttribute('cy', cy);
+    bezelGrad.setAttribute('r', RADII.BOARD + 26);
+    const bezelStops = [
+        { offset: '0.84' }, // inner edge — shaded down
+        { offset: '0.93' }, // crest — highlight
+        { offset: '1' }, // outer rim — shaded down
+    ].map(({ offset }) => {
+        const stop = document.createElementNS(SVG_NS, 'stop');
+        stop.setAttribute('offset', offset);
+        bezelGrad.appendChild(stop);
+        return stop;
+    });
+    defs.appendChild(bezelGrad);
+
     svg.appendChild(defs);
 
     // Background circle (bezel)
@@ -62,7 +101,7 @@ export function createDartboard(container) {
     bg.setAttribute('cx', cx);
     bg.setAttribute('cy', cy);
     bg.setAttribute('r', RADII.BOARD + 26);
-    bg.setAttribute('fill', '#2d2d2d');
+    bg.setAttribute('fill', 'url(#bezel-grad)');
     svg.appendChild(bg);
 
     // Simulated RGB LED ring — diffused per-number arcs, strongest at the outer
@@ -185,9 +224,24 @@ export function createDartboard(container) {
                 el.setAttribute('fill', color);
             }
         }
-        bg.setAttribute('fill', theme.bezel);
+        // Bezel: shade its edges off-colour for a raised, rounded look.
+        bezelStops[0].setAttribute('stop-color', shade(theme.bezel, -0.18));
+        bezelStops[1].setAttribute('stop-color', shade(theme.bezel, 0.12));
+        bezelStops[2].setAttribute('stop-color', shade(theme.bezel, -0.30));
         for (const text of numberEls) {
             text.setAttribute('fill', theme.numberColor);
+        }
+        // LED arc width is theme-tunable (wider on low-contrast white borders).
+        for (const arc of generateLedArcs(cx, cy, theme.ledPad)) {
+            if (ledArcs[arc.num]) {
+                ledArcs[arc.num].setAttribute('d', arc.path);
+            }
+        }
+        // LED glow opacity — pushed up on white borders so colour stays vivid.
+        const ledOpacity = theme.ledOpacity || { inner: 0, outer: 0.95 };
+        for (const { inner, outer } of ledGradStops) {
+            inner.setAttribute('stop-opacity', ledOpacity.inner);
+            outer.setAttribute('stop-opacity', ledOpacity.outer);
         }
     }
 

@@ -26,34 +26,50 @@ const SEGMENT_ANGLE = 360 / 20;
 // Roles: singleEven/singleOdd (the single beds), multiEven/multiOdd (the
 // double + treble rings), bullOuter/bullInner.
 // A theme maps colour roles → fills, plus the bezel (board border) and number
-// colour. Colours sampled from Granboard product photos.
+// colour. The four themes mirror the four LED-equipped Granboard products;
+// colours sampled from their product photos.
 export const BOARD_THEMES = {
-    standard: {
-        label: 'Standard (green / red)',
-        singleEven: '#1a1a1a', singleOdd: '#f5deb3',
-        multiEven: '#e8113a', multiOdd: '#00963f',
-        bullOuter: '#00963f', bullInner: '#e8113a',
+    green: {
+        // GRANBOARD3s Green: black/white beds, red + green rings
+        label: 'Green / red (3S)',
+        singleEven: '#1a1a1a', singleOdd: '#ececec',
+        multiEven: '#c41e30', multiOdd: '#1f9b4e',
+        bullOuter: '#1f9b4e', bullInner: '#c41e30',
         bezel: '#2d2d2d', numberColor: '#ffffff',
+        ledPad: 0.6, ledOpacity: { inner: 0, outer: 0.95 },
     },
-    bluered: {
-        // GRANBOARD3s blue: black/white beds, red + deep royal-blue rings
-        label: 'Blue / red',
+    blue: {
+        // GRANBOARD3s Blue: black/white beds, red + deep royal-blue rings
+        label: 'Blue / red (3S)',
         singleEven: '#1a1a1a', singleOdd: '#ececec',
         multiEven: '#c41e30', multiOdd: '#22479b',
         bullOuter: '#22479b', bullInner: '#c41e30',
         bezel: '#2d2d2d', numberColor: '#ffffff',
+        ledPad: 0.6, ledOpacity: { inner: 0, outer: 0.95 },
     },
     white: {
-        // GRANBOARD3s white: same beds/rings as blue, but a white border
-        label: 'White (blue / red)',
+        // GRANBOARD3s White: same beds/rings as blue, but a white border
+        label: 'White (3S)',
         singleEven: '#1a1a1a', singleOdd: '#ececec',
         multiEven: '#c41e30', multiOdd: '#22479b',
         bullOuter: '#22479b', bullInner: '#c41e30',
         bezel: '#f0f0f0', numberColor: '#1f1f1f',
+        // Brighter LEDs: a white border washes out semi-transparent colour.
+        ledPad: 0.6, ledOpacity: { inner: 0.3, outer: 1 },
+    },
+    gran132: {
+        // GRANBOARD132 White: red/blue beds (same hues as the White 3S) with
+        // the rings in the opposite colour, on a white border (European style)
+        label: 'Granboard 132',
+        singleEven: '#22479b', singleOdd: '#c41e30',
+        multiEven: '#c41e30', multiOdd: '#22479b',
+        bullOuter: '#c41e30', bullInner: '#22479b',
+        bezel: '#f0f0f0', numberColor: '#1f1f1f',
+        ledPad: 0.6, ledOpacity: { inner: 0.3, outer: 1 },
     },
 };
 
-export const DEFAULT_BOARD_THEME = 'standard';
+export const DEFAULT_BOARD_THEME = 'green';
 
 // Colour role for a numbered segment at the given clockwise position.
 function segmentRoles(posIndex) {
@@ -187,8 +203,9 @@ export function generateLabels(cx, cy) {
 // board's acrylic-diffused RGB ring.
 export const LED_RING = { inner: RADII.BOARD - 2, outer: RADII.BOARD + 22 };
 
-export function generateLedArcs(cx, cy) {
-    const pad = 0.75; // shrink each arc so adjacent LEDs leave a small dark gap
+export function generateLedArcs(cx, cy, pad = 0.75) {
+    // pad shrinks each arc so adjacent LEDs leave a small dark gap; lower pad =
+    // wider, brighter-looking arcs. Tuned per theme (see BOARD_THEMES.ledPad).
     return BOARD_ORDER.map((num, i) => {
         const startDeg = i * SEGMENT_ANGLE - SEGMENT_ANGLE / 2 + pad;
         const endDeg = i * SEGMENT_ANGLE + SEGMENT_ANGLE / 2 - pad;
