@@ -24,6 +24,7 @@ Ghost Board is a web-based alternative to the official Granboard app. It connect
 - Voice callouts — turn total, remaining score, per-dart checkout calls; configurable voice via browser SpeechSynthesis
 - Per-game rules and per-option help, with collapsible setup sections that summarise the current config
 - Collapsible event-log console
+- Installable PWA — add to home screen / desktop, works offline, and auto-updates to the latest deploy
 - Game state persistence — survives page refresh and BLE disconnect
 - Settings stored in localStorage via a gear menu
 - Debug mode — mouse clicks on the board simulate dart hits

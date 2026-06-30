@@ -9,3 +9,4 @@ services:
       - ../src:/app/src
       - ../index.html:/app/index.html
       - ../vite.config.js:/app/vite.config.js
+      - ../public:/app/public
