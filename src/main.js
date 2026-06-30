@@ -24,6 +24,9 @@ import { createGameController } from './game-controller.js';
 
 const app = document.getElementById('app');
 
+// Apply the saved UI scale (rem-based UI scales with the root font size).
+document.documentElement.style.fontSize = `${settings().display.uiScale}%`;
+
 // -- Left panel: dartboard + heads-up display --
 const panelBoard = document.createElement('div');
 panelBoard.className = 'panel-board';
@@ -208,6 +211,19 @@ const menu = createMenu(settingsBtn, [
     {
         label: 'Display',
         children: [
+            {
+                label: 'UI scale',
+                type: 'range',
+                min: 100,
+                max: 130,
+                step: 5,
+                value: settings().display.uiScale,
+                format: (v) => `${v}%`,
+                onChange(scale) {
+                    document.documentElement.style.fontSize = `${scale}%`;
+                    updateSettings('display.uiScale', scale);
+                },
+            },
             {
                 label: 'Big number',
                 type: 'toggle',

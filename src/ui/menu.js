@@ -113,6 +113,25 @@ function renderItem(item) {
         cb.checked = item.value;
         cb.addEventListener('change', () => item.onChange(cb.checked));
         row.appendChild(cb);
+    } else if (item.type === 'range') {
+        const wrap = document.createElement('div');
+        wrap.className = 'menu-range';
+        const input = document.createElement('input');
+        input.type = 'range';
+        input.min = item.min;
+        input.max = item.max;
+        input.step = item.step || 1;
+        input.value = item.value;
+        const value = document.createElement('span');
+        value.className = 'menu-range-value';
+        const fmt = item.format || ((v) => v);
+        value.textContent = fmt(item.value);
+        input.addEventListener('input', () => {
+            value.textContent = fmt(input.value);
+            item.onChange(Number(input.value));
+        });
+        wrap.append(input, value);
+        row.appendChild(wrap);
     }
 
     return row;

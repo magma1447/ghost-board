@@ -17,6 +17,7 @@ const DEFAULTS = {
     display: {
         bigNumber: true,
         boardTheme: 'green',
+        uiScale: 110,
     },
     debug: {
         mouseInput: false,

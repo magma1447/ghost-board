@@ -8,6 +8,11 @@ html, body {
     height: 100%;
 }
 
+/* Scale the rem-based UI up for readability */
+html {
+    font-size: 110%;
+}
+
 body {
     background: #121212;
     color: #e0e0e0;
@@ -525,6 +530,26 @@ body {
     color: #e0e0e0;
     font-size: 0.8rem;
     text-transform: capitalize;
+}
+
+.menu-range {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.menu-range input[type="range"] {
+    width: 7rem;
+    accent-color: #4caf50;
+    cursor: pointer;
+}
+
+.menu-range-value {
+    min-width: 2.8em;
+    text-align: right;
+    color: #e0e0e0;
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
 }
 
 /* Game picker */
