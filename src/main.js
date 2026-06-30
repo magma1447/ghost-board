@@ -179,6 +179,10 @@ const menu = createMenu(settingsBtn, [
                     updateSettings('audio.voice', name);
                 },
                 onRender(selectEl) {
+                    // Voice names/locales are already correctly cased — opt out
+                    // of the .menu-select `capitalize` so e.g. "sv-SE" doesn't
+                    // render as "Sv-SE".
+                    selectEl.style.textTransform = 'none';
                     // Populate sorted, language-labelled voices (value = voice
                     // name). Rebuild when the async voice list loads/changes.
                     const populate = () => {

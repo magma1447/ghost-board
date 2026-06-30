@@ -271,14 +271,26 @@ export function getVoiceNames() {
     return getVoices().map((v) => v.name);
 }
 
-// Voices sorted by language then name, each labelled with its language so the
-// right one is pickable (Android voice names alone don't reveal the language).
-// value stays the voice name (matched in applyVoice).
+// Normalise a voice's lang tag to conventional BCP-47 casing for display, since
+// browsers report it inconsistently (e.g. "en_US" / "en-us" -> "en-US").
+function prettyLang(lang) {
+    if (!lang) {
+        return '';
+    }
+    const [base, region] = lang.replace('_', '-').split('-');
+    return region ? `${base.toLowerCase()}-${region.toUpperCase()}` : base.toLowerCase();
+}
+
+// Voices grouped/sorted by language, labelled "name (locale)" so the voice name
+// reads first with its language in parens — the locale still makes the language
+// pickable (Android voice names alone don't reveal it). value stays the voice
+// name (matched in applyVoice).
 export function getVoiceOptions() {
     return getVoices()
         .slice()
-        .sort((a, b) => (a.lang || '').localeCompare(b.lang || '') || a.name.localeCompare(b.name))
-        .map((v) => ({ value: v.name, label: `${v.lang} — ${v.name}` }));
+        .map((v) => ({ value: v.name, label: `${v.name} (${prettyLang(v.lang)})`, sortKey: prettyLang(v.lang) + v.name }))
+        .sort((a, b) => a.sortKey.localeCompare(b.sortKey))
+        .map(({ value, label }) => ({ value, label }));
 }
 
 export function setVoice(name) {
