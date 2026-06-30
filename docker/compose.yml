@@ -1,8 +1,10 @@
+name: ghostboard
+
 services:
   app:
     build:
       context: ..
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/images/app/Dockerfile
     ports:
       - "3501:3501"
     volumes:
@@ -10,3 +12,15 @@ services:
       - ../index.html:/app/index.html
       - ../vite.config.js:/app/vite.config.js
       - ../public:/app/public
+
+  # Dev-only general toolbox for on-demand tasks (e.g. regenerating icons).
+  # Not started by `up` (profiled).
+  # Run: docker compose -f docker/compose.yml run --rm toolbox python3 bin/generate-icons.py
+  toolbox:
+    build:
+      context: ..
+      dockerfile: docker/images/toolbox/Dockerfile
+    profiles: ["tools"]
+    working_dir: /app
+    volumes:
+      - ..:/app
