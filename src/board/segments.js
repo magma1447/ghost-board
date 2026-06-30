@@ -21,22 +21,45 @@ export const RADII = {
 // Each segment spans 18 degrees
 const SEGMENT_ANGLE = 360 / 20;
 
-// Colors
-const COLOR = {
-    BLACK: '#1a1a1a',
-    CREAM: '#f5deb3',
-    RED: '#e8113a',
-    GREEN: '#00963f',
-    BULL_GREEN: '#00963f',
-    BULL_RED: '#e8113a',
-    WIRE: '#c0c0c0',
+// Board colour themes. Each segment is tagged with a colour ROLE (below); a
+// theme maps roles → fills, so the board can be re-coloured at runtime.
+// Roles: singleEven/singleOdd (the single beds), multiEven/multiOdd (the
+// double + treble rings), bullOuter/bullInner.
+// A theme maps colour roles → fills, plus the bezel (board border) and number
+// colour. Colours sampled from Granboard product photos.
+export const BOARD_THEMES = {
+    standard: {
+        label: 'Standard (green / red)',
+        singleEven: '#1a1a1a', singleOdd: '#f5deb3',
+        multiEven: '#e8113a', multiOdd: '#00963f',
+        bullOuter: '#00963f', bullInner: '#e8113a',
+        bezel: '#2d2d2d', numberColor: '#ffffff',
+    },
+    bluered: {
+        // GRANBOARD3s blue: black/white beds, red + deep royal-blue rings
+        label: 'Blue / red',
+        singleEven: '#1a1a1a', singleOdd: '#ececec',
+        multiEven: '#c41e30', multiOdd: '#22479b',
+        bullOuter: '#22479b', bullInner: '#c41e30',
+        bezel: '#2d2d2d', numberColor: '#ffffff',
+    },
+    white: {
+        // GRANBOARD3s white: same beds/rings as blue, but a white border
+        label: 'White (blue / red)',
+        singleEven: '#1a1a1a', singleOdd: '#ececec',
+        multiEven: '#c41e30', multiOdd: '#22479b',
+        bullOuter: '#22479b', bullInner: '#c41e30',
+        bezel: '#f0f0f0', numberColor: '#1f1f1f',
+    },
 };
 
-function segmentColor(posIndex) {
-    // Even positions: black/red, Odd positions: cream/green
+export const DEFAULT_BOARD_THEME = 'standard';
+
+// Colour role for a numbered segment at the given clockwise position.
+function segmentRoles(posIndex) {
     return {
-        single: posIndex % 2 === 0 ? COLOR.BLACK : COLOR.CREAM,
-        multi: posIndex % 2 === 0 ? COLOR.RED : COLOR.GREEN,
+        single: posIndex % 2 === 0 ? 'singleEven' : 'singleOdd',
+        multi: posIndex % 2 === 0 ? 'multiEven' : 'multiOdd',
     };
 }
 
@@ -72,12 +95,13 @@ function arcPath(cx, cy, rOuter, rInner, startDeg, endDeg) {
 // Generate all segments as descriptors for the dartboard renderer
 export function generateSegments(cx, cy) {
     const segments = [];
+    const theme = BOARD_THEMES[DEFAULT_BOARD_THEME]; // initial fills; recoloured via colorRole
 
     for (let i = 0; i < 20; i++) {
         const num = BOARD_ORDER[i];
         const startDeg = i * SEGMENT_ANGLE - SEGMENT_ANGLE / 2;
         const endDeg = startDeg + SEGMENT_ANGLE;
-        const colors = segmentColor(i);
+        const roles = segmentRoles(i);
 
         // Double ring
         segments.push({
@@ -85,7 +109,8 @@ export function generateSegments(cx, cy) {
             ring: 'D',
             segment: num,
             path: arcPath(cx, cy, RADII.DOUBLE_OUTER, RADII.DOUBLE_INNER, startDeg, endDeg),
-            fill: colors.multi,
+            colorRole: roles.multi,
+            fill: theme[roles.multi],
         });
 
         // Single outer
@@ -94,7 +119,8 @@ export function generateSegments(cx, cy) {
             ring: 'SO',
             segment: num,
             path: arcPath(cx, cy, RADII.SINGLE_OUTER_OUTER, RADII.SINGLE_OUTER_INNER, startDeg, endDeg),
-            fill: colors.single,
+            colorRole: roles.single,
+            fill: theme[roles.single],
         });
 
         // Triple ring
@@ -103,7 +129,8 @@ export function generateSegments(cx, cy) {
             ring: 'T',
             segment: num,
             path: arcPath(cx, cy, RADII.TRIPLE_OUTER, RADII.TRIPLE_INNER, startDeg, endDeg),
-            fill: colors.multi,
+            colorRole: roles.multi,
+            fill: theme[roles.multi],
         });
 
         // Single inner
@@ -112,7 +139,8 @@ export function generateSegments(cx, cy) {
             ring: 'SI',
             segment: num,
             path: arcPath(cx, cy, RADII.SINGLE_INNER_OUTER, RADII.SINGLE_INNER_INNER, startDeg, endDeg),
-            fill: colors.single,
+            colorRole: roles.single,
+            fill: theme[roles.single],
         });
     }
 
@@ -122,7 +150,8 @@ export function generateSegments(cx, cy) {
         ring: 'SBULL',
         segment: 25,
         circle: { cx, cy, r: RADII.BULL_OUTER },
-        fill: COLOR.BULL_GREEN,
+        colorRole: 'bullOuter',
+        fill: theme.bullOuter,
     });
 
     // Inner bull (double bull / bullseye)
@@ -131,7 +160,8 @@ export function generateSegments(cx, cy) {
         ring: 'DBULL',
         segment: 50,
         circle: { cx, cy, r: RADII.BULL_INNER },
-        fill: COLOR.BULL_RED,
+        colorRole: 'bullInner',
+        fill: theme.bullInner,
     });
 
     return segments;

@@ -1,6 +1,6 @@
 // SVG dartboard renderer
 
-import { generateSegments, generateLabels, generateLedArcs, LED_RING, RADII } from './segments.js';
+import { generateSegments, generateLabels, generateLedArcs, LED_RING, BOARD_THEMES, DEFAULT_BOARD_THEME, RADII } from './segments.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const HIGHLIGHT_COLOR = '#ffff00';
@@ -103,11 +103,13 @@ export function createDartboard(container) {
         el.setAttribute('data-ring', seg.ring);
         el.setAttribute('data-segment', seg.segment);
         el.dataset.originalFill = seg.fill;
+        el.dataset.colorRole = seg.colorRole;
         svg.appendChild(el);
         elements[seg.id] = el;
     }
 
     // Number labels
+    const numberEls = [];
     const labels = generateLabels(cx, cy);
     for (const label of labels) {
         const text = document.createElementNS(SVG_NS, 'text');
@@ -121,6 +123,7 @@ export function createDartboard(container) {
         text.setAttribute('font-family', 'sans-serif');
         text.textContent = label.num;
         svg.appendChild(text);
+        numberEls.push(text);
     }
 
     container.appendChild(svg);
@@ -164,6 +167,27 @@ export function createDartboard(container) {
             activeHighlight.setAttribute('fill', activeHighlight.dataset.originalFill);
             activeHighlight.removeAttribute('fill-opacity');
             activeHighlight = null;
+        }
+    }
+
+    // Recolour the board by applying a colour theme: segments (by role), the
+    // bezel (border), and the number labels.
+    function setTheme(themeKey) {
+        const theme = BOARD_THEMES[themeKey] || BOARD_THEMES[DEFAULT_BOARD_THEME];
+        for (const el of Object.values(elements)) {
+            const color = theme[el.dataset.colorRole];
+            if (!color) {
+                continue;
+            }
+            el.dataset.originalFill = color;
+            // Don't stomp an active hit highlight; it restores to the new colour.
+            if (el !== activeHighlight) {
+                el.setAttribute('fill', color);
+            }
+        }
+        bg.setAttribute('fill', theme.bezel);
+        for (const text of numberEls) {
+            text.setAttribute('fill', theme.numberColor);
         }
     }
 
@@ -226,5 +250,5 @@ export function createDartboard(container) {
         },
     };
 
-    return { highlight, clearHighlight, onSegmentClick, leds };
+    return { highlight, clearHighlight, onSegmentClick, setTheme, leds };
 }

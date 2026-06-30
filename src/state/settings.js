@@ -16,6 +16,7 @@ const DEFAULTS = {
     },
     display: {
         bigNumber: true,
+        boardTheme: 'standard',
     },
     debug: {
         mouseInput: false,

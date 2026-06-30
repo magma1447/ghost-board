@@ -7,6 +7,7 @@
 // glue live in their own modules.
 
 import { createDartboard } from './board/dartboard.js';
+import { BOARD_THEMES } from './board/segments.js';
 import { createConnection } from './ble/connection.js';
 import { createLog } from './ui/log.js';
 import { createPhysicalLeds } from './ble/leds.js';
@@ -32,6 +33,9 @@ const headline = createBoardHeadline(panelBoard);
 
 // The SVG board is one LED output (it mirrors LED state with no BLE involved).
 registerLedOutput(board.leds);
+
+// Apply the saved board colour theme
+board.setTheme(settings().display.boardTheme);
 
 // -- Right panel: status + hit log --
 const panelSidebar = document.createElement('div');
@@ -202,6 +206,17 @@ const menu = createMenu(settingsBtn, [
                 onChange(enabled) {
                     updateSettings('display.bigNumber', enabled);
                     headline.update();
+                },
+            },
+            {
+                label: 'Board theme',
+                type: 'select',
+                options: Object.keys(BOARD_THEMES).map((key) => BOARD_THEMES[key].label),
+                value: (BOARD_THEMES[settings().display.boardTheme] || BOARD_THEMES.standard).label,
+                onChange(label) {
+                    const key = Object.keys(BOARD_THEMES).find((k) => BOARD_THEMES[k].label === label);
+                    board.setTheme(key);
+                    updateSettings('display.boardTheme', key);
                 },
             },
         ],
