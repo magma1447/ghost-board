@@ -6,7 +6,7 @@ export default [
         languageOptions: {
             ecmaVersion: 'latest',
             sourceType: 'module',
-            globals: globals.browser,
+            globals: { ...globals.browser, __APP_VERSION__: 'readonly' },
         },
         rules: {
             // Braces & blocks

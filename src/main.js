@@ -249,6 +249,12 @@ settingsBtn.addEventListener('click', (e) => {
 
 app.appendChild(panelSidebar);
 
+// Discreet build version, bottom-right (helps confirm a new deploy landed).
+const versionTag = document.createElement('div');
+versionTag.className = 'version-tag';
+versionTag.textContent = __APP_VERSION__;
+app.appendChild(versionTag);
+
 // Restore a saved game on load (if any)
 controller.restore();
 
