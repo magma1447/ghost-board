@@ -28,7 +28,7 @@ Ghost Board is a web-based alternative to the official Granboard app. It connect
 - Game state persistence — survives page refresh and BLE disconnect
 - Settings stored in localStorage via a gear menu
 - Debug mode — mouse clicks on the board simulate dart hits
-- Responsive layout with a mobile breakpoint
+- Responsive layout with a mobile breakpoint — works in both landscape and portrait orientation
 
 ## Players
 
