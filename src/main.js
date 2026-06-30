@@ -12,7 +12,7 @@ import { createConnection } from './ble/connection.js';
 import { createLog } from './ui/log.js';
 import { createPhysicalLeds } from './ble/leds.js';
 import { sweep as ledSweep, registerLedOutput } from './led-controller.js';
-import { setTheme, setVoice, getThemeNames, getVoiceNames, ensureAudio } from './audio/sounds.js';
+import { setTheme, setVoice, getThemeNames, getVoiceOptions, ensureAudio } from './audio/sounds.js';
 import { settings, updateSettings } from './state/settings.js';
 import { createMenu } from './ui/menu.js';
 import { createConnectionControl } from './ui/connection-control.js';
@@ -171,7 +171,7 @@ const menu = createMenu(settingsBtn, [
             {
                 label: 'Voice',
                 type: 'select',
-                options: ['(default)', ...getVoiceNames()],
+                options: ['(default)'],
                 value: savedVoice || '(default)',
                 onChange(value) {
                     const name = value === '(default)' ? '' : value;
@@ -179,18 +179,23 @@ const menu = createMenu(settingsBtn, [
                     updateSettings('audio.voice', name);
                 },
                 onRender(selectEl) {
+                    // Populate sorted, language-labelled voices (value = voice
+                    // name). Rebuild when the async voice list loads/changes.
+                    const populate = () => {
+                        const current = selectEl.value || savedVoice || '(default)';
+                        selectEl.innerHTML = '';
+                        const opts = [{ value: '(default)', label: '(default)' }, ...getVoiceOptions()];
+                        for (const { value, label } of opts) {
+                            const o = document.createElement('option');
+                            o.value = value;
+                            o.textContent = label;
+                            selectEl.appendChild(o);
+                        }
+                        selectEl.value = current;
+                    };
+                    populate();
                     if (window.speechSynthesis) {
-                        window.speechSynthesis.addEventListener('voiceschanged', () => {
-                            const current = selectEl.value;
-                            selectEl.innerHTML = '';
-                            for (const name of ['(default)', ...getVoiceNames()]) {
-                                const o = document.createElement('option');
-                                o.value = name;
-                                o.textContent = name;
-                                selectEl.appendChild(o);
-                            }
-                            selectEl.value = current || '(default)';
-                        });
+                        window.speechSynthesis.addEventListener('voiceschanged', populate);
                     }
                 },
             },

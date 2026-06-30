@@ -271,6 +271,16 @@ export function getVoiceNames() {
     return getVoices().map((v) => v.name);
 }
 
+// Voices sorted by language then name, each labelled with its language so the
+// right one is pickable (Android voice names alone don't reveal the language).
+// value stays the voice name (matched in applyVoice).
+export function getVoiceOptions() {
+    return getVoices()
+        .slice()
+        .sort((a, b) => (a.lang || '').localeCompare(b.lang || '') || a.name.localeCompare(b.name))
+        .map((v) => ({ value: v.name, label: `${v.lang} — ${v.name}` }));
+}
+
 export function setVoice(name) {
     selectedVoiceName = name;
 }
