@@ -19,9 +19,12 @@ body {
     height: 100vh;
 }
 
-/* Left panel: dartboard, takes 50% width, centers the board */
+/* Dartboard panel, takes 50% width, centers the board. Ordered after the
+   sidebar so the mandatory game card/log leads (left on desktop, top on
+   mobile); the board is secondary. */
 .panel-board {
     position: relative;
+    order: 2;
     flex: 0 0 50%;
     display: flex;
     align-items: center;
@@ -88,8 +91,10 @@ body {
     max-width: 90vh; /* keep it from stretching too wide */
 }
 
-/* Right panel: status + hit log */
+/* Sidebar: status + game card + hit log — the primary content, so ordered
+   first (left on desktop, top on mobile). */
 .panel-sidebar {
+    order: 1;
     flex: 1;
     display: flex;
     flex-direction: column;
