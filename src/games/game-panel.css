@@ -238,13 +238,6 @@
     padding-right: calc(var(--roster-action) + 0.4rem);
 }
 
-.game-roster-title {
-    font-size: 0.8rem;
-    color: #888;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-}
-
 .game-roster-rows {
     display: flex;
     flex-direction: column;

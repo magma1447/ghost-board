@@ -15,7 +15,7 @@ import {
 
 const NEW_PLAYER = '__new__';
 
-export function createPlayerRoster(container, { min = 1, max = 8 } = {}) {
+export function createPlayerRoster(container, { min = 1, max = 8 } = {}, onChange = null) {
     const seeded = getLastPlayers().filter(
         (uuid) => getPlayers().some((p) => p.uuid === uuid),
     );
@@ -34,11 +34,6 @@ export function createPlayerRoster(container, { min = 1, max = 8 } = {}) {
 
     const el = document.createElement('div');
     el.className = 'game-roster';
-
-    const title = document.createElement('div');
-    title.className = 'game-roster-title';
-    title.textContent = 'Players';
-    el.appendChild(title);
 
     const rows = document.createElement('div');
     rows.className = 'game-roster-rows';
@@ -244,6 +239,11 @@ export function createPlayerRoster(container, { min = 1, max = 8 } = {}) {
                 orderBtn.addEventListener('click', () => applyOrder(op));
                 orderBar.appendChild(orderBtn);
             }
+        }
+
+        // Report the player count so the host can show it in the section summary
+        if (onChange) {
+            onChange(selection.length);
         }
     }
 

@@ -97,6 +97,22 @@ function sectionGroup(title, fieldList, key) {
     </div>`;
 }
 
+// The player roster as a collapsible section, matching the field sections but
+// expanded by default (open) — it's the first thing you set up. The roster
+// mounts into [data-roster]; the summary shows the player count when collapsed.
+function rosterSection() {
+    return `<div class="game-setup-group">
+      <button type="button" class="game-setup-section open" data-toggle="players">
+        <span class="game-setup-section-chevron" aria-hidden="true"></span>
+        <span class="game-setup-section-title">Players</span>
+        <span class="game-setup-section-summary" data-summary="players"></span>
+      </button>
+      <div class="game-setup-group-body" data-body="players">
+        <div data-roster></div>
+      </div>
+    </div>`;
+}
+
 // config: { title, settingsKey, defaults, fields, roster: { min, max }, meta,
 //           rulesMd, matchLock? }
 export function createGameSetup(container, onStart, onCancel, config) {
@@ -117,8 +133,8 @@ export function createGameSetup(container, onStart, onCancel, config) {
       <button type="button" class="btn btn-small game-setup-rules">Rules</button>
     </div>
     <p class="game-setup-synopsis">${meta.short}</p>
-    <div data-roster></div>
     <div class="game-setup-fields">
+      ${rosterSection()}
       ${sectionGroup('Match format', MATCH_FIELDS, 'match')}
       ${sectionGroup('Game options', fields, 'options')}
     </div>
@@ -129,7 +145,12 @@ export function createGameSetup(container, onStart, onCancel, config) {
     </div>
   `;
 
-    const roster = createPlayerRoster(el.querySelector('[data-roster]'), rosterLimits);
+    const roster = createPlayerRoster(el.querySelector('[data-roster]'), rosterLimits, (count) => {
+        const summary = el.querySelector('[data-summary="players"]');
+        if (summary) {
+            summary.textContent = `${count} player${count === 1 ? '' : 's'}`;
+        }
+    });
 
     const inputs = {};
     allFields.forEach((field) => {
