@@ -16,17 +16,28 @@ import { currentPlayer } from '../game-helpers.js';
 
 const STANDARD_NUMBERS = [20, 19, 18, 17, 16, 15];
 
-// Six unique random segments (1–20), high → low, for Random Cricket.
-function randomNumbers() {
+// `count` unique random segments (1–20), high → low, for Random Cricket.
+function randomNumbers(count) {
     const pool = [];
     for (let i = 1; i <= 20; i++) {
         pool.push(i);
     }
     const picked = [];
-    for (let k = 0; k < 6; k++) {
+    for (let k = 0; k < count; k++) {
         picked.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
     }
     return picked.sort((a, b) => b - a);
+}
+
+// The seven target numbers: 15–20 + bull, six random + bull, or seven random.
+function buildNumbers(mode) {
+    if (mode === 'randomBull') {
+        return [...randomNumbers(6), 'bull'];
+    }
+    if (mode === 'randomNoBull') {
+        return randomNumbers(7);
+    }
+    return [...STANDARD_NUMBERS, 'bull'];
 }
 
 // Which target number a dart hit and how many marks, or null if off-target.
@@ -55,8 +66,7 @@ export function createCricket({
     numberSet = 'standard',
     startingPlayerIndex = 0,
 } = {}) {
-    // The seven targets: 15–20 + bull, or six random numbers + bull.
-    const numbers = [...(numberSet === 'random' ? randomNumbers() : STANDARD_NUMBERS), 'bull'];
+    const numbers = buildNumbers(numberSet);
 
     const players = [];
     for (let i = 0; i < numPlayers; i++) {

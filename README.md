@@ -135,7 +135,7 @@ Any game can be played as a match rather than a single game:
   - 1–8 players; per-player marks grid on the scoreboard
   - Options:
     - Scoring — Standard (highest total among those closed out wins), Cut-throat (your points go to opponents who haven't closed the number; lowest total wins), or Simple (no score — first to close all seven wins)
-    - Numbers — 15–20 + bull (standard), or Random (six random numbers + bull each game)
+    - Numbers — 15–20 + bull (standard), or Random each game — with the bull (six numbers + bull) or without (seven numbers)
 
 ## Getting Started
 
