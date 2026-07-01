@@ -29,8 +29,12 @@ function randomNumbers(count) {
     return picked.sort((a, b) => b - a);
 }
 
-// The seven target numbers: 15–20 + bull, six random + bull, or seven random.
+// The seven target numbers: 15–20 + bull, fixed 14–20 (no bull), six random +
+// bull, or seven random.
 function buildNumbers(mode) {
+    if (mode === 'fixed14') {
+        return [20, 19, 18, 17, 16, 15, 14];
+    }
     if (mode === 'randomBull') {
         return [...randomNumbers(6), 'bull'];
     }

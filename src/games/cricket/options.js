@@ -7,7 +7,7 @@ export const defaults = {
 };
 
 const VARIANT_LABELS = { standard: 'standard', cutthroat: 'cut-throat', simple: 'simple' };
-const NUMBER_LABELS = { standard: '15–20 + bull', randomBull: 'random w/ bull', randomNoBull: 'random w/o bull' };
+const NUMBER_LABELS = { standard: '15–20 + bull', fixed14: '14–20 (no bull)', randomBull: 'random w/ bull', randomNoBull: 'random w/o bull' };
 
 export const fields = [
     {
@@ -24,6 +24,7 @@ export const fields = [
         defaultHint: NUMBER_LABELS[defaults.numberSet],
         options: [
             { value: 'standard', label: '15–20 + bull' },
+            { value: 'fixed14', label: '14–20 (no bull)' },
             { value: 'randomBull', label: 'Random w/ bull' },
             { value: 'randomNoBull', label: 'Random w/o bull' },
         ],

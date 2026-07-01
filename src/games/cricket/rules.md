@@ -15,4 +15,4 @@ Close **15, 16, 17, 18, 19, 20 and the bull** — hit each three times — then 
   - **Standard** — you keep the points; **highest** total among those who've closed out wins.
   - **Cut-throat** — your points are handed to every opponent who hasn't closed that number, so the **lowest** total wins. Points become a weapon.
   - **Simple (no score)** — no points at all; first to close all seven numbers wins. The gentlest way to learn Cricket.
-- **Numbers** — **15–20 + bull** (standard), or **Random**, drawn fresh each game to level the field — *w/ bull* keeps the bull as the seventh target, *w/o bull* draws seven numbers instead.
+- **Numbers** — **15–20 + bull** (standard), **14–20** (seven fixed numbers, no bull), or **Random**, drawn fresh each game to level the field — *w/ bull* keeps the bull as the seventh target, *w/o bull* draws seven numbers instead.
