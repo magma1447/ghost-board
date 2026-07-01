@@ -14,7 +14,7 @@ import { onHit as ledHit, onSwitch as ledSwitch, allOff as ledsOff, allOn as led
 import { showTargetLed } from './ble/target-led.js';
 import { playHit, playSwitch, playBust, playWin, playSprint } from './audio/sounds.js';
 import { processCallouts } from './audio/callouts.js';
-import { confirmDialog } from './ui/confirm.js';
+import { confirmDialog } from './ui/common/confirm.js';
 import { createX01Setup } from './games/x01/setup.js';
 import { createAroundTheClockSetup } from './games/around-the-clock/setup.js';
 import { createCatAndMouseSetup } from './games/cat-and-mouse/setup.js';

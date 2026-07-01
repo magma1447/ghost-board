@@ -22,8 +22,9 @@
 
 import '../games/game-panel.css';
 import { createPlayerRoster } from './roster.js';
-import { attachOptionInfo } from '../ui/option-info.js';
-import { openRules } from '../ui/rules-dialog.js';
+import { createNumericSelect } from '../ui/common/numeric-select.js';
+import { attachOptionInfo } from '../ui/common/option-info.js';
+import { openRules } from '../ui/common/rules-dialog.js';
 import { describeSettings, SETTINGS_SEPARATOR } from './format.js';
 import { settings, updateSettings } from '../state/settings.js';
 
@@ -61,6 +62,10 @@ const MATCH_OPTION_INFO = {
 function fieldControl(field) {
     if (field.type === 'checkbox') {
         return `<input type="checkbox" data-field="${field.name}">`;
+    }
+    if (field.type === 'number') {
+        // Mount point for the numeric preset+custom widget (built in JS below).
+        return `<div data-field-numeric="${field.name}"></div>`;
     }
     const options = field.options
         .map((opt) => `<option value="${opt.value}">${opt.label}</option>`)
@@ -128,7 +133,19 @@ export function createGameSetup(container, onStart, onCancel, config) {
 
     const inputs = {};
     allFields.forEach((field) => {
-        inputs[field.name] = el.querySelector(`[data-field="${field.name}"]`);
+        if (field.type === 'number') {
+            // Numeric preset+custom widget; stored by its getValue/setValue API.
+            const widget = createNumericSelect({
+                presets: field.presets,
+                min: field.min,
+                max: field.max,
+                value: saved[field.name],
+            });
+            el.querySelector(`[data-field-numeric="${field.name}"]`).appendChild(widget);
+            inputs[field.name] = widget;
+        } else {
+            inputs[field.name] = el.querySelector(`[data-field="${field.name}"]`);
+        }
     });
 
     // --- Match lock: force the draw-prone option to its no-draw value while
@@ -201,6 +218,8 @@ export function createGameSetup(container, onStart, onCancel, config) {
             const input = inputs[field.name];
             if (field.type === 'checkbox') {
                 input.checked = vals[field.name];
+            } else if (field.type === 'number') {
+                input.setValue(vals[field.name]);
             } else {
                 input.value = String(vals[field.name]);
             }
@@ -245,6 +264,8 @@ export function createGameSetup(container, onStart, onCancel, config) {
             const input = inputs[field.name];
             if (field.type === 'checkbox') {
                 result[field.name] = input.checked;
+            } else if (field.type === 'number') {
+                result[field.name] = input.getValue();
             } else if (field.valueType === 'int') {
                 result[field.name] = parseInt(input.value, 10);
             } else {

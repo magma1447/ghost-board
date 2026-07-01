@@ -18,9 +18,9 @@ function formatCheckout(v) {
 
 export const fields = [
     {
-        name: 'startingScore', label: 'Start score', type: 'select', valueType: 'int',
+        name: 'startingScore', label: 'Start score', type: 'number',
         defaultHint: String(defaults.startingScore),
-        options: [301, 501, 701, 1001].map((v) => ({ value: v, label: String(v) })),
+        presets: [301, 501, 701, 1001], min: 201, max: 3001,
     },
     {
         name: 'doubleIn', label: 'Double in', type: 'checkbox',

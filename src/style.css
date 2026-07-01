@@ -579,6 +579,45 @@ body {
     font-variant-numeric: tabular-nums;
 }
 
+/* Numeric preset+custom selector (shared widget: dropdown + Custom input,
+   modelled on the roster's player select). */
+.numeric-select {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.4rem;
+}
+
+.numeric-select select {
+    padding: 0.2rem 0.4rem;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background: #2a2a2a;
+    color: #e0e0e0;
+    font: inherit;
+    font-size: 0.8rem;
+}
+
+.numeric-select-input {
+    width: 4rem;
+    padding: 0.2rem 0.4rem;
+    border: 1px solid #4caf50;
+    border-radius: 4px;
+    background: #2a2a2a;
+    color: #e0e0e0;
+    font: inherit;
+    font-size: 0.8rem;
+    /* Drop the number spinner arrows — the ✓ / ✕ buttons commit instead */
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.numeric-select-input::-webkit-outer-spin-button,
+.numeric-select-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
 /* Game picker */
 .game-picker {
     display: flex;

@@ -4,8 +4,8 @@
 // styling (.menu / .menu-anchor). Connection failures raise a toast so they
 // surface even when the dropdown is closed.
 
-import { showToast } from './toast.js';
-import { icons } from './icons.js';
+import { showToast } from './common/toast.js';
+import { icons } from './common/icons.js';
 
 export function createConnectionControl({ onConnect, onDisconnect }) {
     const wrap = document.createElement('div');
