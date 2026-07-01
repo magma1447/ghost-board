@@ -1,0 +1,15 @@
+/* Game picker */
+.game-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.game-picker-row {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.game-picker-cancel {
+    align-self: flex-start;
+}

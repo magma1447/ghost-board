@@ -1,0 +1,108 @@
+.menu-anchor {
+    position: relative;
+}
+
+/* Floating settings menu */
+.menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 0.35rem;
+    min-width: 220px;
+    background: #1e1e1e;
+    border: 1px solid #444;
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    font-size: 0.85rem;
+    overflow: hidden;
+}
+
+.menu[hidden] {
+    display: none;
+}
+
+.menu-group + .menu-group {
+    border-top: 1px solid #333;
+}
+
+.menu-group-header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: none;
+    background: none;
+    color: #aaa;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    text-align: left;
+}
+
+.menu-group-header:hover {
+    background: #252525;
+}
+
+.menu-chevron {
+    display: inline-block;
+    font-size: 0.7rem;
+    transition: transform 0.15s;
+}
+
+.menu-group-header.expanded .menu-chevron {
+    transform: rotate(90deg);
+}
+
+.menu-group-body {
+    padding: 0.25rem 0.75rem 0.5rem 1.5rem;
+}
+
+.menu-group-body[hidden] {
+    display: none;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.3rem 0;
+}
+
+.menu-item label {
+    color: #ccc;
+}
+
+.menu-select {
+    padding: 0.2rem 0.4rem;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background: #2a2a2a;
+    color: #e0e0e0;
+    font-size: 0.8rem;
+    text-transform: capitalize;
+}
+
+.menu-range {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.menu-range input[type="range"] {
+    width: 7rem;
+    accent-color: #4caf50;
+    cursor: pointer;
+}
+
+.menu-range-value {
+    min-width: 2.8em;
+    text-align: right;
+    color: #e0e0e0;
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+}

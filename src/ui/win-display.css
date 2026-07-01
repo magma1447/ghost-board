@@ -1,0 +1,43 @@
+/* -- Win / draw celebration overlay (full-screen) -- */
+.win-display {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.78);
+    cursor: pointer;
+}
+
+.win-display[hidden] {
+    display: none;
+}
+
+.win-display-name {
+    color: #ffd54f;
+    font-weight: 800;
+    font-size: min(28vh, 20vw);
+    line-height: 1;
+}
+
+.win-display-name[hidden] {
+    display: none;
+}
+
+.win-display-label {
+    color: #ffd54f;
+    font-weight: 900;
+    font-size: min(11vh, 9vw);
+    line-height: 1;
+}
+
+/* Leg / set win — same big treatment, discreet colour (gold = whole match) */
+.win-display-leg .win-display-name,
+.win-display-leg .win-display-label {
+    color: #80cbc4;
+}

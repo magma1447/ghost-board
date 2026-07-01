@@ -12,6 +12,8 @@
 //
 //   createNumericSelect({ presets: [{ value: null, label: 'No limit' }, 15, 20], min: 1, max: 100, value: null })
 
+import './numeric-select.css';
+
 const CUSTOM = '__custom__';
 
 export function createNumericSelect({ presets = [], min = 0, max = 9999, value = min, onChange = null }) {

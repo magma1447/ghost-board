@@ -6,6 +6,7 @@
 // log, win overlay, menu enable/disable) to createGameController() and wires
 // the BLE/debug event stream to handleEvent().
 
+import './game-controller.css';
 import { startGame, stopGame, getGame, getPanel } from './games/manager.js';
 import { saveGame, loadGame, clearGame } from './state/game-store.js';
 import { createPlayer } from './state/players.js';

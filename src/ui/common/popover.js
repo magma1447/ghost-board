@@ -2,6 +2,8 @@
 // One at a time; dismiss by clicking outside or pressing Escape. Touch-friendly
 // (click, not hover).
 
+import './popover.css';
+
 let current = null;
 let currentAnchor = null;
 

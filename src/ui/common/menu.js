@@ -1,5 +1,7 @@
 // Floating tree menu component
 
+import './menu.css';
+
 export function createMenu(anchorEl, tree) {
     const el = document.createElement('div');
     el.className = 'menu';

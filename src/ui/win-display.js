@@ -6,6 +6,8 @@
 // everything (readable across the room). Click anywhere or press Escape to
 // dismiss; it's also hidden when the game ends or a new game starts.
 
+import './win-display.css';
+
 export function createWinDisplay() {
     const el = document.createElement('div');
     el.className = 'win-display';

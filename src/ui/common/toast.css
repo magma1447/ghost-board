@@ -1,0 +1,45 @@
+/* -- Toast notifications (global) -- */
+.toast-container {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+    z-index: 200;
+    pointer-events: none;
+}
+
+.toast {
+    pointer-events: auto;
+    min-width: 200px;
+    max-width: 320px;
+    padding: 0.6rem 0.9rem;
+    border-radius: 6px;
+    background: #2a2a2a;
+    color: #e0e0e0;
+    font-size: 0.85rem;
+    border: 1px solid #444;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.toast-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast-error {
+    border-color: #a33;
+    background: #3a1a1a;
+    color: #f88;
+}
+
+.toast-success {
+    border-color: #3a3;
+    background: #1a3a1a;
+    color: #8f8;
+}

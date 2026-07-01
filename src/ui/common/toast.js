@@ -4,6 +4,8 @@
 // auto-dismissing notice in a fixed corner. Click to dismiss early.
 // Any module can call it — it's not tied to a particular feature.
 
+import './toast.css';
+
 let container = null;
 
 function ensureContainer() {

@@ -2,6 +2,7 @@
 // each set with its legs (and who won them) and the set result. Reuses the
 // rules modal's backdrop/panel/close styling.
 
+import './match-history.css';
 import { createPlayer } from '../state/players.js';
 
 export function openMatchHistory(match) {

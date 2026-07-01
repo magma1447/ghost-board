@@ -18,7 +18,7 @@
 ## Architecture
 
 - Each game has its own directory under `src/games/` with: `game.js`, `setup.js`, `panel.js`
-- Shared panel/setup CSS lives in `src/games/game-panel.css` (`game-` class prefix); game-specific panel CSS lives in that game's own `panel.css`, imported by its `panel.js`
+- Component CSS colocates with its component: each module side-effect imports its own stylesheet (`import './x.css'`). Only global / app-shell base styles remain in `src/style.css`. Shared panel/setup CSS lives in `src/games/game-panel.css` (`game-` class prefix)
 - Shared formatting helpers live in `src/games/format.js`
 - Game-specific defaults belong in each game's `setup.js`, not in global `src/state/settings.js`
 - Games return `{ state, event, callouts }` from `onDart()` and `nextPlayer()`

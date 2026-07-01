@@ -4,6 +4,7 @@
 // and the Display "Big number" setting. The element is pointer-events:none (in
 // CSS) so board clicks (debug input) pass straight through.
 
+import './board-headline.css';
 import { getGame } from '../games/manager.js';
 import { settings } from '../state/settings.js';
 

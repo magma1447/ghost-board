@@ -6,6 +6,8 @@
 // full chronological stream. The header footprint is tiny, so the game area
 // keeps the sidebar's vertical space.
 
+import './log.css';
+
 const MAX_ENTRIES = 200;
 
 export function createLog(container, { expanded = false } = {}) {

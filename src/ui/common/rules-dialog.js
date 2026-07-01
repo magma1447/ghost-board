@@ -2,6 +2,7 @@
 // imported via ?raw) to HTML with marked and shows it in an overlay. The
 // markdown is authored by us, so rendering it as innerHTML is safe.
 
+import './rules-dialog.css';
 import { marked } from 'marked';
 
 export function openRules(markdownText) {

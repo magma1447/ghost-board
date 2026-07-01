@@ -1,0 +1,34 @@
+/* Bluetooth connection icon — color reflects connection state (layers on .btn-icon) */
+.conn-btn[data-status="connected"] { color: #4caf50; }
+.conn-btn[data-status="connecting"],
+.conn-btn[data-status="scanning"] { color: #ff9800; }
+.conn-btn[data-status="disconnected"],
+.conn-btn[data-status="error"] { color: #f44336; }
+
+/* Connection dropdown (reuses .menu for positioning/box) */
+.conn-status {
+    padding: 0.5rem 0.75rem;
+    border-top: 1px solid #333;
+    font-size: 0.8rem;
+    color: #aaa;
+}
+
+.conn-action {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: none;
+    background: none;
+    color: #e0e0e0;
+    cursor: pointer;
+    font-size: 0.85rem;
+    text-align: left;
+}
+
+.conn-action:hover:not(:disabled) {
+    background: #252525;
+}
+
+.conn-action:disabled {
+    color: #777;
+    cursor: default;
+}

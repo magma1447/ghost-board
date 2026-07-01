@@ -4,6 +4,7 @@
 // styling (.menu / .menu-anchor). Connection failures raise a toast so they
 // surface even when the dropdown is closed.
 
+import './connection-control.css';
 import { showToast } from './common/toast.js';
 import { icons } from './common/icons.js';
 

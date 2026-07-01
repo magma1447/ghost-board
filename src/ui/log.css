@@ -1,0 +1,85 @@
+/* -- Event log console -- */
+.log-console {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #333;
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 0.8rem;
+}
+
+.log-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    border: none;
+    background: #1e1e1e;
+    color: #aaa;
+    cursor: pointer;
+    text-align: left;
+}
+
+.log-header:hover {
+    background: #252525;
+}
+
+.log-chevron {
+    font-size: 0.7rem;
+    transition: transform 0.15s;
+}
+
+.log-console.expanded .log-chevron {
+    transform: rotate(180deg);
+}
+
+.log-title {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.72rem;
+}
+
+.log-preview {
+    flex: 1;
+    color: #777;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.log-preview[hidden] {
+    display: none;
+}
+
+.log-body {
+    display: none;
+    flex-direction: column;
+    max-height: 35vh;
+    overflow-y: auto;
+    padding: 0.25rem 0;
+    border-top: 1px solid #333;
+}
+
+.log-console.expanded .log-body {
+    display: flex;
+}
+
+.log-entry {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.15rem 0.6rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.log-time {
+    color: #666;
+    flex: none;
+}
+
+.log-entry-info .log-msg { color: #9ad; }
+.log-entry-game .log-msg { color: #ffb74d; }
+.log-entry-player .log-msg { color: #7fd1c4; }
+.log-entry-hit .log-msg { color: #ccc; }
+.log-entry-error .log-msg { color: #f88; }

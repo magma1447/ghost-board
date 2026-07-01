@@ -3,6 +3,7 @@
 // Opened from the home screen. Edits the registry in state/players.js. The
 // in-game roster picks from these stored players; this is where they live.
 
+import './player-config.css';
 import {
     getPlayers, addPlayer, renamePlayer, deletePlayer, nameExists, MAX_NAME_LENGTH,
 } from '../state/players.js';

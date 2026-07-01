@@ -1,0 +1,52 @@
+/* Big current-player number, floated over the board (readable at distance).
+   pointer-events:none so it never blocks board interaction. */
+.board-headline {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    color: #fff;
+    font-weight: 800;
+    font-size: min(38vh, 24vw); /* default ~3 chars; overridden by data-len */
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    overflow: hidden; /* never let the number/flash spill out and trigger page scrollbars */
+    text-shadow: 0 0 16px rgba(0, 0, 0, 0.85);
+    -webkit-text-stroke: 3px rgba(0, 0, 0, 0.8);
+    transition: opacity 1s ease;
+}
+
+/* Turn is over (darts used up / locked) — fade the number out entirely */
+.board-headline.faded {
+    opacity: 0;
+}
+
+/* Brief celebratory word (e.g. SPRINT) in the big display */
+.board-headline.flash {
+    font-size: min(20vh, 10vw);
+    color: #4caf50;
+    animation: headline-pop 0.4s ease-out;
+}
+
+/* Grow in, but never past scale(1): scaling .board-headline (a full-height
+   overlay) above 1 would overflow the viewport and flash the page scrollbar. */
+@keyframes headline-pop {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Size adapts to length so long values don't overflow the board */
+.board-headline[data-len="short"] {
+    font-size: min(44vh, 32vw);
+}
+
+.board-headline[data-len="long"] {
+    font-size: min(30vh, 18vw);
+}
+
+.board-headline[hidden] {
+    display: none;
+}

@@ -3,6 +3,8 @@
 // Cancel is focused by default (safer for destructive actions); Escape or
 // a backdrop click also cancels.
 
+import './confirm.css';
+
 export function confirmDialog({ message, confirmLabel = 'Confirm', onConfirm }) {
     const backdrop = document.createElement('div');
     backdrop.className = 'confirm-backdrop';

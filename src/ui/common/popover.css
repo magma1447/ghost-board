@@ -1,0 +1,21 @@
+.info-popover {
+    position: fixed;
+    z-index: 400;
+    max-width: 240px;
+    padding: 0.5rem 0.7rem;
+    background: #2a2a2a;
+    border: 1px solid #555;
+    border-radius: 6px;
+    color: #e0e0e0;
+    font-size: 0.8rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* Paragraphs within a popover (from '\n'-separated text) */
+.info-popover-p {
+    margin: 0;
+}
+
+.info-popover-p + .info-popover-p {
+    margin-top: 0.5rem;
+}
