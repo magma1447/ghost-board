@@ -149,43 +149,12 @@
     font-variant-numeric: tabular-nums;
 }
 
-.game-summary {
-    padding: 0.5rem 0.75rem;
-    background: #1e1e1e;
-    border-radius: 4px;
-    text-align: center;
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #e0e0e0;
-}
-
-.game-summary[hidden] {
-    display: none;
-}
-
 .game-dart-hit {
     color: #4caf50;
 }
 
 .game-dart-miss {
     color: #888;
-}
-
-.game-sequence {
-    font-size: 1.1rem;
-    font-weight: 600;
-    padding: 0.4rem 0.75rem;
-    background: #1e1e1e;
-    border-radius: 4px;
-}
-
-.game-sequence-label {
-    color: #888;
-}
-
-.game-sequence-current {
-    color: #ffb74d;
-    text-decoration: underline;
 }
 
 .game-banner {
@@ -402,6 +371,15 @@
     color: #e0e0e0;
     font-size: 0.8rem;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* Paragraphs within a popover (from '\n'-separated text) */
+.info-popover-p {
+    margin: 0;
+}
+
+.info-popover-p + .info-popover-p {
+    margin-top: 0.5rem;
 }
 
 .game-setup-default {

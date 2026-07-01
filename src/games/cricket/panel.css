@@ -1,0 +1,79 @@
+/* Cricket scoreboard as a compact table: one row per player, a column per
+   number (20…15 + bull), plus name and score. Cricket-specific — other games
+   use the shared per-player blocks. The marks are the point, so they get the
+   width and the size (readable from across the room). */
+.game-cricket-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Name flexes/truncates; Bull + score get a little extra; the six number
+   columns share the remainder equally. */
+.game-cricket-table th:nth-child(1),
+.game-cricket-table td:nth-child(1) { width: 24%; }
+.game-cricket-table th:nth-child(8),
+.game-cricket-table td:nth-child(8) { width: 13%; }
+.game-cricket-table th:nth-child(9),
+.game-cricket-table td:nth-child(9) { width: 13%; }
+
+/* Number header sticks to the top so it survives a scrolled roster */
+.game-cricket-table th {
+    position: sticky;
+    top: 0;
+    padding: 0.35rem 0.15rem;
+    background: #121212;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #999;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.game-cricket-table td {
+    padding: 0.7rem 0.15rem;
+    text-align: center;
+    font-size: 1.9rem;
+    line-height: 1;
+    color: #cfcfcf;
+    border-bottom: 1px solid #262626;
+}
+
+.game-cricket-table td.game-cricket-name {
+    text-align: left;
+    padding-left: 0.4rem;
+    font-size: 1.05rem;
+    color: #e0e0e0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.game-cricket-tally {
+    display: block;
+    font-size: 0.72rem;
+    color: #8fcaa8;
+}
+
+.game-cricket-table td.game-cricket-score {
+    text-align: right;
+    padding-right: 0.4rem;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #e0e0e0;
+}
+
+/* Closed number: the white circle, larger to read as "closed" from a distance */
+.game-cricket-cell.closed {
+    font-size: 2.1rem;
+    color: #fff;
+}
+
+.game-cricket-table tr.active td {
+    background: #24371f;
+}
+
+.game-cricket-table tr.active td.game-cricket-name {
+    color: #fff;
+}

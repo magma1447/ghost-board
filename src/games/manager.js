@@ -12,6 +12,8 @@ import { createCountUp } from './count-up/game.js';
 import { createCountUpPanel } from './count-up/panel.js';
 import { createScoreRush } from './score-rush/game.js';
 import { createScoreRushPanel } from './score-rush/panel.js';
+import { createCricket } from './cricket/game.js';
+import { createCricketPanel } from './cricket/panel.js';
 
 const GAME_TYPES = {
     x01: { createGame: createX01, createPanel: createX01Panel },
@@ -20,6 +22,7 @@ const GAME_TYPES = {
     'simon-says': { createGame: createSimonSays, createPanel: createSimonSaysPanel },
     'count-up': { createGame: createCountUp, createPanel: createCountUpPanel },
     'score-rush': { createGame: createScoreRush, createPanel: createScoreRushPanel },
+    cricket: { createGame: createCricket, createPanel: createCricketPanel },
 };
 
 let activeGame = null;

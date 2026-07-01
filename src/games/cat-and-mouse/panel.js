@@ -1,5 +1,6 @@
 // Cat and Mouse game panel
 
+import './panel.css';
 import { formatRoundLabel, settingsLine } from '../format.js';
 import { createPlayer } from '../../state/players.js';
 import { createGamePanel, renderScoreboard, winnerName } from '../panel-factory.js';

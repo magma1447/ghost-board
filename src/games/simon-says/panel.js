@@ -1,5 +1,6 @@
 // Simon Says game panel — shows targets, scores, and hit/miss feedback
 
+import './panel.css';
 import { formatRoundLabel, settingsLine } from '../format.js';
 import { createGamePanel, renderScoreboard, winnerName } from '../panel-factory.js';
 import { defaults, fields } from './options.js';

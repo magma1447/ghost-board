@@ -21,12 +21,14 @@ import { createCatAndMouseSetup } from './games/cat-and-mouse/setup.js';
 import { createSimonSaysSetup } from './games/simon-says/setup.js';
 import { createCountUpSetup } from './games/count-up/setup.js';
 import { createScoreRushSetup } from './games/score-rush/setup.js';
+import { createCricketSetup } from './games/cricket/setup.js';
 import { meta as x01Meta } from './games/x01/meta.js';
 import { meta as aroundTheClockMeta } from './games/around-the-clock/meta.js';
 import { meta as catAndMouseMeta } from './games/cat-and-mouse/meta.js';
 import { meta as simonSaysMeta } from './games/simon-says/meta.js';
 import { meta as countUpMeta } from './games/count-up/meta.js';
 import { meta as scoreRushMeta } from './games/score-rush/meta.js';
+import { meta as cricketMeta } from './games/cricket/meta.js';
 import {
     createMatchState, isMatchPlay, startingPlayerIndex, recordLegWin,
     advanceLeg, currentSetNumber, currentLegNumber, firstToWin,
@@ -39,6 +41,7 @@ const GAME_LABELS = {
     'simon-says': 'Simon Says',
     'count-up': 'Count Up',
     'score-rush': 'Score Rush',
+    cricket: 'Cricket',
 };
 
 const GAME_SETUPS = {
@@ -48,6 +51,7 @@ const GAME_SETUPS = {
     'simon-says': createSimonSaysSetup,
     'count-up': createCountUpSetup,
     'score-rush': createScoreRushSetup,
+    cricket: createCricketSetup,
 };
 
 // Per-game short descriptions for the picker hover title.
@@ -58,6 +62,7 @@ const GAME_META = {
     'simon-says': simonSaysMeta,
     'count-up': countUpMeta,
     'score-rush': scoreRushMeta,
+    cricket: cricketMeta,
 };
 
 // Format a dart hit for the log (e.g. "T20 (60)", "D-Bull (50)", "Miss")

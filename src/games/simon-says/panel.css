@@ -1,0 +1,18 @@
+/* Simon Says target line ("Simon says: 5, 17, 3"); hit numbers turn green
+   (shared .game-dart-hit), still-needed numbers are highlighted below. */
+.game-sequence {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 0.4rem 0.75rem;
+    background: #1e1e1e;
+    border-radius: 4px;
+}
+
+.game-sequence-label {
+    color: #888;
+}
+
+.game-sequence-current {
+    color: #ffb74d;
+    text-decoration: underline;
+}

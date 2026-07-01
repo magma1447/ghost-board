@@ -39,7 +39,18 @@ export function showPopover(anchor, text) {
 
     const pop = document.createElement('div');
     pop.className = 'info-popover';
-    pop.textContent = text;
+    // Support paragraph breaks via '\n' — each line becomes a spaced block.
+    const paragraphs = String(text).split('\n').map((s) => s.trim()).filter(Boolean);
+    if (paragraphs.length > 1) {
+        for (const para of paragraphs) {
+            const p = document.createElement('p');
+            p.className = 'info-popover-p';
+            p.textContent = para;
+            pop.appendChild(p);
+        }
+    } else {
+        pop.textContent = text;
+    }
     document.body.appendChild(pop);
 
     // Position just below the anchor, clamped to the viewport

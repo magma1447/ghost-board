@@ -14,7 +14,7 @@ Ghost Board is a web-based alternative to the official Granboard app. It connect
 
 <table border="0" cellspacing="0">
   <tr>
-    <td width="50%" valign="top"><a href="screenshots/new-game-picker.png"><img src="screenshots/new-game-picker.png" width="100%" alt="New game picker"></a><br><sub>Choose a game — X01, Around the Clock, Cat &amp; Mouse, Simon Says, Count Up, or Score Rush.</sub></td>
+    <td width="50%" valign="top"><a href="screenshots/new-game-picker.png"><img src="screenshots/new-game-picker.png" width="100%" alt="New game picker"></a><br><sub>Choose a game — X01, Around the Clock, Cat &amp; Mouse, Simon Says, Count Up, Score Rush, or Cricket.</sub></td>
     <td width="50%" valign="top"><a href="screenshots/x01-setup.png"><img src="screenshots/x01-setup.png" width="100%" alt="X01 setup"></a><br><sub>X01 setup — players, match format (legs / sets), and game options.</sub></td>
   </tr>
   <tr>
@@ -129,6 +129,13 @@ Any game can be played as a match rather than a single game:
     - Target — 300 or custom, 100–10000 (default: 300)
     - Bull scoring — 25/50 or 50/50 (default: 25/50)
     - Singles only — count doubles & trebles at face value (default: off)
+- **Cricket**
+  - Close 15–20 and the bull — hit each three times — then score on your closed numbers
+  - Single = 1 mark, double = 2, treble = 3; outer bull = 1 mark, inner bull = 2
+  - 1–8 players; per-player marks grid on the scoreboard
+  - Options:
+    - Scoring — Standard (highest total among those closed out wins), Cut-throat (your points go to opponents who haven't closed the number; lowest total wins), or Simple (no score — first to close all seven wins)
+    - Numbers — 15–20 + bull (standard), or Random (six random numbers + bull each game)
 
 ## Getting Started
 
