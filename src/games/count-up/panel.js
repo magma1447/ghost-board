@@ -11,7 +11,7 @@ export function createCountUpPanel(container, callbacks) {
         panel.setRules(settingsLine(fields, state.options, defaults));
 
         // Past the round limit but still playing → sudden death (play-until-winner)
-        const roundText = (!state.isGameOver && state.options.maxRounds > 0 && state.round > state.options.maxRounds)
+        const roundText = (!state.isGameOver && state.options.maxRounds !== null && state.round > state.options.maxRounds)
             ? `Sudden death · round ${state.round}`
             : formatRoundLabel(state.round, state.options.maxRounds);
         panel.setRound(roundText, match);

@@ -22,7 +22,7 @@ export function createAroundTheClock({
     bullFinish = 'single',
     hitMode = 'any',
     multiStep = false,
-    maxRounds = 0,
+    maxRounds = null,
     startingPlayerIndex = 0,
 } = {}) {
     const finalTarget = bullFinish === 'off' ? 20 : 21; // 21 = bull

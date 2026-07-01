@@ -13,7 +13,7 @@ export const defaults = {
 };
 
 function formatCheckout(v) {
-    return v === 0 ? 'off' : String(v);
+    return v === null ? 'off' : String(v);
 }
 
 export const fields = [
@@ -39,26 +39,15 @@ export const fields = [
         ],
     },
     {
-        name: 'maxRounds', label: 'Max rounds', type: 'select', valueType: 'int',
+        name: 'maxRounds', label: 'Max rounds', type: 'number',
         defaultHint: formatRounds(defaults.maxRounds),
-        options: [
-            { value: 0, label: 'No limit' },
-            { value: 15, label: '15' },
-            { value: 20, label: '20' },
-            { value: 25, label: '25' },
-            { value: 30, label: '30' },
-        ],
+        presets: [{ value: null, label: 'No limit' }, 15, 20, 25, 30],
+        min: 1, max: 100, format: formatRounds,
     },
     {
-        name: 'checkoutThreshold', label: 'Checkout calls below', type: 'select', valueType: 'int',
+        name: 'checkoutThreshold', label: 'Checkout calls below', type: 'number',
         defaultHint: formatCheckout(defaults.checkoutThreshold),
-        options: [
-            { value: 0, label: 'Off' },
-            { value: 60, label: '60' },
-            { value: 130, label: '130' },
-            { value: 140, label: '140' },
-            { value: 170, label: '170' },
-            { value: 180, label: '180' },
-        ],
+        presets: [{ value: null, label: 'Off' }, 60, 130, 140, 170, 180],
+        min: 20, max: 180, format: formatCheckout,
     },
 ];

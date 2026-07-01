@@ -22,7 +22,7 @@ export function createX01({
     doubleIn = false,
     doubleOut = false,
     bullMode = '25/50',
-    maxRounds = 0,
+    maxRounds = null,
     checkoutThreshold = 170,
     startingPlayerIndex = 0,
 } = {}) {
@@ -161,7 +161,7 @@ export function createX01({
             // 3rd dart — call turn total
             callouts.push({ type: 'turnTotal', value: turnTotal() });
             turnTotalReturned = true;
-        } else if (checkoutThreshold > 0 && player.score <= checkoutThreshold) {
+        } else if (checkoutThreshold !== null && player.score <= checkoutThreshold) {
             callouts.push({ type: 'checkout', value: points, remaining: player.score });
         }
 

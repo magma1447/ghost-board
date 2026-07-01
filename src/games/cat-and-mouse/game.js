@@ -23,7 +23,7 @@ export function createCatAndMouse({
     gap = 1,
     hitMode = 'any',
     multiStep = false,
-    maxRounds = 0,
+    maxRounds = null,
     roundLimitResult = 'mouse',
     sprint = false,
     startingPlayerIndex = 0,
@@ -77,7 +77,7 @@ export function createCatAndMouse({
             state.round++;
         }
 
-        if (maxRounds > 0 && state.round > maxRounds) {
+        if (maxRounds !== null && state.round > maxRounds) {
             state.isGameOver = true;
             if (roundLimitResult === 'draw') {
                 state.winner = null;

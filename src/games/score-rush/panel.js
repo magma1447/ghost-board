@@ -10,7 +10,7 @@ export function createScoreRushPanel(container, callbacks) {
     function update(state, event, match) {
         panel.setRules(settingsLine(fields, state.options, defaults));
         // No round limit — show the target alongside the current round number
-        panel.setRound(`First to ${state.options.targetScore} · ${formatRoundLabel(state.round, 0)}`, match);
+        panel.setRound(`First to ${state.options.targetScore} · ${formatRoundLabel(state.round, null)}`, match);
 
         renderScoreboard(panel.scoreboard, state, {
             infoFor: averageLabel,

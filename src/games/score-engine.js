@@ -144,7 +144,7 @@ export function createScoreGame({
             // All players completed this round
             state.round++;
             // Round-limited games end at the limit (target games end in onDart)
-            if (endMode === 'rounds' && maxRounds > 0 && state.round > maxRounds) {
+            if (endMode === 'rounds' && maxRounds !== null && state.round > maxRounds) {
                 const winner = determineWinner();
                 // End unless it's a tie and we play until a winner (sudden death)
                 if (winner !== null || onDraw === 'draw') {

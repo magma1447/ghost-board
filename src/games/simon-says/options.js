@@ -32,15 +32,10 @@ export const fields = [
         ],
     },
     {
-        name: 'maxRounds', label: 'Rounds', type: 'select', valueType: 'int',
+        name: 'maxRounds', label: 'Rounds', type: 'number',
         defaultHint: formatRounds(defaults.maxRounds),
-        options: [
-            { value: 0, label: 'No limit' },
-            { value: 5, label: '5' },
-            { value: 10, label: '10' },
-            { value: 15, label: '15' },
-            { value: 20, label: '20' },
-        ],
+        presets: [{ value: null, label: 'No limit' }, 5, 10, 15, 20],
+        min: 1, max: 100, format: formatRounds,
     },
     {
         name: 'onDraw', label: 'On a tie', type: 'select',

@@ -189,6 +189,25 @@ export function createGameSetup(container, onStart, onCancel, config) {
     let locked = false;
     let lockPrevValue = null;
 
+    // The locked field may be a plain <select>/<checkbox> or a numeric widget
+    // (getValue/setValue/setDisabled) — read/write/disable it either way.
+    const isWidgetLock = lockInput && typeof lockInput.getValue === 'function';
+    const getLockValue = () => (isWidgetLock ? lockInput.getValue() : lockInput.value);
+    const setLockValue = (v) => {
+        if (isWidgetLock) {
+            lockInput.setValue(v);
+        } else {
+            lockInput.value = String(v);
+        }
+    };
+    const setLockDisabled = (d) => {
+        if (isWidgetLock) {
+            lockInput.setDisabled(d);
+        } else {
+            lockInput.disabled = d;
+        }
+    };
+
     // --- Sets require more than one leg (a set wraps multiple legs — sets of a
     // single leg are just legs). Lock Sets to 1 until Legs is Best-of-3+. ---
     const setsInput = inputs.setsBestOf;
@@ -217,14 +236,14 @@ export function createGameSetup(container, onStart, onCancel, config) {
         }
         const match = isMatchSelected();
         if (match && !locked) {
-            lockPrevValue = lockInput.value;
-            lockInput.value = String(matchLock.value);
-            lockInput.disabled = true;
+            lockPrevValue = getLockValue();
+            setLockValue(matchLock.value);
+            setLockDisabled(true);
             lockNote.hidden = false;
             locked = true;
         } else if (!match && locked) {
-            lockInput.value = lockPrevValue;
-            lockInput.disabled = false;
+            setLockValue(lockPrevValue);
+            setLockDisabled(false);
             lockNote.hidden = true;
             locked = false;
         }
@@ -232,7 +251,7 @@ export function createGameSetup(container, onStart, onCancel, config) {
 
     function resetLock() {
         if (lockInput) {
-            lockInput.disabled = false;
+            setLockDisabled(false);
             lockNote.hidden = true;
         }
         locked = false;

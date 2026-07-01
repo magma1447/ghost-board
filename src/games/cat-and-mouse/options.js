@@ -9,7 +9,7 @@ export const defaults = {
     hitMode: 'any',
     multiStep: false,
     sprint: false,
-    maxRounds: 0,
+    maxRounds: null,
     roundLimitResult: 'mouse',
 };
 
@@ -17,9 +17,9 @@ const ROUND_LIMIT_LABELS = { mouse: 'mouse wins', draw: 'draw' };
 
 export const fields = [
     {
-        name: 'gap', label: 'Head start', type: 'select', valueType: 'int',
+        name: 'gap', label: 'Head start', type: 'number',
         defaultHint: String(defaults.gap),
-        options: [1, 2, 3, 4, 5].map((v) => ({ value: v, label: String(v) })),
+        presets: [1, 2, 3, 4, 5], min: 1, max: 19,
     },
     {
         name: 'hitMode', label: 'Hit mode', type: 'select',
@@ -39,15 +39,10 @@ export const fields = [
         defaultHint: formatBool(defaults.sprint),
     },
     {
-        name: 'maxRounds', label: 'Max rounds', type: 'select', valueType: 'int',
+        name: 'maxRounds', label: 'Max rounds', type: 'number',
         defaultHint: formatRounds(defaults.maxRounds),
-        options: [
-            { value: 0, label: 'No limit' },
-            { value: 10, label: '10' },
-            { value: 15, label: '15' },
-            { value: 20, label: '20' },
-            { value: 30, label: '30' },
-        ],
+        presets: [{ value: null, label: 'No limit' }, 10, 15, 20, 30],
+        min: 1, max: 100, format: formatRounds,
     },
     {
         name: 'roundLimitResult', label: 'Round limit result', type: 'select',

@@ -52,7 +52,7 @@ export function advancePlayerBase(state, maxRounds) {
         state.round++;
     }
 
-    if (maxRounds > 0 && state.round > maxRounds) {
+    if (maxRounds !== null && state.round > maxRounds) {
         state.isGameOver = true;
         state.winner = null;
         return 'draw';

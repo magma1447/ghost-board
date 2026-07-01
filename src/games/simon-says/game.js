@@ -131,7 +131,7 @@ export function createSimonSays({
             // All players completed this round — advance
             state.round++;
 
-            if (maxRounds > 0 && state.round > maxRounds) {
+            if (maxRounds !== null && state.round > maxRounds) {
                 const winner = determineWinner();
                 // End at the limit unless it's a tie and we play until a winner
                 // (sudden death — keep playing further rounds until one leads).

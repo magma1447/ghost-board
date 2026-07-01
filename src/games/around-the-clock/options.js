@@ -8,7 +8,7 @@ export const defaults = {
     bullFinish: 'single',
     hitMode: 'any',
     multiStep: false,
-    maxRounds: 0,
+    maxRounds: null,
 };
 
 const BULL_LABELS = { off: 'off', single: 'single bull', double: 'double bull' };
@@ -39,14 +39,9 @@ export const fields = [
         defaultHint: formatBool(defaults.multiStep),
     },
     {
-        name: 'maxRounds', label: 'Max rounds', type: 'select', valueType: 'int',
+        name: 'maxRounds', label: 'Max rounds', type: 'number',
         defaultHint: formatRounds(defaults.maxRounds),
-        options: [
-            { value: 0, label: 'No limit' },
-            { value: 15, label: '15' },
-            { value: 20, label: '20' },
-            { value: 25, label: '25' },
-            { value: 30, label: '30' },
-        ],
+        presets: [{ value: null, label: 'No limit' }, 15, 20, 25, 30],
+        min: 1, max: 100, format: formatRounds,
     },
 ];

@@ -19,12 +19,12 @@ export function formatBool(value) {
 }
 
 export function formatRounds(value) {
-    return value === 0 ? 'no limit' : String(value);
+    return value === null ? 'no limit' : String(value);
 }
 
 // In-game round indicator: "Round 3 / 20", or "Round 3" when there's no limit
 export function formatRoundLabel(round, maxRounds) {
-    return maxRounds > 0 ? `Round ${round} / ${maxRounds}` : `Round ${round}`;
+    return maxRounds !== null ? `Round ${round} / ${maxRounds}` : `Round ${round}`;
 }
 
 // Per-player 3-dart average sub-line (points scored per completed turn).
@@ -52,7 +52,8 @@ export function describeSettings(fields, values, defaults) {
             }
         } else if (String(value) !== String(defaults[field.name])) {
             const opt = (field.options || []).find((o) => String(o.value) === String(value));
-            tokens.push(`${field.label}: ${opt ? opt.label : value}`);
+            const shown = field.format ? field.format(value) : (opt ? opt.label : value);
+            tokens.push(`${field.label}: ${shown}`);
         }
     }
     return tokens;

@@ -26,13 +26,32 @@ const DEFAULTS = {
 
 let current = null;
 
+// Fields where the old `0` sentinel meant "no limit" / "off"; migrated to the
+// self-documenting `null` when the numeric selector rolled out.
+const ZERO_TO_NULL = [
+    ['x01', 'maxRounds'],
+    ['x01', 'checkoutThreshold'],
+    ['aroundTheClock', 'maxRounds'],
+    ['catAndMouse', 'maxRounds'],
+    ['simonSays', 'maxRounds'],
+];
+
+function migrate(settings) {
+    for (const [key, field] of ZERO_TO_NULL) {
+        if (settings[key] && settings[key][field] === 0) {
+            settings[key][field] = null;
+        }
+    }
+    return settings;
+}
+
 function load() {
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
             const stored = JSON.parse(raw);
             // Merge with defaults so new keys are always present
-            return merge(DEFAULTS, stored);
+            return migrate(merge(DEFAULTS, stored));
         }
     } catch {
     // Corrupted data — reset

@@ -14,6 +14,6 @@ export function createX01Setup(container, onStart, onCancel) {
         meta,
         rulesMd,
         roster: { min: 1, max: 8 },
-        matchLock: { field: 'maxRounds', value: 0 },
+        matchLock: { field: 'maxRounds', value: null },
     });
 }

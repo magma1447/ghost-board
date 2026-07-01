@@ -3,21 +3,33 @@
 // to an inline integer input (✓ / ✕, Enter / Escape), bounded by [min, max].
 // A committed custom value reappears in the dropdown as its own option.
 //
-// The element exposes getValue() / setValue() and dispatches a bubbling
-// 'change' (plus an optional onChange) whenever the value changes.
+// Presets are valid by definition, so they bypass the min/max clamp — only the
+// free-text custom input is bounded. Preset values may be non-numeric (e.g.
+// null for "No limit"); they survive the <select>'s string values via a lookup.
 //
-//   createNumericSelect({ presets: [8], min: 1, max: 99, value: 8 })
-//   presets are numbers, or { value, label } for a labelled option.
+// The element exposes getValue() / setValue() / setDisabled() and dispatches a
+// bubbling 'change' (plus an optional onChange) whenever the value changes.
+//
+//   createNumericSelect({ presets: [{ value: null, label: 'No limit' }, 15, 20], min: 1, max: 100, value: null })
 
 const CUSTOM = '__custom__';
 
 export function createNumericSelect({ presets = [], min = 0, max = 9999, value = min, onChange = null }) {
     const list = presets.map((p) => (typeof p === 'object' ? p : { value: p, label: String(p) }));
     const presetValues = list.map((p) => p.value);
+    // Map a preset's stringified value back to its real value, so non-numeric
+    // presets (e.g. null for "No limit") survive the <select>'s string values.
+    const valueByKey = {};
+    for (const p of list) {
+        valueByKey[String(p.value)] = p.value;
+    }
     const clamp = (v) => Math.max(min, Math.min(max, v));
+    // Presets are valid as-is; only free-text custom input is bounded.
+    const normalize = (v) => (presetValues.includes(v) ? v : clamp(Number(v)));
 
-    let current = clamp(Number(value));
+    let current = normalize(value);
     let editing = false;
+    let disabled = false;
 
     const el = document.createElement('div');
     el.className = 'numeric-select';
@@ -37,8 +49,8 @@ export function createNumericSelect({ presets = [], min = 0, max = 9999, value =
             opt.textContent = p.label;
             select.appendChild(opt);
         }
-        // A committed custom value (not among the presets) shows as its own
-        // selected option, so the dropdown reflects the current setting.
+        // A committed custom value (a number not among the presets) shows as its
+        // own selected option, so the dropdown reflects the current setting.
         const isCustom = !presetValues.includes(current);
         if (isCustom) {
             const opt = document.createElement('option');
@@ -56,8 +68,11 @@ export function createNumericSelect({ presets = [], min = 0, max = 9999, value =
             if (select.value === CUSTOM) {
                 editing = true;
                 render();
+            } else if (select.value in valueByKey) {
+                current = valueByKey[select.value]; // a preset (may be null)
+                fire();
             } else {
-                current = Number(select.value);
+                current = Number(select.value); // a committed custom value
                 fire();
             }
         });
@@ -70,9 +85,11 @@ export function createNumericSelect({ presets = [], min = 0, max = 9999, value =
         input.className = 'numeric-select-input';
         input.min = String(min);
         input.max = String(max);
-        input.value = String(current);
+        // Seed from the current number, or the minimum when leaving a non-numeric
+        // preset like "No limit".
+        input.value = String(Number.isFinite(current) ? current : min);
 
-        function confirm() {
+        function commit() {
             const v = parseInt(input.value, 10);
             current = Number.isFinite(v) ? clamp(v) : current;
             editing = false;
@@ -86,7 +103,7 @@ export function createNumericSelect({ presets = [], min = 0, max = 9999, value =
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                confirm();
+                commit();
             } else if (e.key === 'Escape') {
                 e.preventDefault();
                 cancel();
@@ -97,7 +114,7 @@ export function createNumericSelect({ presets = [], min = 0, max = 9999, value =
         okBtn.type = 'button';
         okBtn.className = 'btn btn-icon btn-primary';
         okBtn.textContent = '✓';
-        okBtn.addEventListener('click', confirm);
+        okBtn.addEventListener('click', commit);
 
         const cancelBtn = document.createElement('button');
         cancelBtn.type = 'button';
@@ -119,12 +136,19 @@ export function createNumericSelect({ presets = [], min = 0, max = 9999, value =
         } else {
             el.appendChild(buildSelect());
         }
+        el.querySelectorAll('select, input, button').forEach((elem) => {
+            elem.disabled = disabled;
+        });
     }
 
     el.getValue = () => current;
     el.setValue = (v) => {
-        current = clamp(Number(v));
+        current = normalize(v);
         editing = false;
+        render();
+    };
+    el.setDisabled = (d) => {
+        disabled = d;
         render();
     };
 
