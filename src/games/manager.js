@@ -8,12 +8,18 @@ import { createCatAndMouse } from './cat-and-mouse/game.js';
 import { createCatAndMousePanel } from './cat-and-mouse/panel.js';
 import { createSimonSays } from './simon-says/game.js';
 import { createSimonSaysPanel } from './simon-says/panel.js';
+import { createCountUp } from './count-up/game.js';
+import { createCountUpPanel } from './count-up/panel.js';
+import { createScoreRush } from './score-rush/game.js';
+import { createScoreRushPanel } from './score-rush/panel.js';
 
 const GAME_TYPES = {
     x01: { createGame: createX01, createPanel: createX01Panel },
     'around-the-clock': { createGame: createAroundTheClock, createPanel: createAroundTheClockPanel },
     'cat-and-mouse': { createGame: createCatAndMouse, createPanel: createCatAndMousePanel },
     'simon-says': { createGame: createSimonSays, createPanel: createSimonSaysPanel },
+    'count-up': { createGame: createCountUp, createPanel: createCountUpPanel },
+    'score-rush': { createGame: createScoreRush, createPanel: createScoreRushPanel },
 };
 
 let activeGame = null;

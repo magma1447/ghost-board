@@ -14,7 +14,7 @@ Ghost Board is a web-based alternative to the official Granboard app. It connect
 
 <table border="0" cellspacing="0">
   <tr>
-    <td width="50%" valign="top"><a href="screenshots/new-game-picker.png"><img src="screenshots/new-game-picker.png" width="100%" alt="New game picker"></a><br><sub>Choose a game — X01, Around the Clock, Cat &amp; Mouse, or Simon Says.</sub></td>
+    <td width="50%" valign="top"><a href="screenshots/new-game-picker.png"><img src="screenshots/new-game-picker.png" width="100%" alt="New game picker"></a><br><sub>Choose a game — X01, Around the Clock, Cat &amp; Mouse, Simon Says, Count Up, or Score Rush.</sub></td>
     <td width="50%" valign="top"><a href="screenshots/x01-setup.png"><img src="screenshots/x01-setup.png" width="100%" alt="X01 setup"></a><br><sub>X01 setup — players, match format (legs / sets), and game options.</sub></td>
   </tr>
   <tr>
@@ -69,6 +69,7 @@ Any game can be played as a match rather than a single game:
 ## Games
 
 - **X01** (301 / 501 / 701 / 1001)
+  - *Also known as: 01*
   - 1–8 players
   - Bust reverts the entire turn and locks the remaining darts
   - Per-player 3-dart average
@@ -81,6 +82,7 @@ Any game can be played as a match rather than a single game:
     - Max rounds (default: 20, 0 for no limit)
     - Checkout calls below — spoken checkout threshold (default: 170, off to disable)
 - **Around the Clock**
+  - *Also known as: Around the World, Clock*
   - Hit 1 through 20 in order, optionally finishing on bull
   - 1–8 players
   - LED highlights the target number; voice calls the next target on a hit; a wrong number plays the miss sound
@@ -109,6 +111,24 @@ Any game can be played as a match rather than a single game:
     - Scoring — flat (1 point per hit) or staggered (1 / 2 / 3 for the first, second, third hit of a turn) (default: flat)
     - Rounds — 5 / 10 / 15 / 20 / no limit (default: 10)
     - On a tie — draw, or play sudden-death rounds until someone leads (default: draw)
+- **Count Up**
+  - Add up your score over a fixed number of rounds — every dart counts, no bust or checkout
+  - Highest total after the final round wins; the turn total and each player's running total are called out
+  - 1–8 players
+  - Options:
+    - Rounds — 8 or custom (default: 8)
+    - Bull scoring — 25/50 or 50/50 (default: 25/50)
+    - Singles only — count doubles & trebles at face value (default: off)
+    - On a tie — draw, or play sudden-death rounds until someone leads (default: draw)
+- **Score Rush**
+  - *Also known as: High Score*
+  - Race to a target score — first to reach it wins; no exact finish or checkout (unlike X01)
+  - Highest-scoring, beginner-friendly counterpart to X01
+  - 1–8 players
+  - Options:
+    - Target — 300 or custom, 100–10000 (default: 300)
+    - Bull scoring — 25/50 or 50/50 (default: 25/50)
+    - Singles only — count doubles & trebles at face value (default: off)
 
 ## Getting Started
 

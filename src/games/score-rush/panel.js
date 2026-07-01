@@ -1,33 +1,28 @@
-// X01 game panel — renders x01 game state
+// Score Rush game panel — running totals racing to a target score.
 
 import { formatRoundLabel, settingsLine, averageLabel } from '../format.js';
 import { createGamePanel, renderScoreboard, winnerName } from '../panel-factory.js';
 import { defaults, fields } from './options.js';
-import { checkoutFor } from './checkout-sequence.js';
 
-export function createX01Panel(container, callbacks) {
+export function createScoreRushPanel(container, callbacks) {
     const panel = createGamePanel(container, callbacks);
 
     function update(state, event, match) {
         panel.setRules(settingsLine(fields, state.options, defaults));
-        panel.setRound(formatRoundLabel(state.round, state.options.maxRounds), match);
+        // No round limit — show the target alongside the current round number
+        panel.setRound(`First to ${state.options.targetScore} · ${formatRoundLabel(state.round, 0)}`, match);
 
         renderScoreboard(panel.scoreboard, state, {
             infoFor: averageLabel,
             valueFor: (p) => String(p.score),
-            dartMode: 'total',
+            dartMode: 'total', // show the turn's darts joined with their sum
             match,
-            checkout: checkoutFor(state),
         });
 
         panel.nextBtn.disabled = state.isGameOver;
 
-        if (event === 'bust') {
-            panel.showBanner('BUST!', 'bust');
-        } else if (event === 'win') {
+        if (event === 'win') {
             panel.showBanner(`${winnerName(state)} wins!`, 'win');
-        } else if (event === 'draw') {
-            panel.showBanner('Draw — round limit reached', 'draw');
         }
     }
 

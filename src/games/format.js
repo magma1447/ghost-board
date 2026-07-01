@@ -5,7 +5,7 @@ export function formatDart(dart) {
         return 'Miss';
     }
     if (dart.ring === 'DBULL') {
-        return 'BULL';
+        return 'D-Bull';
     }
     if (dart.ring === 'SBULL') {
         return 'Bull';
@@ -25,6 +25,11 @@ export function formatRounds(value) {
 // In-game round indicator: "Round 3 / 20", or "Round 3" when there's no limit
 export function formatRoundLabel(round, maxRounds) {
     return maxRounds > 0 ? `Round ${round} / ${maxRounds}` : `Round ${round}`;
+}
+
+// Per-player 3-dart average sub-line (points scored per completed turn).
+export function averageLabel(player) {
+    return player.visits > 0 ? `Avg ${(player.scored / player.visits).toFixed(2)}` : 'Avg —';
 }
 
 // Describe the notable settings from a field schema + values, as labeled

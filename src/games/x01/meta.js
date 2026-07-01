@@ -4,6 +4,7 @@
 
 export const meta = {
     short: 'Count down from a starting score to exactly zero — first to finish wins.',
+    aka: ['01', '301', '501', '701', '1001'],
     options: {
         startingScore: 'The score each player counts down from.',
         doubleIn: 'Darts only start counting after you hit a double.',

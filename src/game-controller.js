@@ -19,10 +19,14 @@ import { createX01Setup } from './games/x01/setup.js';
 import { createAroundTheClockSetup } from './games/around-the-clock/setup.js';
 import { createCatAndMouseSetup } from './games/cat-and-mouse/setup.js';
 import { createSimonSaysSetup } from './games/simon-says/setup.js';
+import { createCountUpSetup } from './games/count-up/setup.js';
+import { createScoreRushSetup } from './games/score-rush/setup.js';
 import { meta as x01Meta } from './games/x01/meta.js';
 import { meta as aroundTheClockMeta } from './games/around-the-clock/meta.js';
 import { meta as catAndMouseMeta } from './games/cat-and-mouse/meta.js';
 import { meta as simonSaysMeta } from './games/simon-says/meta.js';
+import { meta as countUpMeta } from './games/count-up/meta.js';
+import { meta as scoreRushMeta } from './games/score-rush/meta.js';
 import {
     createMatchState, isMatchPlay, startingPlayerIndex, recordLegWin,
     advanceLeg, currentSetNumber, currentLegNumber, firstToWin,
@@ -33,6 +37,8 @@ const GAME_LABELS = {
     'around-the-clock': 'Around the Clock',
     'cat-and-mouse': 'Cat and Mouse',
     'simon-says': 'Simon Says',
+    'count-up': 'Count Up',
+    'score-rush': 'Score Rush',
 };
 
 const GAME_SETUPS = {
@@ -40,6 +46,8 @@ const GAME_SETUPS = {
     'around-the-clock': createAroundTheClockSetup,
     'cat-and-mouse': createCatAndMouseSetup,
     'simon-says': createSimonSaysSetup,
+    'count-up': createCountUpSetup,
+    'score-rush': createScoreRushSetup,
 };
 
 // Per-game short descriptions for the picker hover title.
@@ -48,15 +56,17 @@ const GAME_META = {
     'around-the-clock': aroundTheClockMeta,
     'cat-and-mouse': catAndMouseMeta,
     'simon-says': simonSaysMeta,
+    'count-up': countUpMeta,
+    'score-rush': scoreRushMeta,
 };
 
-// Format a dart hit for the log (e.g. "T20 (60)", "BULL (50)", "Miss")
+// Format a dart hit for the log (e.g. "T20 (60)", "D-Bull (50)", "Miss")
 function formatHit(hit) {
     if (hit.ring === 'OUT') {
         return 'Miss';
     }
     if (hit.ring === 'DBULL') {
-        return 'BULL (50)';
+        return 'D-Bull (50)';
     }
     if (hit.ring === 'SBULL') {
         return 'Bull (25)';

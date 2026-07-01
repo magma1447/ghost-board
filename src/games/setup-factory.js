@@ -76,8 +76,13 @@ function fieldControl(field) {
 }
 
 function fieldRow(field) {
+    // Numeric fields advertise their allowed range so the Custom option's
+    // bounds are visible, e.g. "(1–30, default: 8)".
+    const hint = field.type === 'number'
+        ? `${field.min}–${field.max}, default: ${field.defaultHint}`
+        : `default: ${field.defaultHint}`;
     return `<div class="game-setup-row">
-        <label>${field.label} <span class="game-setup-default">(default: ${field.defaultHint})</span></label>
+        <label>${field.label} <span class="game-setup-default">(${hint})</span></label>
         ${fieldControl(field)}
       </div>`;
 }
