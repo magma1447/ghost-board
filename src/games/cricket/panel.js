@@ -1,9 +1,9 @@
 // Cricket game panel — a compact table: one row per player, a column per
-// number (20…15 + bull), plus name and score. Hit history is omitted for now
-// (to be figured out separately).
+// number (20…15 + bull), plus name and score. The turn's darts show under the
+// name.
 
 import './panel.css';
-import { settingsLine } from '../format.js';
+import { formatDart, settingsLine } from '../format.js';
 import { createGamePanel, winnerName } from '../panel-factory.js';
 import { createPlayer } from '../../state/players.js';
 import { isMatchPlay, playerMatchLabel } from '../match.js';
@@ -45,8 +45,9 @@ export function createCricketPanel(container, callbacks) {
         const tbody = document.createElement('tbody');
         for (let i = 0; i < state.players.length; i++) {
             const p = state.players[i];
+            const isCurrent = i === state.currentPlayerIndex;
             const row = document.createElement('tr');
-            if (i === state.currentPlayerIndex) {
+            if (isCurrent) {
                 row.className = 'active';
             }
 
@@ -55,11 +56,26 @@ export function createCricketPanel(container, callbacks) {
             const nameText = document.createElement('span');
             nameText.textContent = createPlayer(p.uuid).getName();
             nameCell.appendChild(nameText);
+
+            // The turn's darts under the name — live for the current player,
+            // last completed turn for the others. When present, the name cell
+            // stacks to the top so the darts sit below; other columns stay
+            // middle-aligned.
+            const darts = isCurrent ? state.turn.darts : (p.lastDarts || []);
+            if (darts.length > 0) {
+                const history = document.createElement('span');
+                history.className = 'game-cricket-history';
+                history.textContent = darts.map(formatDart).join(', ');
+                nameCell.appendChild(history);
+                nameCell.classList.add('stacked');
+            }
+
             if (showMatch) {
                 const tally = document.createElement('span');
                 tally.className = 'game-cricket-tally';
                 tally.textContent = playerMatchLabel(match, p.uuid);
                 nameCell.appendChild(tally);
+                nameCell.classList.add('stacked');
             }
             row.appendChild(nameCell);
 

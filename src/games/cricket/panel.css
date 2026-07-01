@@ -32,8 +32,11 @@
 }
 
 .game-cricket-table td {
-    padding: 0.7rem 0.15rem;
+    padding: 0.5rem 0.15rem;
     text-align: center;
+    /* Middle-align by default so name, marks and score line up. The name cell
+       switches to top-align (below) when it stacks a history / tally line. */
+    vertical-align: middle;
     font-size: 1.9rem;
     line-height: 1;
     color: #cfcfcf;
@@ -48,6 +51,25 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+}
+
+/* Name cell stacks a history / tally line under the name → top-align it, while
+   the mark and score columns stay centered. */
+.game-cricket-table td.game-cricket-name.stacked {
+    vertical-align: top;
+}
+
+/* The turn's darts, under the name */
+.game-cricket-history {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    color: #999;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-variant-numeric: tabular-nums;
 }
 
 .game-cricket-tally {
