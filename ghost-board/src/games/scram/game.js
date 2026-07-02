@@ -1,7 +1,7 @@
 // Scram — a two-player Cricket spinoff played in two halves. In each half one
-// player is the CLOSER, racing to close every number (three marks each), and
+// player is the STOPPER, racing to close every number (three marks each), and
 // the other is the SCORER, piling up points on every number that's still open.
-// When the closer shuts the last number the half ends: the roles swap, the
+// When the stopper shuts the last number the half ends: the roles swap, the
 // numbers reopen, and the other player gets their turn to score. Most points
 // across both halves wins.
 //
@@ -14,7 +14,7 @@
 //   'half'. 'half' is the general phase/role-transition event: the game has
 //   already advanced into the new phase and put the overlay text in
 //   state.transition = { title, subtitle }; the controller shows that overlay
-//   and auto-advances (no Next Player press). Here it fires when the closer
+//   and auto-advances (no Next Player press). Here it fires when the stopper
 //   shuts the last number, ending the half on that dart.
 
 import { currentPlayer } from '../game-helpers.js';
@@ -49,10 +49,10 @@ export function createScram({
         baseNumbers: numbers, // the full set; sudden death draws random subsets from it
         marks, // this half's close-out progress; reset each half
         players, // score accumulates across the whole game
-        closerIndex: startingPlayerIndex, // who closes this half
+        stopperIndex: startingPlayerIndex, // who closes this half
         phase: 1, // half number (1, 2; then 3, 4… only in sudden death)
         round: 1, // kept === phase for the panel's round label
-        currentPlayerIndex: startingPlayerIndex, // the closer throws first each half
+        currentPlayerIndex: startingPlayerIndex, // the stopper throws first each half
         turn: { darts: [], locked: false },
         isGameOver: false,
         winner: null,
@@ -96,7 +96,7 @@ export function createScram({
         return state.players[0].score > state.players[1].score ? 0 : 1;
     }
 
-    // The half ends the instant the closer shuts the last number, which only
+    // The half ends the instant the stopper shuts the last number, which only
     // ever happens on a dart — so the transition is driven from onDart, not
     // Next Player. The game advances its own state into the new phase here and
     // hands the controller a 'half' (or a terminal 'win'/'draw') to react to.
@@ -109,9 +109,9 @@ export function createScram({
         if (state.phase % 2 === 1) {
             state.phase++;
             state.round = state.phase;
-            state.closerIndex = otherIndex(state.closerIndex);
+            state.stopperIndex = otherIndex(state.stopperIndex);
             resetMarks();
-            state.currentPlayerIndex = state.closerIndex;
+            state.currentPlayerIndex = state.stopperIndex;
             refreshTargets();
             state.transition = { title: 'Half ' + state.phase, subtitle: 'Swap roles' };
             return { state, event: 'half', callouts: [] };
@@ -133,10 +133,10 @@ export function createScram({
         }
         state.phase++;
         state.round = state.phase;
-        state.closerIndex = otherIndex(state.closerIndex);
+        state.stopperIndex = otherIndex(state.stopperIndex);
         state.numbers = suddenDeathNumbers();
         resetMarks();
-        state.currentPlayerIndex = state.closerIndex;
+        state.currentPlayerIndex = state.stopperIndex;
         refreshTargets();
         state.transition = { title: 'Sudden death', subtitle: 'Swap roles' };
         return { state, event: 'half', callouts: [] };
@@ -153,7 +153,7 @@ export function createScram({
         }
 
         const idx = state.currentPlayerIndex;
-        const isCloser = idx === state.closerIndex;
+        const isStopper = idx === state.stopperIndex;
         const hit = dartMarks(ring, segment, state.numbers);
 
         // Not a target number → nothing happens
@@ -165,8 +165,8 @@ export function createScram({
         const { number, marks: hitMarks } = hit;
         const value = numberValue(number);
 
-        if (isCloser) {
-            // The closer only closes numbers — extra marks are wasted.
+        if (isStopper) {
+            // The stopper only closes numbers — extra marks are wasted.
             state.marks[number] = Math.min(3, state.marks[number] + hitMarks);
             state.turn.darts.push({ ring, segment, hit: true, number, marks: hitMarks, points: 0 });
             refreshTargets();
@@ -202,10 +202,10 @@ export function createScram({
         return [];
     }
 
-    // Big heads-up number: the scorer's running score. The closer isn't scoring
+    // Big heads-up number: the scorer's running score. The stopper isn't scoring
     // this half, so their points stay off the board (the card still shows them).
     function getHeadline() {
-        if (state.currentPlayerIndex === state.closerIndex) {
+        if (state.currentPlayerIndex === state.stopperIndex) {
             return '';
         }
         return String(currentPlayer(state).score);

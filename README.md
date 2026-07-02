@@ -162,7 +162,7 @@ Any game can be played as a match rather than a single game:
     - On a tie — draw, or play sudden-death rounds until someone leads (default: draw)
 - **Scram**
   - Two players, two halves, swapping roles: one player closes every number (three marks each) while the other scores on the numbers still open
-  - When the closer shuts the last number the half ends; the roles swap and the numbers reopen for the second half
+  - When the stopper shuts the last number the half ends; the roles swap and the numbers reopen for the second half
   - The scorer earns each open number's value (bull is 25) per mark; a closed number stops paying out — most points across both halves wins
   - 2 players
   - Options:

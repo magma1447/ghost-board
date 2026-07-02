@@ -1,6 +1,6 @@
 // Scram game panel — a close-out strip (this half's marks for every number)
 // above the shared scoreboard. Each player's card shows their running total and
-// their role this half (Closer / Scorer).
+// their role this half (Stopper / Scorer).
 
 import './panel.css';
 import { settingsLine } from '../format.js';
@@ -24,7 +24,7 @@ export function createScramPanel(container, callbacks) {
         closeStrip.innerHTML = '';
         const label = document.createElement('span');
         label.className = 'game-scram-close-label';
-        label.textContent = 'Closing:';
+        label.textContent = 'Numbers:';
         closeStrip.appendChild(label);
 
         for (const n of state.numbers) {
@@ -52,12 +52,12 @@ export function createScramPanel(container, callbacks) {
 
         renderCloseStrip(state);
 
-        // infoFor receives only the player object, so identify the closer by
-        // object identity against state.players[closerIndex].
-        const closer = state.players[state.closerIndex];
+        // infoFor receives only the player object, so identify the stopper by
+        // object identity against state.players[stopperIndex].
+        const stopper = state.players[state.stopperIndex];
         renderScoreboard(panel.scoreboard, state, {
             valueFor: (p) => String(p.score),
-            infoFor: (p) => (p === closer ? 'Closer' : 'Scorer'),
+            infoFor: (p) => (p === stopper ? 'Stopper' : 'Scorer'),
             dartMode: 'total',
             match,
         });

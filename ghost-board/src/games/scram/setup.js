@@ -11,7 +11,7 @@ export function createScramSetup(container, onStart, onCancel) {
         fields,
         meta,
         rulesMd,
-        // Scram is always exactly 2 players (closer vs scorer).
+        // Scram is always exactly 2 players (stopper vs scorer).
         roster: { min: 2, max: 2 },
         // A leg must have a winner, so match play forces sudden-death on a tie.
         matchLock: { field: 'onDraw', value: 'continue' },
