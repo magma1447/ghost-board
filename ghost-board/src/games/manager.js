@@ -22,6 +22,8 @@ import { createHalfIt } from './half-it/game.js';
 import { createHalfItPanel } from './half-it/panel.js';
 import { createBobs27 } from './bobs-27/game.js';
 import { createBobs27Panel } from './bobs-27/panel.js';
+import { createKiller } from './killer/game.js';
+import { createKillerPanel } from './killer/panel.js';
 
 const GAME_TYPES = {
     x01: { createGame: createX01, createPanel: createX01Panel },
@@ -35,6 +37,7 @@ const GAME_TYPES = {
     scram: { createGame: createScram, createPanel: createScramPanel },
     'half-it': { createGame: createHalfIt, createPanel: createHalfItPanel },
     'bobs-27': { createGame: createBobs27, createPanel: createBobs27Panel },
+    killer: { createGame: createKiller, createPanel: createKillerPanel },
 };
 
 let activeGame = null;

@@ -1,0 +1,85 @@
+/* Killer — assign-phase strip + claimed-numbers list, and dimming for out
+   players on the play scoreboard. */
+
+/* .game-scoreboard is display:flex, which beats the UA [hidden] rule, so hide
+   it explicitly during the assign phase. */
+.game-scoreboard[hidden] {
+    display: none;
+}
+
+.game-killer-assign-strip {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 0.4rem 0.75rem;
+    background: #1e1e1e;
+    border-radius: 4px;
+    color: #ffb74d;
+}
+
+.game-killer-assign-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+}
+
+.game-killer-assign-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0.75rem;
+    background: #1a1a1a;
+    border-radius: 4px;
+    border-left: 3px solid transparent;
+}
+
+.game-killer-assign-row.active {
+    border-left-color: #ffb74d;
+    background: #262626;
+}
+
+.game-killer-assign-name {
+    font-weight: 600;
+}
+
+.game-killer-assign-num {
+    color: #888;
+    font-variant-numeric: tabular-nums;
+}
+
+.game-killer-assign-row.active .game-killer-assign-num {
+    color: #ffb74d;
+}
+
+/* Lives shown as Lucide heart pips on the play scoreboard — the same icon per
+   slot (equal size); filled vs empty differ only in colour/fill. */
+.game-killer-scoreboard .game-player-value {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.15rem;
+    max-width: 8rem;
+}
+
+.game-killer-heart {
+    display: inline-flex;
+    color: #4a4a4a; /* empty / lost — grey outline */
+}
+
+.game-killer-heart svg {
+    width: 1.3rem;
+    height: 1.3rem;
+}
+
+.game-killer-heart.filled {
+    color: #ff5252; /* current life — red outline… */
+}
+
+.game-killer-heart.filled svg {
+    fill: #ff5252; /* …and solid fill */
+}
+
+/* Eliminated players stay on the board but faded. */
+.game-killer-out {
+    opacity: 0.45;
+}

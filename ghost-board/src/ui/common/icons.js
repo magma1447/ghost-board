@@ -5,6 +5,7 @@
 // containing button. Add a new icon by importing another lucide-static file.
 
 import bluetooth from 'lucide-static/icons/bluetooth.svg?raw';
+import heart from 'lucide-static/icons/heart.svg?raw';
 import settings from 'lucide-static/icons/settings.svg?raw';
 
-export const icons = { bluetooth, settings };
+export const icons = { bluetooth, heart, settings };

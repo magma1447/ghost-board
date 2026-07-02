@@ -84,6 +84,21 @@ export function showSegments(segNums, color) {
     emitRing(ring);
 }
 
+// Light several colour groups in one ring (others off) — e.g. green targets
+// plus a red warning segment. groups: [{ segments: number[], color }].
+export function showSegmentColors(groups) {
+    stopAnimations();
+    const ring = offRing();
+    for (const group of groups) {
+        for (const n of group.segments) {
+            if (n >= 1 && n <= 20) {
+                ring[n - 1] = group.color;
+            }
+        }
+    }
+    emitRing(ring);
+}
+
 export function allOff() {
     stopAnimations();
     emitRing(offRing());

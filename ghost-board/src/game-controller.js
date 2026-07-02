@@ -27,6 +27,7 @@ import { createShanghaiSetup } from './games/shanghai/setup.js';
 import { createScramSetup } from './games/scram/setup.js';
 import { createHalfItSetup } from './games/half-it/setup.js';
 import { createBobs27Setup } from './games/bobs-27/setup.js';
+import { createKillerSetup } from './games/killer/setup.js';
 import { meta as x01Meta } from './games/x01/meta.js';
 import { meta as aroundTheClockMeta } from './games/around-the-clock/meta.js';
 import { meta as catAndMouseMeta } from './games/cat-and-mouse/meta.js';
@@ -38,6 +39,7 @@ import { meta as shanghaiMeta } from './games/shanghai/meta.js';
 import { meta as scramMeta } from './games/scram/meta.js';
 import { meta as halfItMeta } from './games/half-it/meta.js';
 import { meta as bobs27Meta } from './games/bobs-27/meta.js';
+import { meta as killerMeta } from './games/killer/meta.js';
 import {
     createMatchState, isMatchPlay, startingPlayerIndex, recordLegWin,
     advanceLeg, currentSetNumber, currentLegNumber, firstToWin,
@@ -55,6 +57,7 @@ const GAME_LABELS = {
     scram: 'Scram',
     'half-it': 'Half It',
     'bobs-27': "Bob's 27",
+    killer: 'Killer',
 };
 
 const GAME_SETUPS = {
@@ -69,6 +72,7 @@ const GAME_SETUPS = {
     scram: createScramSetup,
     'half-it': createHalfItSetup,
     'bobs-27': createBobs27Setup,
+    killer: createKillerSetup,
 };
 
 // Per-game short descriptions for the picker hover title.
@@ -84,6 +88,7 @@ const GAME_META = {
     scram: scramMeta,
     'half-it': halfItMeta,
     'bobs-27': bobs27Meta,
+    killer: killerMeta,
 };
 
 // Format a dart hit for the log (e.g. "T20 (60)", "D-Bull (50)", "Miss")

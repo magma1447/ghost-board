@@ -29,7 +29,7 @@ Ghost Board is a web-based alternative to the official Granboard app. It connect
 
 <table border="0" cellspacing="0">
   <tr>
-    <td width="50%" valign="top"><a href="screenshots/new-game-picker.png"><img src="screenshots/new-game-picker.png" width="100%" alt="New game picker"></a><br><sub>Choose a game — X01, Around the Clock, Cat &amp; Mouse, Simon Says, Count Up, Score Rush, Cricket, Shanghai, Scram, Half It, or Bob's 27.</sub></td>
+    <td width="50%" valign="top"><a href="screenshots/new-game-picker.png"><img src="screenshots/new-game-picker.png" width="100%" alt="New game picker"></a><br><sub>Choose a game — X01, Around the Clock, Cat &amp; Mouse, Simon Says, Count Up, Score Rush, Cricket, Shanghai, Scram, Half It, Bob's 27, or Killer.</sub></td>
     <td width="50%" valign="top"><a href="screenshots/x01-setup.png"><img src="screenshots/x01-setup.png" width="100%" alt="X01 setup"></a><br><sub>X01 setup — players, match format (legs / sets), and game options.</sub></td>
   </tr>
   <tr>
@@ -185,6 +185,16 @@ Any game can be played as a match rather than a single game:
     - Elimination — drop to 0 or below and you're out for the rest of the game; last player standing wins (default: on)
     - Final bull — the double bull (50) only, or any bull (the outer 25 counts, with a gentler −25 miss) (default: double bull)
     - On a tie — draw, or play sudden-death double-bull rounds until someone leads (default: draw)
+- **Killer**
+  - Each player owns a number and a stack of lives; arm yourself into a "killer", then hit an opponent's number to knock their lives off — drop them to zero and they're out, last player standing wins
+  - Standard: build lives on your own number (single/double/treble = +1/+2/+3) up to the cap to arm, then take 1/2/3 lives off opponents; Double/Treble Trouble arm and kill on doubles/trebles only (one life per hit)
+  - 2–8 players
+  - Options:
+    - Mode — Standard (any ring, count up to the cap), Double Trouble (doubles only), or Treble Trouble (trebles only) (default: Standard)
+    - Numbers — throw a dart to claim a free number, or have them dealt at random (default: throw for it)
+    - Lives — how many lives each player starts with, and the cap you build up to in Standard, 3–10 (default: 3)
+    - Self-kill — once you're a killer, hitting your own number costs you a life; you can knock yourself out (default: on)
+    - Straight off — everyone starts already a killer, skipping the arming phase (default: off)
 
 ### Game comparison
 
@@ -201,6 +211,7 @@ Any game can be played as a match rather than a single game:
 | Scram | 2 | Yes | No | Yes | Yes | Marks |
 | Half It | 1–8 | Yes | Yes | Yes | No | Count up |
 | Bob's 27 | 1–8 | Yes¹ | No | Yes | No | Count up |
+| Killer | 2–8 | No | No | Yes | No | Elimination |
 
 ¹ Depends on game options.<br>
 ² Unless an instant win ends the game early.

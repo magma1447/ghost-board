@@ -6,7 +6,7 @@
 // and Mouse via player.currentTarget) and multi-target games (Simon Says via
 // state.targetSegments).
 
-import { showSegment as ledShowSegment, showSegments as ledShowSegments, allOff as ledsAllOff } from '../led-controller.js';
+import { showSegment as ledShowSegment, showSegmentColors as ledShowSegmentColors, allOff as ledsAllOff } from '../led-controller.js';
 import { LED_COLOR } from './protocol.js';
 
 let targetLedTimeout = null;
@@ -21,10 +21,14 @@ export function showTargetLed(state, delayMs) {
     // numbers). An empty list means there's nothing to aim at right now, so
     // clear the ring rather than leaving stale segments lit.
     if (state.targetSegments) {
-        const segments = state.targetSegments;
+        const green = state.targetSegments;
+        const red = state.warnSegments || []; // segments to warn against (red)
         targetLedTimeout = setTimeout(() => {
-            if (segments.length > 0) {
-                ledShowSegments(segments, LED_COLOR.GREEN);
+            if (green.length > 0 || red.length > 0) {
+                ledShowSegmentColors([
+                    { segments: green, color: LED_COLOR.GREEN },
+                    { segments: red, color: LED_COLOR.RED },
+                ]);
             } else {
                 ledsAllOff();
             }
