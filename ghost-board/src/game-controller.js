@@ -555,6 +555,11 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                     processCallouts(callouts);
                 }
                 showTargetLed(state, 800);
+                // Throw-for (Killer assign phase) shows taken numbers on the ring
+                // only — no lingering cell highlight carried into the next thrower.
+                if (state.phase === 'assign') {
+                    board.clearHighlight();
+                }
                 persistState();
                 // The transition rolls into a new phase (fresh marks / swapped
                 // roles) — a clean boundary, so undo doesn't reach back across

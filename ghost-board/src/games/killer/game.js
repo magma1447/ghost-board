@@ -130,11 +130,12 @@ export function createKiller({
     // numbers already claimed (so throwers see what's taken).
     function refreshTargets() {
         if (state.phase === 'assign') {
-            // Show which numbers are already taken.
-            state.targetSegments = state.players
+            // Taken numbers show red on the ring (nothing green — you're claiming
+            // a free number, not aiming at a specific one).
+            state.targetSegments = [];
+            state.warnSegments = state.players
                 .filter((p) => p.number !== null)
                 .map((p) => p.number);
-            state.warnSegments = [];
             return;
         }
         const me = state.players[state.currentPlayerIndex];
