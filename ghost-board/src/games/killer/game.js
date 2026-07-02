@@ -32,17 +32,22 @@ function ringMultiplier(ring) {
     return 1; // single in / single out
 }
 
+// Fisher–Yates shuffle, in place (returns the same array).
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
 // A shuffled 1–20, sliced to `count` — distinct random numbers for players.
 function dealRandomNumbers(count) {
     const pool = [];
     for (let n = 1; n <= 20; n++) {
         pool.push(n);
     }
-    for (let i = pool.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [pool[i], pool[j]] = [pool[j], pool[i]];
-    }
-    return pool.slice(0, count);
+    return shuffle(pool).slice(0, count);
 }
 
 export function createKiller({
@@ -83,6 +88,12 @@ export function createKiller({
         });
     }
 
+    // Throwing for numbers is played in a RANDOM order, so the first player in
+    // the setup list doesn't always get first pick of the best number. The list
+    // order is unchanged (display only) — only who throws when. assignIndex is
+    // the current thrower's player-array index, for the panel highlight.
+    const assignOrder = shuffle(players.map((_, i) => i));
+
     // Random assignment deals distinct numbers up front and jumps straight to
     // play; throwing for numbers opens in the assign phase with numbers unset.
     let phase = 'assign';
@@ -102,7 +113,9 @@ export function createKiller({
         cap: lives, // only used by standard
         phase,
         players,
-        assignIndex: 0, // during 'assign', whose turn to throw for a number
+        assignOrder, // randomised throw-off order (player-array indices)
+        assignPos: 0, // position within assignOrder
+        assignIndex: assignOrder[0], // current thrower (player index) — panel highlight
         currentPlayerIndex: startingPlayerIndex,
         turn: { darts: [], locked: false },
         round: 1,
@@ -178,9 +191,10 @@ export function createKiller({
         }
 
         state.players[state.assignIndex].number = segment;
-        // Next unclaimed player, in order; -1 once everyone has a number.
-        const next = state.players.findIndex((p) => p.number === null);
-        if (next === -1) {
+        // Advance through the randomised throw-off order; done once we pass the
+        // last thrower.
+        state.assignPos += 1;
+        if (state.assignPos >= state.players.length) {
             const stats = startingStats();
             for (const p of state.players) {
                 p.lives = stats.lives;
@@ -196,7 +210,7 @@ export function createKiller({
             refreshTargets();
             return { state, event: 'half', callouts: [] };
         }
-        state.assignIndex = next;
+        state.assignIndex = state.assignOrder[state.assignPos];
         refreshTargets();
         return { state, event: null, callouts: [] };
     }
