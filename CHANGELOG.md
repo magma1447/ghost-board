@@ -2,6 +2,21 @@
 
 Notable changes to Ghost Board, newest first. Version numbers follow [semantic versioning](https://semver.org/): new features bump the middle number, fixes bump the last.
 
+## 0.5.0 — 2026-07-02
+
+### Added
+- New games:
+  - **Scram**
+  - **Half It**
+  - **Bob's 27**
+- A header on every game showing the game's name and a **Rules** button, so the rules are one tap away while you play.
+- Idle **attract-mode lighting** — the board (and the on-screen board) show a slow rotating rainbow when no game is running, instead of solid white. A new **Idle LED animation** setting picks where it shows: board + app, board only, or off.
+- Cricket now calls out your running score after each turn.
+
+### Changed
+- "Triple" is now called **treble** throughout.
+- The game picker wraps across rows so all the games fit on screen.
+
 ## 0.4.0 — 2026-07-02
 
 ### Added
