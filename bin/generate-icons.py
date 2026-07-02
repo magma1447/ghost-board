@@ -7,7 +7,7 @@ rsvg-convert. This single run does both (write SVG masters + rasterise PNGs).
 
 Run it in the dev-only `toolbox` container (no host Python/Inkscape needed):
 
-    docker compose -f docker/compose.yml run --rm toolbox python3 bin/generate-icons.py
+    docker compose -f docker/compose.yaml run --rm toolbox python3 bin/generate-icons.py
 """
 import os
 import math
@@ -18,7 +18,7 @@ ROOT = os.path.dirname(HERE)
 ASSETS = os.path.join(ROOT, 'assets')
 GHOSTS = os.path.join(ASSETS, 'ghosts')
 ICONS = os.path.join(ASSETS, 'icons')
-PUBLIC = os.path.join(ROOT, 'public')
+PUBLIC = os.path.join(ROOT, 'ghost-board', 'public')
 for d in (GHOSTS, ICONS):
     os.makedirs(d, exist_ok=True)
 

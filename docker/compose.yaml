@@ -8,14 +8,11 @@ services:
     ports:
       - "3501:3501"
     volumes:
-      - ../src:/app/src
-      - ../index.html:/app/index.html
-      - ../vite.config.js:/app/vite.config.js
-      - ../public:/app/public
+      - ../ghost-board:/app:ro
 
   # Dev-only general toolbox for on-demand tasks (e.g. regenerating icons).
   # Not started by `up` (profiled).
-  # Run: docker compose -f docker/compose.yml run --rm toolbox python3 bin/generate-icons.py
+  # Run: docker compose -f docker/compose.yaml run --rm toolbox python3 bin/generate-icons.py
   toolbox:
     build:
       context: ..

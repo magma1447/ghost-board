@@ -1,29 +1,43 @@
 import { readFileSync } from 'node:fs';
-import { execSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// Build a "v0.1.0 (hash)" string at build time. The short commit hash comes
-// from CI's GITHUB_SHA, falling back to local git, then "dev" (local builds
-// without git, e.g. the Docker container).
-const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url)));
-let hash = (process.env.GITHUB_SHA || '').slice(0, 7);
-if (!hash) {
-    try {
-        hash = execSync('git rev-parse --short HEAD').toString().trim();
-    } catch {
-        hash = 'dev';
-    }
+const PKG = fileURLToPath(new URL('./package.json', import.meta.url));
+
+// Build a "v0.3.0 (hash)" string. The short commit hash comes from CI's
+// GITHUB_SHA; locally there's no hash so it shows "dev". No git binary — the
+// container neither has nor needs git.
+function buildVersion() {
+    const pkg = JSON.parse(readFileSync(PKG));
+    const hash = (process.env.GITHUB_SHA || '').slice(0, 7) || 'dev';
+    return `v${pkg.version} (${hash})`;
 }
-const appVersion = `v${pkg.version} (${hash})`;
+
+// Serve the version as a virtual module so it re-evaluates on demand. Watching
+// package.json makes the label hot-update when the version changes, without a
+// rebuild or server restart.
+function appVersionPlugin() {
+    const id = 'virtual:app-version';
+    const resolved = '\0' + id;
+    return {
+        name: 'app-version',
+        resolveId(s) { if (s === id) return resolved; },
+        load(s) {
+            if (s !== resolved) { return null; }
+            this.addWatchFile(PKG); // hot-update the label when package.json changes
+            return `export default ${JSON.stringify(buildVersion())};`;
+        },
+    };
+}
 
 export default defineConfig({
     root: '.',
     publicDir: 'public',
-    define: {
-        __APP_VERSION__: JSON.stringify(appVersion),
-    },
+    // Vite's dep cache must live outside the read-only /app bind mount.
+    cacheDir: '/node_modules/.vite',
     plugins: [
+        appVersionPlugin(),
         VitePWA({
             // autoUpdate: a new build's service worker takes over on the next
             // load (skipWaiting + clientsClaim), so clients self-refresh without
@@ -53,6 +67,7 @@ export default defineConfig({
     ],
     server: {
         port: 3501,
-        open: true,
+        // No browser in the container — don't try to auto-open (avoids xdg-open ENOENT).
+        open: false,
     },
 });

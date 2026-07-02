@@ -10,7 +10,7 @@ masters below **and** rasterises them to the PNGs in `public/` (via
 `assets` container, so no host Python/Inkscape is needed (Docker only):
 
 ```
-docker compose -f docker/compose.yml run --rm toolbox python3 bin/generate-icons.py
+docker compose -f docker/compose.yaml run --rm toolbox python3 bin/generate-icons.py
 ```
 
 ## Files

@@ -139,15 +139,10 @@ Any game can be played as a match rather than a single game:
 
 ## Getting Started
 
-```bash
-npm install
-npm run dev
-```
-
-Or via Docker:
+Development runs entirely in Docker — no Node needed on the host:
 
 ```bash
-docker compose -f docker/compose.yml up
+docker compose -f docker/compose.yaml up
 ```
 
 Then open `http://localhost:3501` and click the Bluetooth icon to pair with your Granboard.

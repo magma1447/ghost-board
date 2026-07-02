@@ -21,6 +21,7 @@ import { openPlayerConfig } from './ui/player-config.js';
 import { createWinDisplay } from './ui/win-display.js';
 import { createBoardHeadline } from './ui/board-headline.js';
 import { createGameController } from './game-controller.js';
+import APP_VERSION from 'virtual:app-version';
 
 const app = document.getElementById('app');
 
@@ -272,7 +273,7 @@ app.appendChild(panelSidebar);
 // Discreet build version, bottom-right (helps confirm a new deploy landed).
 const versionTag = document.createElement('div');
 versionTag.className = 'version-tag';
-versionTag.textContent = __APP_VERSION__;
+versionTag.textContent = APP_VERSION;
 app.appendChild(versionTag);
 
 // Restore a saved game on load (if any)
