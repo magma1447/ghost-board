@@ -4,9 +4,10 @@ import { formatRoundLabel, settingsLine, averageLabel } from '../format.js';
 import { createGamePanel, renderScoreboard, winnerName } from '../panel-factory.js';
 import { defaults, fields } from './options.js';
 import { checkoutFor } from './checkout-sequence.js';
+import rulesMd from './rules.md?raw';
 
 export function createX01Panel(container, callbacks) {
-    const panel = createGamePanel(container, callbacks);
+    const panel = createGamePanel(container, callbacks, { title: 'X01', rulesMd });
 
     function update(state, event, match) {
         panel.setRules(settingsLine(fields, state.options, defaults));

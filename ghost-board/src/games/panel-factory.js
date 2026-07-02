@@ -15,10 +15,31 @@ import { formatDart } from './format.js';
 import { createPlayer } from '../state/players.js';
 import { isMatchPlay, matchPositionLabel, playerMatchLabel, matchRanks } from './match.js';
 import { openMatchHistory } from '../ui/match-history.js';
+import { openRules } from '../ui/common/rules-dialog.js';
 
-export function createGamePanel(container, { onNextPlayer, onEndGame, onRematch, onUndo }) {
+export function createGamePanel(container, { onNextPlayer, onEndGame, onRematch, onUndo }, { title = '', rulesMd = '' } = {}) {
     const el = document.createElement('div');
     el.className = 'game-panel';
+
+    // Header — game name (left) + Rules button (right), mirroring the setup card
+    const header = document.createElement('div');
+    header.className = 'game-header';
+
+    const headerTitle = document.createElement('span');
+    headerTitle.className = 'game-header-title';
+    headerTitle.textContent = title;
+    header.appendChild(headerTitle);
+
+    if (rulesMd) {
+        const rulesBtn = document.createElement('button');
+        rulesBtn.type = 'button';
+        rulesBtn.className = 'btn btn-small game-header-rules';
+        rulesBtn.textContent = 'Rules';
+        rulesBtn.addEventListener('click', () => openRules(rulesMd));
+        header.appendChild(rulesBtn);
+    }
+
+    el.appendChild(header);
 
     // Rules summary
     const rulesLabel = document.createElement('div');

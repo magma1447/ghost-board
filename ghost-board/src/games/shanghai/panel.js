@@ -2,9 +2,10 @@ import './panel.css';
 import { formatRoundLabel, settingsLine } from '../format.js';
 import { createGamePanel, renderScoreboard, winnerName } from '../panel-factory.js';
 import { defaults, fields } from './options.js';
+import rulesMd from './rules.md?raw';
 
 export function createShanghaiPanel(container, callbacks) {
-    const panel = createGamePanel(container, callbacks);
+    const panel = createGamePanel(container, callbacks, { title: 'Shanghai', rulesMd });
 
     const targetLabel = document.createElement('div');
     targetLabel.className = 'game-shanghai-target';

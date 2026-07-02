@@ -3,9 +3,10 @@
 import { formatRoundLabel, settingsLine } from '../format.js';
 import { createGamePanel, renderScoreboard, winnerName } from '../panel-factory.js';
 import { defaults, fields } from './options.js';
+import rulesMd from './rules.md?raw';
 
 export function createAroundTheClockPanel(container, callbacks) {
-    const panel = createGamePanel(container, callbacks);
+    const panel = createGamePanel(container, callbacks, { title: 'Around the Clock', rulesMd });
 
     function formatTarget(target, state) {
         if (target > state.finalTarget) {

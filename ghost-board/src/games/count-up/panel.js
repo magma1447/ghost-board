@@ -3,9 +3,10 @@
 import { formatRoundLabel, settingsLine, averageLabel } from '../format.js';
 import { createGamePanel, renderScoreboard, winnerName } from '../panel-factory.js';
 import { defaults, fields } from './options.js';
+import rulesMd from './rules.md?raw';
 
 export function createCountUpPanel(container, callbacks) {
-    const panel = createGamePanel(container, callbacks);
+    const panel = createGamePanel(container, callbacks, { title: 'Count Up', rulesMd });
 
     function update(state, event, match) {
         panel.setRules(settingsLine(fields, state.options, defaults));

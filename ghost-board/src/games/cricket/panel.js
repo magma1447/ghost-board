@@ -8,6 +8,7 @@ import { createGamePanel, winnerName } from '../panel-factory.js';
 import { createPlayer } from '../../state/players.js';
 import { isMatchPlay, playerMatchLabel } from '../match.js';
 import { defaults, fields } from './options.js';
+import rulesMd from './rules.md?raw';
 
 // Mark state → glyph, mirroring pen-and-paper Cricket: a slash, then a cross,
 // then a circle (round the cross) once the number is closed.
@@ -16,7 +17,7 @@ function markGlyph(m) {
 }
 
 export function createCricketPanel(container, callbacks) {
-    const panel = createGamePanel(container, callbacks);
+    const panel = createGamePanel(container, callbacks, { title: 'Cricket', rulesMd });
 
     function renderBoard(state, match) {
         const board = panel.scoreboard;

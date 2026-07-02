@@ -6,6 +6,7 @@ import './panel.css';
 import { settingsLine } from '../format.js';
 import { createGamePanel, renderScoreboard, winnerName } from '../panel-factory.js';
 import { defaults, fields } from './options.js';
+import rulesMd from './rules.md?raw';
 
 // Mark state → glyph, mirroring pen-and-paper Cricket: a slash, then a cross,
 // then a circle (round the cross) once the number is closed.
@@ -14,7 +15,7 @@ function markGlyph(m) {
 }
 
 export function createScramPanel(container, callbacks) {
-    const panel = createGamePanel(container, callbacks);
+    const panel = createGamePanel(container, callbacks, { title: 'Scram', rulesMd });
 
     const closeStrip = document.createElement('div');
     closeStrip.className = 'game-scram-close';

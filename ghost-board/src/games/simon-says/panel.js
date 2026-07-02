@@ -4,9 +4,10 @@ import './panel.css';
 import { formatRoundLabel, settingsLine } from '../format.js';
 import { createGamePanel, renderScoreboard, winnerName } from '../panel-factory.js';
 import { defaults, fields } from './options.js';
+import rulesMd from './rules.md?raw';
 
 export function createSimonSaysPanel(container, callbacks) {
-    const panel = createGamePanel(container, callbacks);
+    const panel = createGamePanel(container, callbacks, { title: 'Simon Says', rulesMd });
 
     // Target display ("Simon says: 5, 17, 3"), shown between round and scoreboard.
     const sequenceLabel = document.createElement('div');

@@ -11,7 +11,26 @@
     min-height: 0;
 }
 
+/* In-game header — game name (left) + Rules button (right), mirroring the
+   setup card's header so panel and setup read the same. */
+.game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.game-header-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ccc;
+}
+
 .game-rules {
+    /* Hug the header above — the options line groups with the game title as its
+       subtitle, set apart from the round/cards below (offsets the panel's
+       uniform 0.75rem gap). */
+    margin-top: -1rem;
     font-size: 0.75rem;
     color: #888;
     letter-spacing: 0.03em;

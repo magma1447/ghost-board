@@ -7,7 +7,7 @@ import { defaults, fields } from './options.js';
 
 export function createX01Setup(container, onStart, onCancel) {
     return createGameSetup(container, onStart, onCancel, {
-        title: 'X01 Game',
+        title: 'X01',
         settingsKey: 'x01',
         defaults,
         fields,

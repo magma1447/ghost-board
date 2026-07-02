@@ -5,9 +5,10 @@ import { formatRoundLabel, settingsLine } from '../format.js';
 import { createPlayer } from '../../state/players.js';
 import { createGamePanel, renderScoreboard, winnerName } from '../panel-factory.js';
 import { defaults, fields } from './options.js';
+import rulesMd from './rules.md?raw';
 
 export function createCatAndMousePanel(container, callbacks) {
-    const panel = createGamePanel(container, callbacks);
+    const panel = createGamePanel(container, callbacks, { title: 'Cat and Mouse', rulesMd });
 
     // Chase summary (single line — the gap is the same for both players),
     // shown between the scoreboard and the banner.
