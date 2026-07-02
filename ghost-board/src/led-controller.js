@@ -9,34 +9,47 @@
 
 import { LED_COLOR } from './ble/protocol.js';
 import { BOARD_ORDER } from './board/segments.js';
+import { settings } from './state/settings.js';
 
+// Each output is { output, physical } — `physical` marks the real board (over
+// BLE) so idle attract mode can target it separately from the SVG mirror.
 const OUTPUTS = [];
 let sweepTimer = null;
 let attractTimer = null;
+// Are we in idle attract mode (vs a game / off)? Tracked separately from
+// attractTimer because 'none' mode is idle but runs no timer.
+let idle = false;
 
-// Idle "attract mode" spectrum — chased around the ring between flashes.
+// Idle "attract mode" spectrum — a rainbow chased around the ring.
 const ATTRACT_COLORS = [
     LED_COLOR.RED, LED_COLOR.ORANGE, LED_COLOR.YELLOW,
     LED_COLOR.GREEN, LED_COLOR.CYAN, LED_COLOR.PURPLE,
 ];
 
-export function registerLedOutput(output) {
-    OUTPUTS.push(output);
+export function registerLedOutput(output, { physical = false } = {}) {
+    OUTPUTS.push({ output, physical });
 }
 
 function offRing() {
     return new Array(20).fill(LED_COLOR.OFF);
 }
 
-function emitRing(colors) {
-    for (const output of OUTPUTS) {
-        output.ring(colors);
+// target: 'all' (default), 'physical' (real board only), or 'svg' (mirror only).
+function emitRing(colors, target = 'all') {
+    for (const o of OUTPUTS) {
+        if (target === 'physical' && !o.physical) {
+            continue;
+        }
+        if (target === 'svg' && o.physical) {
+            continue;
+        }
+        o.output.ring(colors);
     }
 }
 
 function emitHit(ring, segment) {
-    for (const output of OUTPUTS) {
-        output.hit(ring, segment);
+    for (const o of OUTPUTS) {
+        o.output.hit(ring, segment);
     }
 }
 
@@ -46,6 +59,7 @@ function stopAnimations() {
     sweepTimer = null;
     clearTimeout(attractTimer);
     attractTimer = null;
+    idle = false;
 }
 
 // Light a single number (1–20) in the given palette colour, others off.
@@ -102,23 +116,41 @@ export function sweep(color = LED_COLOR.WHITE) {
     step();
 }
 
-// Idle "attract mode" — an arcade-style loop shown while no game is running
-// (on the board and mirrored on the SVG): a rainbow chase rotating clockwise
-// around the ring, punctuated by a bright flash. Any game LED state cancels it.
+// Idle "attract mode" — a slow clockwise rainbow rotating around the ring while
+// no game is running. The "Idle LED animation" setting picks where it shows:
+// 'both' (board + SVG), 'board' (real board only, SVG dark), or 'none' (dark).
+// Any real game LED state cancels it.
 export function attract() {
     stopAnimations();
+    idle = true;
+    const mode = settings().display.idleLeds;
+    if (mode === 'none') {
+        emitRing(offRing());
+        return;
+    }
+    if (mode === 'board') {
+        emitRing(offRing(), 'svg'); // keep the SVG mirror dark
+    }
+    const target = mode === 'board' ? 'physical' : 'all';
     let t = 0;
     function step() {
-        // Rainbow gradient rotating one segment per frame — a steady loop, no flash.
         const ring = offRing();
         const len = ATTRACT_COLORS.length;
         for (let i = 0; i < BOARD_ORDER.length; i++) {
             // (i - t) so the gradient rotates clockwise (BOARD_ORDER is clockwise).
             ring[BOARD_ORDER[i] - 1] = ATTRACT_COLORS[((i - t) % len + len) % len];
         }
-        emitRing(ring);
+        emitRing(ring, target);
         t += 1;
         attractTimer = setTimeout(step, 180);
     }
     step();
+}
+
+// Re-run the attract with the current setting, but only while it's already
+// active (idle) — so changing the setting mid-game doesn't stomp game LEDs.
+export function refreshAttractIfActive() {
+    if (idle) {
+        attract();
+    }
 }

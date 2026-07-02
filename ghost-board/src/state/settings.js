@@ -18,6 +18,7 @@ const DEFAULTS = {
         bigNumber: true,
         boardTheme: 'green',
         uiScale: 110,
+        idleLeds: 'both', // idle attract animation: 'both' | 'board' | 'none'
     },
     debug: {
         mouseInput: false,

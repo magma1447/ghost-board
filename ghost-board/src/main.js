@@ -11,7 +11,7 @@ import { BOARD_THEMES, DEFAULT_BOARD_THEME } from './board/segments.js';
 import { createConnection } from './ble/connection.js';
 import { createLog } from './ui/log.js';
 import { createPhysicalLeds } from './ble/leds.js';
-import { sweep as ledSweep, registerLedOutput } from './led-controller.js';
+import { sweep as ledSweep, registerLedOutput, refreshAttractIfActive } from './led-controller.js';
 import { setTheme, setVoice, getThemeNames, getVoiceOptions, ensureAudio } from './audio/sounds.js';
 import { settings, updateSettings } from './state/settings.js';
 import { createMenu } from './ui/common/menu.js';
@@ -133,6 +133,12 @@ if (savedDebug) {
 }
 
 // -- Settings menu (floating overlay) --
+const IDLE_LED_OPTIONS = [
+    { value: 'both', label: 'Board + app' },
+    { value: 'board', label: 'Board only' },
+    { value: 'none', label: 'None' },
+];
+
 const menu = createMenu(settingsBtn, [
     {
         label: 'Audio',
@@ -245,6 +251,17 @@ const menu = createMenu(settingsBtn, [
                     updateSettings('display.boardTheme', key);
                 },
             },
+            {
+                label: 'Idle LED animation',
+                type: 'select',
+                options: IDLE_LED_OPTIONS.map((o) => o.label),
+                value: (IDLE_LED_OPTIONS.find((o) => o.value === settings().display.idleLeds) || IDLE_LED_OPTIONS[0]).label,
+                onChange(label) {
+                    const opt = IDLE_LED_OPTIONS.find((o) => o.label === label);
+                    updateSettings('display.idleLeds', opt.value);
+                    refreshAttractIfActive();
+                },
+            },
         ],
     },
     {
@@ -291,4 +308,4 @@ function onStatus({ status, detail }) {
 
 const ble = createConnection(controller.handleEvent, onStatus);
 // The physical board is the other LED output (encodes → BLE).
-registerLedOutput(createPhysicalLeds((data) => ble.write(data)));
+registerLedOutput(createPhysicalLeds((data) => ble.write(data)), { physical: true });
