@@ -2,6 +2,20 @@
 
 Web interface for [Granboard](https://granboards.com/product-category/gran-board-3/) electronic dartboards. Connects via WebBluetooth and displays dart hits on an interactive board.
 
+## Contents
+
+- [How it works](#how-it-works)
+- [Screenshots](#screenshots)
+- [Features](#features)
+- [Players](#players)
+- [Match play (legs & sets)](#match-play-legs--sets)
+- [Games](#games)
+- [Getting Started](#getting-started)
+- [Install it like an app](#install-it-like-an-app)
+- [Secure Context](#secure-context)
+- [Browser Support](#browser-support)
+- [Attribution](#attribution)
+
 ## How it works
 
 The Granboard itself is a fairly simple device — it detects where a dart lands and has a ring of LEDs around the board, but that's it. There is no game logic, no scoring, and no display on the board itself. All of that is handled by the app it connects to.
@@ -14,7 +28,7 @@ Ghost Board is a web-based alternative to the official Granboard app. It connect
 
 <table border="0" cellspacing="0">
   <tr>
-    <td width="50%" valign="top"><a href="screenshots/new-game-picker.png"><img src="screenshots/new-game-picker.png" width="100%" alt="New game picker"></a><br><sub>Choose a game — X01, Around the Clock, Cat &amp; Mouse, Simon Says, Count Up, Score Rush, or Cricket.</sub></td>
+    <td width="50%" valign="top"><a href="screenshots/new-game-picker.png"><img src="screenshots/new-game-picker.png" width="100%" alt="New game picker"></a><br><sub>Choose a game — X01, Around the Clock, Cat &amp; Mouse, Simon Says, Count Up, Score Rush, Cricket, or Shanghai.</sub></td>
     <td width="50%" valign="top"><a href="screenshots/x01-setup.png"><img src="screenshots/x01-setup.png" width="100%" alt="X01 setup"></a><br><sub>X01 setup — players, match format (legs / sets), and game options.</sub></td>
   </tr>
   <tr>
@@ -136,6 +150,32 @@ Any game can be played as a match rather than a single game:
   - Options:
     - Scoring — Standard (highest total among those closed out wins), Cut-throat (your points go to opponents who haven't closed the number; lowest total wins), or Simple (no score — first to close all seven wins)
     - Numbers — 15–20 + bull (standard), 14–20 (seven fixed, no bull), or Random each game — with the bull (six numbers + bull) or without (seven numbers)
+- **Shanghai**
+  - Each round targets the next number (round 1 → the 1, round 2 → the 2, …); only that number scores
+  - A single scores the number, a double scores it twice, a treble three times; highest total after the final round wins
+  - Instant "Shanghai" win: hit the single, double and treble of the round's number in one turn
+  - 1–8 players
+  - Options:
+    - Rounds — 7 or 20, or custom 1–20 (default: 7)
+    - Shanghai instant win — single + double + treble of the number in one turn wins outright (default: on)
+    - On a tie — draw, or play sudden-death rounds until someone leads (default: draw)
+
+### Game comparison
+
+| Game | Players | Sets & legs | Can draw? | Equal turns? | Scoring style |
+|---|---|---|---|---|---|
+| X01 | 1–8 | Yes | Yes¹ | No | Count down |
+| Around the Clock | 1–8 | Yes | Yes¹ | No | Sequence |
+| Cat and Mouse | 2 | Yes | Yes¹ | No | Sequence |
+| Simon Says | 1–8 | Yes | Yes | Yes | Hit count |
+| Count Up | 1–8 | Yes | Yes | Yes | Count up |
+| Score Rush | 1–8 | Yes | No | No | Count up |
+| Cricket | 1–8 | Yes | No | No | Marks |
+| Shanghai | 1–8 | Yes | Yes | Yes² | Count up |
+
+¹ Depends on game options.<br>
+² Unless an instant win ends the game early.
+² Unless an instant win ends the game early.
 
 ## Getting Started
 
