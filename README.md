@@ -14,6 +14,7 @@ Web interface for [Granboard](https://granboards.com/product-category/gran-board
 - [Install it like an app](#install-it-like-an-app)
 - [Secure Context](#secure-context)
 - [Browser Support](#browser-support)
+- [Changelog](#changelog)
 - [Attribution](#attribution)
 
 ## How it works
@@ -214,6 +215,10 @@ On Linux, WebBluetooth is disabled by default in Chrome. To enable it:
 1. Open `chrome://flags/#enable-web-bluetooth`
 2. Set the flag to **Enabled**
 3. Restart Chrome
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for what's new in each release.
 
 ## Attribution
 
