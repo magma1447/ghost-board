@@ -2,6 +2,11 @@
 
 Notable changes to Ghost Board, newest first. Version numbers follow [semantic versioning](https://semver.org/): new features bump the middle number, fixes bump the last.
 
+## 0.5.1 — 2026-07-02
+
+### Changed
+- Internal maintenance to the release pipeline (refreshed build tooling). No gameplay changes.
+
 ## 0.5.0 — 2026-07-02
 
 ### Added
