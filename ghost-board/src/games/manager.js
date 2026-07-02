@@ -18,6 +18,8 @@ import { createShanghai } from './shanghai/game.js';
 import { createShanghaiPanel } from './shanghai/panel.js';
 import { createScram } from './scram/game.js';
 import { createScramPanel } from './scram/panel.js';
+import { createHalfIt } from './half-it/game.js';
+import { createHalfItPanel } from './half-it/panel.js';
 
 const GAME_TYPES = {
     x01: { createGame: createX01, createPanel: createX01Panel },
@@ -29,6 +31,7 @@ const GAME_TYPES = {
     cricket: { createGame: createCricket, createPanel: createCricketPanel },
     shanghai: { createGame: createShanghai, createPanel: createShanghaiPanel },
     scram: { createGame: createScram, createPanel: createScramPanel },
+    'half-it': { createGame: createHalfIt, createPanel: createHalfItPanel },
 };
 
 let activeGame = null;

@@ -1,0 +1,16 @@
+/* Half It target line ("Aim at: 20") shown above the scoreboard. */
+.game-half-it-target {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 0.4rem 0.75rem;
+    background: #1e1e1e;
+    border-radius: 4px;
+}
+
+.game-half-it-target-label {
+    color: #888;
+}
+
+.game-half-it-target-value {
+    color: #ffb74d;
+}

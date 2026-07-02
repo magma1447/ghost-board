@@ -25,6 +25,7 @@ import { createScoreRushSetup } from './games/score-rush/setup.js';
 import { createCricketSetup } from './games/cricket/setup.js';
 import { createShanghaiSetup } from './games/shanghai/setup.js';
 import { createScramSetup } from './games/scram/setup.js';
+import { createHalfItSetup } from './games/half-it/setup.js';
 import { meta as x01Meta } from './games/x01/meta.js';
 import { meta as aroundTheClockMeta } from './games/around-the-clock/meta.js';
 import { meta as catAndMouseMeta } from './games/cat-and-mouse/meta.js';
@@ -34,6 +35,7 @@ import { meta as scoreRushMeta } from './games/score-rush/meta.js';
 import { meta as cricketMeta } from './games/cricket/meta.js';
 import { meta as shanghaiMeta } from './games/shanghai/meta.js';
 import { meta as scramMeta } from './games/scram/meta.js';
+import { meta as halfItMeta } from './games/half-it/meta.js';
 import {
     createMatchState, isMatchPlay, startingPlayerIndex, recordLegWin,
     advanceLeg, currentSetNumber, currentLegNumber, firstToWin,
@@ -49,6 +51,7 @@ const GAME_LABELS = {
     cricket: 'Cricket',
     shanghai: 'Shanghai',
     scram: 'Scram',
+    'half-it': 'Half It',
 };
 
 const GAME_SETUPS = {
@@ -61,6 +64,7 @@ const GAME_SETUPS = {
     cricket: createCricketSetup,
     shanghai: createShanghaiSetup,
     scram: createScramSetup,
+    'half-it': createHalfItSetup,
 };
 
 // Per-game short descriptions for the picker hover title.
@@ -74,6 +78,7 @@ const GAME_META = {
     cricket: cricketMeta,
     shanghai: shanghaiMeta,
     scram: scramMeta,
+    'half-it': halfItMeta,
 };
 
 // Format a dart hit for the log (e.g. "T20 (60)", "D-Bull (50)", "Miss")

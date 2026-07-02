@@ -29,7 +29,7 @@ Ghost Board is a web-based alternative to the official Granboard app. It connect
 
 <table border="0" cellspacing="0">
   <tr>
-    <td width="50%" valign="top"><a href="screenshots/new-game-picker.png"><img src="screenshots/new-game-picker.png" width="100%" alt="New game picker"></a><br><sub>Choose a game — X01, Around the Clock, Cat &amp; Mouse, Simon Says, Count Up, Score Rush, Cricket, Shanghai, or Scram.</sub></td>
+    <td width="50%" valign="top"><a href="screenshots/new-game-picker.png"><img src="screenshots/new-game-picker.png" width="100%" alt="New game picker"></a><br><sub>Choose a game — X01, Around the Clock, Cat &amp; Mouse, Simon Says, Count Up, Score Rush, Cricket, Shanghai, Scram, or Half It.</sub></td>
     <td width="50%" valign="top"><a href="screenshots/x01-setup.png"><img src="screenshots/x01-setup.png" width="100%" alt="X01 setup"></a><br><sub>X01 setup — players, match format (legs / sets), and game options.</sub></td>
   </tr>
   <tr>
@@ -168,6 +168,13 @@ Any game can be played as a match rather than a single game:
   - Options:
     - Numbers — 15–20 + bull (standard), 14–20 (seven fixed, no bull), or Random each game — with the bull (six numbers + bull) or without (seven numbers)
     - On a tie — draw, or play sudden-death halves until someone leads (default: draw)
+- **Half It**
+  - Each round has one target from a fixed sequence (20, 16, any double, 17, 18, any treble, 19, 20, bull); darts on the target add their face value to your total
+  - Miss the round's target with all three darts and your total is halved (rounded down); highest total after the final round wins
+  - 1–8 players
+  - Options:
+    - Starting score — the total everyone begins with (default: 0)
+    - On a tie — draw, or play sudden-death bull-off rounds until someone leads (default: draw)
 
 ### Game comparison
 
@@ -182,6 +189,7 @@ Any game can be played as a match rather than a single game:
 | Cricket | 1–8 | No | No | Yes | No | Marks |
 | Shanghai | 1–8 | Yes | Yes² | Yes | No | Count up |
 | Scram | 2 | Yes | No | Yes | Yes | Marks |
+| Half It | 1–8 | Yes | Yes | Yes | No | Count up |
 
 ¹ Depends on game options.<br>
 ² Unless an instant win ends the game early.

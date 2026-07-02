@@ -1,0 +1,188 @@
+// Half It — each round has a single target from a fixed sequence. On your turn
+// (3 darts) any dart that hits the round's target adds its face value to your
+// running total. The catch: miss the target with ALL three darts and your total
+// is halved (rounded down). Highest total after the sequence wins.
+//
+// The sequence mixes plain numbers with ring targets: a number means "any ring
+// on that segment", 'double' = any double, 'treble' = any treble, 'bull' = the
+// bull. Rounds past the sequence (sudden death) are a bull-off.
+
+import { currentPlayer } from '../game-helpers.js';
+
+const SEQUENCE = [20, 16, 'double', 17, 18, 'treble', 19, 20, 'bull'];
+
+// A dart's face value (used only when it hits the target).
+function dartPoints(ring, segment) {
+    if (ring === 'SBULL') {
+        return 25;
+    }
+    if (ring === 'DBULL') {
+        return 50;
+    }
+    const mult = ring === 'T' ? 3 : ring === 'D' ? 2 : 1;
+    return segment * mult;
+}
+
+// Does this dart hit the round's target?
+function qualifies(ring, segment, target) {
+    if (target === 'double') {
+        return ring === 'D' || ring === 'DBULL';
+    }
+    if (target === 'treble') {
+        return ring === 'T';
+    }
+    if (target === 'bull') {
+        return ring === 'SBULL' || ring === 'DBULL';
+    }
+    // a number: any ring on that segment
+    return (ring === 'SO' || ring === 'SI' || ring === 'D' || ring === 'T') && segment === target;
+}
+
+export function createHalfIt({
+    numPlayers = 2,
+    playerUuids = [],
+    dartsPerTurn = 3,
+    startScore = 0,
+    onDraw = 'draw',
+    startingPlayerIndex = 0,
+} = {}) {
+    const players = [];
+    for (let i = 0; i < numPlayers; i++) {
+        players.push({ uuid: playerUuids[i], score: startScore, lastDarts: [] });
+    }
+
+    // Round N targets the Nth entry; past the sequence it's a bull-off.
+    function targetFor(round) {
+        return round <= SEQUENCE.length ? SEQUENCE[round - 1] : 'bull';
+    }
+
+    const state = {
+        type: 'half-it',
+        dartsPerTurn,
+        options: { startScore, onDraw },
+        sequence: SEQUENCE,
+        target: SEQUENCE[0],
+        players,
+        currentPlayerIndex: startingPlayerIndex, // rotates each leg in match play
+        turn: { darts: [], locked: false, roundPoints: 0 }, // roundPoints = this turn's points on the target
+        round: 1,
+        isGameOver: false,
+        winner: null,
+        targetSegments: [], // LED ring: [number] on a number round, else []
+    };
+
+    // Light the target's segment on the board only for number rounds — ring
+    // targets (double/treble/bull) span the whole board, so nothing to single out.
+    function refreshTargets() {
+        state.targetSegments = typeof state.target === 'number' ? [state.target] : [];
+    }
+
+    function determineWinner() {
+        let best = -1;
+        let bestIdx = null;
+        let tie = false;
+        for (let i = 0; i < state.players.length; i++) {
+            if (state.players[i].score > best) {
+                best = state.players[i].score;
+                bestIdx = i;
+                tie = false;
+            } else if (state.players[i].score === best) {
+                tie = true;
+            }
+        }
+        return tie ? null : bestIdx;
+    }
+
+    function onDart(ring, segment) {
+        // Dart didn't count (game over, or turn already complete/locked) —
+        // 'ignored' lets the UI skip audio while LEDs still flash.
+        if (state.isGameOver) {
+            return { state, event: 'ignored', callouts: [] };
+        }
+        if (state.turn.locked || state.turn.darts.length >= dartsPerTurn) {
+            return { state, event: 'ignored', callouts: [] };
+        }
+
+        const hit = qualifies(ring, segment, state.target);
+        const points = hit ? dartPoints(ring, segment) : 0;
+        if (hit) {
+            state.turn.roundPoints += points;
+            currentPlayer(state).score += points;
+        }
+        state.turn.darts.push({ ring, segment, hit, points });
+
+        // Points bank per dart, like every other game. The only turn-end effect
+        // is the halve, applied in nextPlayer() when the whole turn missed.
+        return { state, event: hit ? null : 'miss', callouts: [] };
+    }
+
+    function nextPlayer() {
+        // Points were banked per dart during the turn; the only turn-end effect
+        // is the halve — when the whole turn missed the target (rounded down).
+        const p = currentPlayer(state);
+        if (state.turn.roundPoints === 0) {
+            p.score = Math.floor(p.score / 2);
+        }
+
+        p.lastDarts = state.turn.darts.slice(); // keep visible until their next turn
+        state.turn = { darts: [], locked: false, roundPoints: 0 };
+        state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
+
+        if (state.currentPlayerIndex === 0) {
+            // All players have thrown this round — advance.
+            state.round++;
+            if (state.round > SEQUENCE.length) {
+                const winner = determineWinner();
+                // End after the final round unless it's a tie and we play until
+                // a winner (sudden death — a bull-off, keep going).
+                if (winner !== null || onDraw === 'draw') {
+                    state.isGameOver = true;
+                    state.winner = winner;
+                    state.targetSegments = [];
+                    return { state, event: winner !== null ? 'win' : 'draw', callouts: [] };
+                }
+            }
+        }
+
+        state.target = targetFor(state.round);
+        refreshTargets();
+        // Call the target to the incoming player — numbers only (see getCallouts).
+        const callouts = typeof state.target === 'number'
+            ? [{ type: 'remaining', value: state.target }]
+            : [];
+        return { state, event: 'switch', callouts };
+    }
+
+    // Announce the round's target — but numbers only. The audio engine speaks
+    // numbers (a non-English voice would mangle "double"), so the double/treble/
+    // bull rounds stay silent.
+    function getCallouts() {
+        return typeof state.target === 'number' ? [{ type: 'remaining', value: state.target }] : [];
+    }
+
+    // Big heads-up label: the current target, kept short so it fits the board —
+    // 'D'/'T' for any double/treble (the panel spells it out in full).
+    function getHeadline() {
+        if (state.target === 'double') {
+            return 'D';
+        }
+        if (state.target === 'treble') {
+            return 'T';
+        }
+        if (state.target === 'bull') {
+            return 'Bull';
+        }
+        return String(state.target);
+    }
+
+    function getState() {
+        return state;
+    }
+
+    function loadState(saved) {
+        Object.assign(state, saved);
+    }
+
+    refreshTargets();
+    return { onDart, nextPlayer, getCallouts, getHeadline, getState, loadState };
+}
