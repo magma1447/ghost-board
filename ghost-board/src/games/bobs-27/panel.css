@@ -1,0 +1,16 @@
+/* Bob's 27 target line ("Aim at: D6") shown above the scoreboard. */
+.game-bobs-27-target {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 0.4rem 0.75rem;
+    background: #1e1e1e;
+    border-radius: 4px;
+}
+
+.game-bobs-27-target-label {
+    color: #888;
+}
+
+.game-bobs-27-target-value {
+    color: #ffb74d;
+}

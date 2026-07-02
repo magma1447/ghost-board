@@ -29,7 +29,7 @@ Ghost Board is a web-based alternative to the official Granboard app. It connect
 
 <table border="0" cellspacing="0">
   <tr>
-    <td width="50%" valign="top"><a href="screenshots/new-game-picker.png"><img src="screenshots/new-game-picker.png" width="100%" alt="New game picker"></a><br><sub>Choose a game — X01, Around the Clock, Cat &amp; Mouse, Simon Says, Count Up, Score Rush, Cricket, Shanghai, Scram, or Half It.</sub></td>
+    <td width="50%" valign="top"><a href="screenshots/new-game-picker.png"><img src="screenshots/new-game-picker.png" width="100%" alt="New game picker"></a><br><sub>Choose a game — X01, Around the Clock, Cat &amp; Mouse, Simon Says, Count Up, Score Rush, Cricket, Shanghai, Scram, Half It, or Bob's 27.</sub></td>
     <td width="50%" valign="top"><a href="screenshots/x01-setup.png"><img src="screenshots/x01-setup.png" width="100%" alt="X01 setup"></a><br><sub>X01 setup — players, match format (legs / sets), and game options.</sub></td>
   </tr>
   <tr>
@@ -175,6 +175,15 @@ Any game can be played as a match rather than a single game:
   - Options:
     - Starting score — the total everyone begins with (default: 0)
     - On a tie — draw, or play sudden-death bull-off rounds until someone leads (default: draw)
+- **Bob's 27**
+  - A doubles-accuracy drill: everyone starts on 27 points and works through every double in order — D1, D2, … D20, then the double bull
+  - Each dart on the round's double adds its value (D6 = 12, double bull = 50); miss the target with all three darts and that value is subtracted
+  - Highest total after the card wins (a flawless run tops out at 1437)
+  - 1–8 players
+  - Options:
+    - Elimination — drop to 0 or below and you're out for the rest of the game; last player standing wins (default: on)
+    - Final bull — the double bull (50) only, or any bull (the outer 25 counts, with a gentler −25 miss) (default: double bull)
+    - On a tie — draw, or play sudden-death double-bull rounds until someone leads (default: draw)
 
 ### Game comparison
 
@@ -190,6 +199,7 @@ Any game can be played as a match rather than a single game:
 | Shanghai | 1–8 | Yes | Yes² | Yes | No | Count up |
 | Scram | 2 | Yes | No | Yes | Yes | Marks |
 | Half It | 1–8 | Yes | Yes | Yes | No | Count up |
+| Bob's 27 | 1–8 | Yes¹ | No | Yes | No | Count up |
 
 ¹ Depends on game options.<br>
 ² Unless an instant win ends the game early.
