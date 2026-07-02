@@ -148,7 +148,11 @@ export function createCricket({
     }
 
     function nextPlayer() {
-        currentPlayer(state).lastDarts = state.turn.darts; // keep visible until their next turn
+        const leaving = currentPlayer(state);
+        leaving.lastDarts = state.turn.darts; // keep visible until their next turn
+        // Call the leaving player's running score (numbers only). The Simple
+        // variant keeps no score, so it stays silent.
+        const callouts = variant === 'simple' ? [] : [{ type: 'remaining', value: leaving.score }];
         state.turn.darts = [];
         state.turn.locked = false;
         state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
@@ -156,7 +160,7 @@ export function createCricket({
             state.round++;
         }
         refreshTargets();
-        return { state, event: 'switch', callouts: [] };
+        return { state, event: 'switch', callouts };
     }
 
     function getCallouts() {

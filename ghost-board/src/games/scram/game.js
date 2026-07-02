@@ -191,11 +191,17 @@ export function createScram({
     // Pure rotation now: the half only ever ends on a closing dart (endHalf),
     // never via Next Player. Hand the darts to the other player.
     function nextPlayer() {
+        const leavingIdx = state.currentPlayerIndex;
         currentPlayer(state).lastDarts = state.turn.darts.slice(); // keep visible until their next turn
+        // Call the scorer's running total after their turn (numbers only); the
+        // stopper wasn't scoring, so stay silent on their turn.
+        const callouts = leavingIdx === state.stopperIndex
+            ? []
+            : [{ type: 'remaining', value: state.players[leavingIdx].score }];
         state.turn = { darts: [], locked: false };
         state.currentPlayerIndex = otherIndex(state.currentPlayerIndex);
         refreshTargets();
-        return { state, event: 'switch', callouts: [] };
+        return { state, event: 'switch', callouts };
     }
 
     function getCallouts() {
