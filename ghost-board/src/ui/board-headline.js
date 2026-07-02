@@ -17,8 +17,11 @@ export function createBoardHeadline(parent) {
     // Set the overlay text (or hide it when empty). Font size adapts to length
     // via data-len so longer values (1001, "Bull") don't overflow the board.
     function set(text) {
-        const str = (text === 0 || text) ? String(text) : '';
-        if (!str) {
+        // Blank when there's nothing worth showing — including a bare "0"
+        // (a fresh score/count of 0 shouldn't be shouted on the board; no game
+        // has a meaningful "0" headline).
+        const str = String(text ?? '');
+        if (!str || str === '0') {
             el.hidden = true;
             el.textContent = '';
             return;
