@@ -10,7 +10,7 @@ Each round Simon calls **three numbers**. Hit them in any order — one point pe
 
 ## Options
 
-- **Hit mode** — any ring counts, or restrict to doubles / triples.
+- **Hit mode** — any ring counts, or restrict to doubles / trebles.
 - **Scoring** — flat (1 point per hit) or staggered (1, 2, 3 for the first, second, third hit of a turn).
 - **Rounds** — number of rounds to play, or no limit.
 - **On a tie** — end level scores as a draw, or play sudden-death rounds until someone leads.

@@ -11,6 +11,6 @@ Work your way around the board — 1, 2, 3 … up to 20 (and optionally the bull
 ## Options
 
 - **Bull finish** — off (end at 20), or require finishing on the single or double bull.
-- **Hit mode** — any ring counts, or restrict to doubles only / triples only (harder).
-- **Multi-step** — a double advances two numbers and a triple three.
+- **Hit mode** — any ring counts, or restrict to doubles only / trebles only (harder).
+- **Multi-step** — a double advances two numbers and a treble three.
 - **Max rounds** — draw if no one finishes within this many rounds.

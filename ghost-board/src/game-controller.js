@@ -24,6 +24,7 @@ import { createCountUpSetup } from './games/count-up/setup.js';
 import { createScoreRushSetup } from './games/score-rush/setup.js';
 import { createCricketSetup } from './games/cricket/setup.js';
 import { createShanghaiSetup } from './games/shanghai/setup.js';
+import { createScramSetup } from './games/scram/setup.js';
 import { meta as x01Meta } from './games/x01/meta.js';
 import { meta as aroundTheClockMeta } from './games/around-the-clock/meta.js';
 import { meta as catAndMouseMeta } from './games/cat-and-mouse/meta.js';
@@ -32,6 +33,7 @@ import { meta as countUpMeta } from './games/count-up/meta.js';
 import { meta as scoreRushMeta } from './games/score-rush/meta.js';
 import { meta as cricketMeta } from './games/cricket/meta.js';
 import { meta as shanghaiMeta } from './games/shanghai/meta.js';
+import { meta as scramMeta } from './games/scram/meta.js';
 import {
     createMatchState, isMatchPlay, startingPlayerIndex, recordLegWin,
     advanceLeg, currentSetNumber, currentLegNumber, firstToWin,
@@ -46,6 +48,7 @@ const GAME_LABELS = {
     'score-rush': 'Score Rush',
     cricket: 'Cricket',
     shanghai: 'Shanghai',
+    scram: 'Scram',
 };
 
 const GAME_SETUPS = {
@@ -57,6 +60,7 @@ const GAME_SETUPS = {
     'score-rush': createScoreRushSetup,
     cricket: createCricketSetup,
     shanghai: createShanghaiSetup,
+    scram: createScramSetup,
 };
 
 // Per-game short descriptions for the picker hover title.
@@ -69,6 +73,7 @@ const GAME_META = {
     'score-rush': scoreRushMeta,
     cricket: cricketMeta,
     shanghai: shanghaiMeta,
+    scram: scramMeta,
 };
 
 // Format a dart hit for the log (e.g. "T20 (60)", "D-Bull (50)", "Miss")
@@ -195,7 +200,10 @@ export function createGameController({ gameArea, board, headline, log, winDispla
     }
 
     // Announce a win/draw outcome: log it and show the full-screen overlay
-    // (no-op for other events)
+    // (no-op for other events). 'half' is the general mid-game phase/role
+    // transition: the game has already advanced into the new phase and stashed
+    // the overlay text in state.transition, so we just surface it — the swap is
+    // auto-advanced by the caller, there's no Next Player press.
     function handleGameOutcome(state, gameEvent) {
         if (gameEvent === 'win') {
             const name = createPlayer(state.players[state.winner].uuid).getName();
@@ -206,6 +214,10 @@ export function createGameController({ gameArea, board, headline, log, winDispla
             log.logEvent('Draw', 'game');
             winDisplay.showDraw();
             showRematch();
+        } else if (gameEvent === 'half') {
+            const transition = state.transition || {};
+            log.logEvent(transition.title || 'New phase', 'game');
+            winDisplay.showTransition(transition.title || '', transition.subtitle || '');
         }
     }
 
@@ -499,9 +511,19 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                 // stay silent so it doesn't sound like progress, and mark it in the
                 // log. LEDs + board highlight still fire; audio follows game logic.
                 const ignored = gameEvent === 'ignored';
+                // A general phase/role transition happened on this dart (the
+                // game already advanced into the new phase). Auto-advance: cover
+                // the swap with the transition overlay and hand off exactly like
+                // a Next Player switch — switch sound, switch LEDs, drop the
+                // closing dart's highlight. No pending button, no press.
+                const half = gameEvent === 'half';
                 log.logEvent(`${formatHit(event)}${ignored ? ' (ignored)' : ''}`, 'hit');
                 if (ignored) {
                     // no audio
+                } else if (half) {
+                    playSwitch();
+                    ledSwitch();
+                    board.clearHighlight();
                 } else if (gameEvent === 'bust' || gameEvent === 'miss') {
                     playBust();
                 } else if (gameEvent === 'win') {
@@ -516,7 +538,12 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                 }
                 showTargetLed(state, 800);
                 persistState();
-                if (!ignored) {
+                // The transition rolls into a new phase (fresh marks / swapped
+                // roles) — a clean boundary, so undo doesn't reach back across
+                // it: clear the stack rather than record the closing dart.
+                if (half) {
+                    undoStack.length = 0;
+                } else if (!ignored) {
                     undoStack.push(undoSnap); // the dart counted — it can be undone
                 }
                 if (matchWin) {

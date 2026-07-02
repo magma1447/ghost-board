@@ -11,19 +11,19 @@ export function currentPlayer(state) {
 
 // Does the dart's ring qualify as a hit under the given hit mode?
 //   'doubles' — only the double ring
-//   'triples' — only the triple ring
-//   'any'     — any ring on the segment (single in/out, double, triple)
+//   'trebles' — only the treble ring
+//   'any'     — any ring on the segment (single in/out, double, treble)
 export function ringMatchesMode(ring, hitMode) {
     if (hitMode === 'doubles') {
         return ring === 'D';
     }
-    if (hitMode === 'triples') {
+    if (hitMode === 'trebles') {
         return ring === 'T';
     }
     return ring === 'SO' || ring === 'SI' || ring === 'D' || ring === 'T';
 }
 
-// With multi-step enabled, doubles advance 2 targets and triples advance 3.
+// With multi-step enabled, doubles advance 2 targets and trebles advance 3.
 // (DBULL counts as a double for games that allow a bull target.)
 export function stepsForRing(ring, multiStep) {
     if (!multiStep) {

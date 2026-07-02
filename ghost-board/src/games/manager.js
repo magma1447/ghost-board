@@ -16,6 +16,8 @@ import { createCricket } from './cricket/game.js';
 import { createCricketPanel } from './cricket/panel.js';
 import { createShanghai } from './shanghai/game.js';
 import { createShanghaiPanel } from './shanghai/panel.js';
+import { createScram } from './scram/game.js';
+import { createScramPanel } from './scram/panel.js';
 
 const GAME_TYPES = {
     x01: { createGame: createX01, createPanel: createX01Panel },
@@ -26,6 +28,7 @@ const GAME_TYPES = {
     'score-rush': { createGame: createScoreRush, createPanel: createScoreRushPanel },
     cricket: { createGame: createCricket, createPanel: createCricketPanel },
     shanghai: { createGame: createShanghai, createPanel: createShanghaiPanel },
+    scram: { createGame: createScram, createPanel: createScramPanel },
 };
 
 let activeGame = null;

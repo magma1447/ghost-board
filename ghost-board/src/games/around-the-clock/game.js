@@ -9,8 +9,8 @@
 // No bust mechanic — wrong darts are simply misses (plays bust sound).
 //
 // Options:
-//   hitMode: 'any' | 'doubles' | 'triples' — which ring counts as a hit
-//   multiStep: doubles advance 2 targets, triples advance 3
+//   hitMode: 'any' | 'doubles' | 'trebles' — which ring counts as a hit
+//   multiStep: doubles advance 2 targets, trebles advance 3
 //   bullFinish: 'off' (end at 20) | 'single' | 'double' (must finish on bull)
 
 import { currentPlayer, ringMatchesMode, stepsForRing, advancePlayerBase } from '../game-helpers.js';
@@ -55,7 +55,7 @@ export function createAroundTheClock({
     }
 
     // Check if the dart's ring qualifies as a hit for the given target.
-    // Bull has special handling: no triple ring exists, so triples mode accepts any bull.
+    // Bull has special handling: no treble ring exists, so trebles mode accepts any bull.
     function ringMatches(ring, target) {
         if (target === 21) {
             if (bullFinish === 'double') {

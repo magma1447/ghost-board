@@ -27,7 +27,7 @@ export const fields = [
         options: [
             { value: 'any', label: 'Any' },
             { value: 'doubles', label: 'Doubles only' },
-            { value: 'triples', label: 'Triples only' },
+            { value: 'trebles', label: 'Trebles only' },
         ],
     },
     {

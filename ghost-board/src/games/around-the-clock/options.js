@@ -16,7 +16,7 @@ const BULL_LABELS = { off: 'off', single: 'single bull', double: 'double bull' }
 const HIT_MODE_OPTIONS = [
     { value: 'any', label: 'Any' },
     { value: 'doubles', label: 'Doubles only' },
-    { value: 'triples', label: 'Triples only' },
+    { value: 'trebles', label: 'Trebles only' },
 ];
 
 export const fields = [

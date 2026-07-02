@@ -29,7 +29,7 @@ Ghost Board is a web-based alternative to the official Granboard app. It connect
 
 <table border="0" cellspacing="0">
   <tr>
-    <td width="50%" valign="top"><a href="screenshots/new-game-picker.png"><img src="screenshots/new-game-picker.png" width="100%" alt="New game picker"></a><br><sub>Choose a game — X01, Around the Clock, Cat &amp; Mouse, Simon Says, Count Up, Score Rush, Cricket, or Shanghai.</sub></td>
+    <td width="50%" valign="top"><a href="screenshots/new-game-picker.png"><img src="screenshots/new-game-picker.png" width="100%" alt="New game picker"></a><br><sub>Choose a game — X01, Around the Clock, Cat &amp; Mouse, Simon Says, Count Up, Score Rush, Cricket, Shanghai, or Scram.</sub></td>
     <td width="50%" valign="top"><a href="screenshots/x01-setup.png"><img src="screenshots/x01-setup.png" width="100%" alt="X01 setup"></a><br><sub>X01 setup — players, match format (legs / sets), and game options.</sub></td>
   </tr>
   <tr>
@@ -65,7 +65,7 @@ Ghost Board is a web-based alternative to the official Granboard app. It connect
 - Installable PWA — add to home screen / desktop, works offline, and auto-updates to the latest deploy
 - Game state persistence — survives page refresh and BLE disconnect
 - Settings stored in localStorage via a gear menu
-- Debug mode — mouse clicks on the board simulate dart hits
+- Debug mode — play the whole app with no board or Bluetooth: enable it in the menu, then click (or tap) the on-screen board to simulate throws
 - Responsive layout with a mobile breakpoint — works in both landscape and portrait orientation
 
 ## Players
@@ -103,16 +103,16 @@ Any game can be played as a match rather than a single game:
   - LED highlights the target number; voice calls the next target on a hit; a wrong number plays the miss sound
   - Options:
     - Bull finish — off / single bull / double bull (default: single bull)
-    - Hit mode — any / doubles only / triples only (default: any)
-    - Multi-step — doubles advance 2, triples advance 3 (default: off)
+    - Hit mode — any / doubles only / trebles only (default: any)
+    - Multi-step — doubles advance 2, trebles advance 3 (default: off)
     - Max rounds (default: no limit)
 - **Cat and Mouse**
   - Both players move clockwise around the 20 segments. The mouse starts at 20; the cat starts a few segments behind (the head start). The mouse wins by completing a full lap; the cat wins by catching up to or passing the mouse.
   - Exactly 2 players (Mouse vs Cat)
   - Options:
     - Head start — 1 to 5 segments (default: 1)
-    - Hit mode — any / doubles only / triples only (default: any)
-    - Multi-step — doubles advance 2, triples advance 3 (default: off)
+    - Hit mode — any / doubles only / trebles only (default: any)
+    - Multi-step — doubles advance 2, trebles advance 3 (default: off)
     - Sprint — a perfect turn (all darts hit) earns a bonus set of darts (default: off)
     - Max rounds (default: no limit)
     - Round limit result — mouse wins or draw (default: mouse wins)
@@ -122,7 +122,7 @@ Any game can be played as a match rather than a single game:
   - 1–8 players
   - LED highlights all remaining targets; voice announces the 3 numbers
   - Options:
-    - Hit mode — any / doubles only / triples only (default: any)
+    - Hit mode — any / doubles only / trebles only (default: any)
     - Scoring — flat (1 point per hit) or staggered (1 / 2 / 3 for the first, second, third hit of a turn) (default: flat)
     - Rounds — 5 / 10 / 15 / 20 / no limit (default: 10)
     - On a tie — draw, or play sudden-death rounds until someone leads (default: draw)
@@ -160,22 +160,30 @@ Any game can be played as a match rather than a single game:
     - Rounds — 7 or 20, or custom 1–20 (default: 7)
     - Shanghai instant win — single + double + treble of the number in one turn wins outright (default: on)
     - On a tie — draw, or play sudden-death rounds until someone leads (default: draw)
+- **Scram**
+  - Two players, two halves, swapping roles: one player closes every number (three marks each) while the other scores on the numbers still open
+  - When the closer shuts the last number the half ends; the roles swap and the numbers reopen for the second half
+  - The scorer earns each open number's value (bull is 25) per mark; a closed number stops paying out — most points across both halves wins
+  - 2 players
+  - Options:
+    - Numbers — 15–20 + bull (standard), 14–20 (seven fixed, no bull), or Random each game — with the bull (six numbers + bull) or without (seven numbers)
+    - On a tie — draw, or play sudden-death halves until someone leads (default: draw)
 
 ### Game comparison
 
-| Game | Players | Sets & legs | Can draw? | Equal turns? | Scoring style |
-|---|---|---|---|---|---|
-| X01 | 1–8 | Yes | Yes¹ | No | Count down |
-| Around the Clock | 1–8 | Yes | Yes¹ | No | Sequence |
-| Cat and Mouse | 2 | Yes | Yes¹ | No | Sequence |
-| Simon Says | 1–8 | Yes | Yes | Yes | Hit count |
-| Count Up | 1–8 | Yes | Yes | Yes | Count up |
-| Score Rush | 1–8 | Yes | No | No | Count up |
-| Cricket | 1–8 | Yes | No | No | Marks |
-| Shanghai | 1–8 | Yes | Yes | Yes² | Count up |
+| Game | Players | Can draw? | Equal turns? | Sets & legs | Asymmetric roles | Scoring style |
+|---|---|---|---|---|---|---|
+| X01 | 1–8 | Yes¹ | No | Yes | No | Count down |
+| Around the Clock | 1–8 | Yes¹ | No | Yes | No | Sequence |
+| Cat and Mouse | 2 | Yes¹ | No | Yes | Yes | Sequence |
+| Simon Says | 1–8 | Yes | Yes | Yes | No | Hit count |
+| Count Up | 1–8 | Yes | Yes | Yes | No | Count up |
+| Score Rush | 1–8 | No | No | Yes | No | Count up |
+| Cricket | 1–8 | No | No | Yes | No | Marks |
+| Shanghai | 1–8 | Yes | Yes² | Yes | No | Count up |
+| Scram | 2 | Yes | No | Yes | Yes | Marks |
 
 ¹ Depends on game options.<br>
-² Unless an instant win ends the game early.
 ² Unless an instant win ends the game early.
 
 ## Getting Started
@@ -187,6 +195,8 @@ docker compose -f docker/compose.yaml up
 ```
 
 Then open `http://localhost:3501` and click the Bluetooth icon to pair with your Granboard.
+
+**No board?** Enable **Debug** in the menu and click the on-screen board to simulate throws — every game is fully playable without a Granboard or Bluetooth.
 
 ## Install it like an app
 

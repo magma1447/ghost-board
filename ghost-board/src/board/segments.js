@@ -13,8 +13,8 @@ export const RADII = {
     DOUBLE_INNER: 158,
     SINGLE_OUTER_OUTER: 158,
     SINGLE_OUTER_INNER: 106,
-    TRIPLE_OUTER: 106,
-    TRIPLE_INNER: 94,
+    TREBLE_OUTER: 106,
+    TREBLE_INNER: 94,
     SINGLE_INNER_OUTER: 94,
     SINGLE_INNER_INNER: 16,
     BULL_OUTER: 16,
@@ -142,12 +142,12 @@ export function generateSegments(cx, cy) {
             fill: theme[roles.single],
         });
 
-        // Triple ring
+        // Treble ring
         segments.push({
             id: `t-${num}`,
             ring: 'T',
             segment: num,
-            path: arcPath(cx, cy, RADII.TRIPLE_OUTER, RADII.TRIPLE_INNER, startDeg, endDeg),
+            path: arcPath(cx, cy, RADII.TREBLE_OUTER, RADII.TREBLE_INNER, startDeg, endDeg),
             colorRole: roles.multi,
             fill: theme[roles.multi],
         });

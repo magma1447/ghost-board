@@ -1,0 +1,48 @@
+/* Scram close-out strip: this half's marks for every number, above the
+   scoreboard. Each cell is a number over its mark glyph. */
+.game-scram-close {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0.4rem 0.75rem;
+    background: #1e1e1e;
+    border-radius: 4px;
+}
+
+.game-scram-close-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #888;
+    margin-right: 0.25rem;
+}
+
+.game-scram-close-cell {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 1.9rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.game-scram-close-num {
+    font-size: 0.8rem;
+    color: #999;
+    line-height: 1.1;
+}
+
+.game-scram-close-glyph {
+    font-size: 1.3rem;
+    line-height: 1.1;
+    color: #cfcfcf;
+    min-height: 1.3rem;
+}
+
+/* Closed number: the white circle stands out from a distance */
+.game-scram-close-cell.closed .game-scram-close-num {
+    color: #fff;
+}
+
+.game-scram-close-cell.closed .game-scram-close-glyph {
+    color: #fff;
+}

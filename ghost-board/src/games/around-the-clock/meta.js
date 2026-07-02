@@ -6,8 +6,8 @@ export const meta = {
     aka: ['Around the World', 'Clock'],
     options: {
         bullFinish: 'Whether you must finish on the bull, and if it must be the single or double bull.',
-        hitMode: 'Which ring counts as a hit: any, doubles only, or triples only.',
-        multiStep: 'A double advances two numbers and a triple advances three.',
+        hitMode: 'Which ring counts as a hit: any, doubles only, or trebles only.',
+        multiStep: 'A double advances two numbers and a treble advances three.',
         maxRounds: 'End in a draw if no one finishes within this many rounds.',
     },
 };

@@ -86,7 +86,7 @@ const themes = {
             this.single(t);
             this.single(t + 0.09);
         },
-        triple(t) {
+        treble(t) {
             this.single(t);
             this.single(t + 0.08);
             this.single(t + 0.16);
@@ -125,7 +125,7 @@ const themes = {
             this.single(t);
             this.single(t + 0.12);
         },
-        triple(t) {
+        treble(t) {
             this.single(t);
             this.single(t + 0.1);
             this.single(t + 0.2);
@@ -161,7 +161,7 @@ const themes = {
             tone(t, 0.08, 523, 'square', 0.3, 400);
             tone(t + 0.1, 0.08, 659, 'square', 0.3, 500);
         },
-        triple(t) {
+        treble(t) {
             tone(t, 0.07, 523, 'square', 0.25, 450);
             tone(t + 0.09, 0.07, 659, 'square', 0.25, 550);
             tone(t + 0.18, 0.07, 784, 'square', 0.25, 660);
@@ -345,7 +345,7 @@ export function playHit(ring) {
         theme.double(t);
         break;
     case 'T':
-        theme.triple(t);
+        theme.treble(t);
         break;
     case 'SBULL':
     case 'DBULL':

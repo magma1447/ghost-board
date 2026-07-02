@@ -5,16 +5,16 @@
 // returns a finishing combination as label strings (e.g. ['T20','T20','D-Bull'])
 // or null if there's no finish in that many darts.
 //
-// Generic over the finishing ring (single-, double-, triple- and any-out) so
+// Generic over the finishing ring (single-, double-, treble- and any-out) so
 // any game can use it. X01 uses the curated table for standard rules and this
 // solver for everything else (any-out, or non-standard bull scoring).
 
 function buildVocab(bullSingle) {
-    const triples = [];
+    const trebles = [];
     const doubles = [];
     const singles = [];
     for (let n = 20; n >= 1; n--) {
-        triples.push({ value: 3 * n, label: `T${n}` });
+        trebles.push({ value: 3 * n, label: `T${n}` });
         doubles.push({ value: 2 * n, label: `D${n}` });
         singles.push({ value: n, label: `${n}` });
     }
@@ -22,12 +22,12 @@ function buildVocab(bullSingle) {
     const dbull = { value: 50, label: 'D-Bull' };
     return {
         // Setup (non-final) darts: big scorers first, doubles as a last resort.
-        setup: [...triples, dbull, bull, ...singles, ...doubles],
+        setup: [...trebles, dbull, bull, ...singles, ...doubles],
         finishers: {
             double: [...doubles, dbull],
-            triple: [...triples],
+            treble: [...trebles],
             single: [...singles, bull],
-            any: [...singles, bull, ...doubles, dbull, ...triples],
+            any: [...singles, bull, ...doubles, dbull, ...trebles],
         },
     };
 }
