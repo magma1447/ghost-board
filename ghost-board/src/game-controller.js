@@ -332,13 +332,13 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         const game = getGame();
         const inProgress = game && (!game.getState().isGameOver || pendingNextLeg);
         if (!inProgress) {
-            handleEndGame();
+            endGameAndReopenSetup();
             return;
         }
         confirmDialog({
             message: 'End the current game?',
             confirmLabel: 'End Game',
-            onConfirm: handleEndGame,
+            onConfirm: endGameAndReopenSetup,
         });
     }
 
@@ -393,6 +393,33 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         }
     }
 
+    // Open a game's setup screen — from the picker, or after End Game (#65).
+    // Back from the setup returns to the game picker.
+    function showGameSetup(type) {
+        GAME_SETUPS[type](gameArea, (opts) => {
+            clearGame();
+            launchGame(type, opts);
+            const game = getGame();
+            if (game) {
+                showTargetLed(game.getState(), 500);
+                processCallouts(game.getCallouts());
+                logRound(game.getState());
+            }
+        }, () => {
+            showGamePicker(); // Back from setup → the game picker
+        });
+    }
+
+    // End Game button: end the game, then land on the same game's setup for a
+    // quick "play again / tweak options" — one step, not home + New Game + pick.
+    function endGameAndReopenSetup() {
+        const type = currentGameType;
+        handleEndGame();
+        if (type && GAME_SETUPS[type]) {
+            showGameSetup(type);
+        }
+    }
+
     function showGamePicker() {
         const picker = document.createElement('div');
         picker.className = 'game-picker';
@@ -410,19 +437,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
             }
             btn.addEventListener('click', () => {
                 picker.remove();
-                GAME_SETUPS[type](gameArea, (opts) => {
-                    clearGame();
-                    launchGame(type, opts);
-                    const game = getGame();
-                    if (game) {
-                        showTargetLed(game.getState(), 500);
-                        processCallouts(game.getCallouts());
-                        logRound(game.getState());
-                    }
-                }, () => {
-                    // Back from setup → return to the game picker
-                    showGamePicker();
-                });
+                showGameSetup(type);
             });
             gamesRow.appendChild(btn);
         }
