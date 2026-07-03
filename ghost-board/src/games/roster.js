@@ -15,6 +15,28 @@ import {
 
 const NEW_PLAYER = '__new__';
 
+// Pure reorder of a player-UUID list, returning a NEW array (the input is left
+// untouched). Shared by the setup roster's Order controls and the in-game
+// Rematch menu so both apply the same ordering.
+//   'keep'      — unchanged
+//   'rotate'    — last becomes first: A,B,C -> C,A,B
+//   'reverse' / 'swap' — reversed order
+//   'randomize' — Fisher–Yates shuffle
+export function reorderUuids(uuids, op) {
+    const result = [...uuids];
+    if (op === 'swap' || op === 'reverse') {
+        result.reverse();
+    } else if (op === 'rotate' && result.length > 0) {
+        result.unshift(result.pop());
+    } else if (op === 'randomize') {
+        for (let i = result.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [result[i], result[j]] = [result[j], result[i]];
+        }
+    }
+    return result;
+}
+
 export function createPlayerRoster(container, { min = 1, max = 8 } = {}, onChange = null) {
     const seeded = getLastPlayers().filter(
         (uuid) => getPlayers().some((p) => p.uuid === uuid),
@@ -62,16 +84,7 @@ export function createPlayerRoster(container, { min = 1, max = 8 } = {}, onChang
     el.appendChild(controls);
 
     function applyOrder(op) {
-        if (op === 'swap' || op === 'reverse') {
-            selection.reverse();
-        } else if (op === 'rotate') {
-            selection.unshift(selection.pop()); // last becomes first: A,B,C -> C,A,B
-        } else if (op === 'randomize') {
-            for (let i = selection.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [selection[i], selection[j]] = [selection[j], selection[i]];
-            }
-        }
+        selection.splice(0, selection.length, ...reorderUuids(selection, op));
         showErrors = false;
         render();
     }

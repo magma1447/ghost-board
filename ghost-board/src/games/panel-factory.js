@@ -11,6 +11,7 @@
 // total-vs-hit/miss dart rendering).
 
 import './game-panel.css';
+import '../ui/common/menu.css';
 import { formatDart } from './format.js';
 import { createPlayer } from '../state/players.js';
 import { isMatchPlay, matchPositionLabel, playerMatchLabel, matchRanks } from './match.js';
@@ -83,14 +84,87 @@ export function createGamePanel(container, { onNextPlayer, onEndGame, onRematch,
     endBtn.textContent = 'End Game';
     endBtn.addEventListener('click', onEndGame);
 
-    // Rematch — same players/settings, shown only once the game/match is over
+    // Rematch — same players/settings, shown only once the game/match is over.
+    // The button is a pull-down (mirrors the connection control): clicking it
+    // opens a menu of player-order options; picking one starts the rematch.
+    const rematchWrap = document.createElement('div');
+    rematchWrap.className = 'menu-anchor';
+
     const rematchBtn = document.createElement('button');
     rematchBtn.className = 'btn btn-primary game-rematch';
-    rematchBtn.textContent = 'Rematch';
+    rematchBtn.textContent = 'Rematch ▾';
     rematchBtn.hidden = true;
-    rematchBtn.addEventListener('click', () => onRematch && onRematch());
 
-    btnRow.append(nextBtn, undoBtn, endBtn, rematchBtn);
+    const rematchMenu = document.createElement('div');
+    rematchMenu.className = 'menu game-rematch-menu';
+    rematchMenu.hidden = true;
+
+    // Player count from the latest update(), used to pick the order options.
+    let playerCount = 0;
+
+    // -- Dropdown open/close (mirrors the connection control) --
+    function openRematchMenu() {
+        buildRematchMenu(); // lazy: reflect the current player count
+        rematchMenu.hidden = false;
+        document.addEventListener('click', onRematchDocClick, true);
+        document.addEventListener('keydown', onRematchKeyDown);
+    }
+    function closeRematchMenu() {
+        rematchMenu.hidden = true;
+        document.removeEventListener('click', onRematchDocClick, true);
+        document.removeEventListener('keydown', onRematchKeyDown);
+    }
+    function onRematchDocClick(e) {
+        if (!rematchWrap.contains(e.target)) {
+            closeRematchMenu();
+        }
+    }
+    function onRematchKeyDown(e) {
+        if (e.key === 'Escape') {
+            closeRematchMenu();
+        }
+    }
+
+    // Build the order options for the current player count. Two players can only
+    // Keep or Swap; three or more can Rotate or Reverse. Randomize applies to
+    // any count.
+    function buildRematchMenu() {
+        rematchMenu.innerHTML = '';
+        // A header so the options read as "player order", not bare verbs.
+        const header = document.createElement('div');
+        header.className = 'game-rematch-header';
+        header.textContent = 'Player order';
+        rematchMenu.appendChild(header);
+        const ops = playerCount === 2
+            ? [['Keep', 'keep'], ['Swap', 'swap'], ['Randomize', 'randomize']]
+            : [['Keep', 'keep'], ['Rotate', 'rotate'], ['Reverse', 'reverse'], ['Randomize', 'randomize']];
+        for (const [text, op] of ops) {
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'game-rematch-item';
+            item.textContent = text;
+            item.addEventListener('click', () => {
+                closeRematchMenu();
+                if (onRematch) {
+                    onRematch(op);
+                }
+            });
+            rematchMenu.appendChild(item);
+        }
+    }
+
+    rematchBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (rematchMenu.hidden) {
+            openRematchMenu();
+        } else {
+            closeRematchMenu();
+        }
+    });
+
+    rematchWrap.append(rematchBtn, rematchMenu);
+
+    btnRow.append(nextBtn, undoBtn, endBtn, rematchWrap);
     el.appendChild(btnRow);
 
     container.appendChild(el);
@@ -117,8 +191,14 @@ export function createGamePanel(container, { onNextPlayer, onEndGame, onRematch,
     }
 
     // Set the round line. During match play the Set/Leg position is shown in
-    // front of the game's round text.
+    // front of the game's round text. Every game calls this on each update with
+    // the match, so it doubles as the place to note the player count for the
+    // Rematch menu (match.numPlayers == state.players.length; works for games
+    // like Cricket that build their own scoreboard instead of renderScoreboard).
     function setRound(text, match) {
+        if (match) {
+            playerCount = match.numPlayers;
+        }
         roundLabel.innerHTML = '';
         if (match && isMatchPlay(match)) {
             const label = document.createElement('span');

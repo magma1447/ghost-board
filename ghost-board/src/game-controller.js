@@ -44,6 +44,7 @@ import {
     createMatchState, isMatchPlay, startingPlayerIndex, recordLegWin,
     advanceLeg, currentSetNumber, currentLegNumber, firstToWin,
 } from './games/match.js';
+import { reorderUuids } from './games/roster.js';
 
 const GAME_LABELS = {
     x01: 'X01',
@@ -126,8 +127,6 @@ export function createGameController({ gameArea, board, headline, log, winDispla
     // ended and the advance button starts the next leg.
     let match = null;
     let pendingNextLeg = false;
-    // Rotates the starting player on each rematch (reset on a fresh New Game).
-    let rematchOffset = 0;
     // Undo: deep-cloned game-state snapshots taken before each counting dart and
     // each player switch. Scoped to the current leg (cleared on new game/leg).
     const undoStack = [];
@@ -196,16 +195,19 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         }
     }
 
-    // Replay the same game/match with the same players and settings, rotating
-    // who throws first. currentGameType/Opts are still set at game-over.
-    function rematch() {
+    // Replay the same game/match with the same players and settings. `op`
+    // (from the Rematch menu) reorders the player list — keep/rotate/reverse/
+    // swap/randomize — and play restarts from the top of the new order. The
+    // reordered list is persisted into currentGameOpts, so the next rematch
+    // builds on it (repeated 'rotate' keeps rotating).
+    function rematch(op = 'rotate') {
         if (!currentGameType || !currentGameOpts) {
             return;
         }
-        const numPlayers = (currentGameOpts.playerUuids || []).length || 1;
-        rematchOffset = (rematchOffset + 1) % numPlayers;
+        const uuids = currentGameOpts.playerUuids || [];
+        currentGameOpts = { ...currentGameOpts, playerUuids: reorderUuids(uuids, op) };
         winDisplay.hide();
-        launchGame(currentGameType, currentGameOpts, false, rematchOffset);
+        launchGame(currentGameType, currentGameOpts, false);
         const game = getGame();
         if (game) {
             showTargetLed(game.getState(), 500);
@@ -352,7 +354,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         startGame(currentGameType, { ...currentGameOpts, startingPlayerIndex: startIndex }, gameArea, {
             onNextPlayer: handleNextPlayer,
             onEndGame: requestEndGame,
-            onRematch: rematch,
+            onRematch: (op) => rematch(op),
             onUndo: undo,
         });
         refreshPanel();
@@ -360,16 +362,13 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         winDisplay.hide();
     }
 
-    function launchGame(type, opts, resumed = false, startOffset = 0) {
+    function launchGame(type, opts, resumed = false) {
         currentGameType = type;
         currentGameOpts = opts;
         lastLoggedRound = 0;
         pendingNextLeg = false;
         // Best-of 1/1 = single game; the match layer stays inactive.
         match = createMatchState(opts.legsBestOf || 1, opts.setsBestOf || 1, opts.playerUuids || []);
-        // Rotate the first leg's starter on a rematch (legNumber only drives
-        // rotation; the displayed leg/set numbers come from legs/setsWon).
-        match.legNumber = 1 + startOffset;
         startGameInstance(startingPlayerIndex(match));
 
         const names = (opts.playerUuids || []).map((uuid) => createPlayer(uuid).getName());
@@ -413,7 +412,6 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                 picker.remove();
                 GAME_SETUPS[type](gameArea, (opts) => {
                     clearGame();
-                    rematchOffset = 0; // fresh game — restart the rotation
                     launchGame(type, opts);
                     const game = getGame();
                     if (game) {

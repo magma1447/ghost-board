@@ -208,6 +208,55 @@
     gap: 0.5rem;
 }
 
+/* The Rematch button toggles its own `hidden`, but lives inside a persistent
+   .menu-anchor wrap — collapse the wrap while the button is hidden so it adds
+   no stray gap in the button row. */
+.game-buttons > .menu-anchor:has(> .game-rematch[hidden]) {
+    display: none;
+}
+
+/* Rematch pull-down: the button sits at the bottom of the panel, so its menu
+   opens upward (overriding .menu's default downward position). Items are a
+   vertical list, mirroring the connection control's action rows. */
+.game-rematch-menu {
+    top: auto;
+    bottom: 100%;
+    margin-top: 0;
+    margin-bottom: 0.35rem;
+    min-width: 0;
+    width: max-content;
+}
+
+.game-rematch-item {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.9rem;
+    border: none;
+    background: none;
+    color: #e0e0e0;
+    cursor: pointer;
+    font-size: 0.85rem;
+    text-align: left;
+}
+
+.game-rematch-item + .game-rematch-item {
+    border-top: 1px solid #333;
+}
+
+.game-rematch-item:hover {
+    background: #252525;
+}
+
+.game-rematch-header {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+    border-bottom: 1px solid #333;
+}
+
 /* -- Player roster (setup) -- */
 .game-roster {
     --roster-action: 1.9rem; /* width of a row's ✕/✓ icon button */
