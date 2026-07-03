@@ -1,44 +1,12 @@
 // Game lifecycle manager
 
-import { createX01 } from './x01/game.js';
-import { createX01Panel } from './x01/panel.js';
-import { createAroundTheClock } from './around-the-clock/game.js';
-import { createAroundTheClockPanel } from './around-the-clock/panel.js';
-import { createCatAndMouse } from './cat-and-mouse/game.js';
-import { createCatAndMousePanel } from './cat-and-mouse/panel.js';
-import { createSimonSays } from './simon-says/game.js';
-import { createSimonSaysPanel } from './simon-says/panel.js';
-import { createCountUp } from './count-up/game.js';
-import { createCountUpPanel } from './count-up/panel.js';
-import { createScoreRush } from './score-rush/game.js';
-import { createScoreRushPanel } from './score-rush/panel.js';
-import { createCricket } from './cricket/game.js';
-import { createCricketPanel } from './cricket/panel.js';
-import { createShanghai } from './shanghai/game.js';
-import { createShanghaiPanel } from './shanghai/panel.js';
-import { createScram } from './scram/game.js';
-import { createScramPanel } from './scram/panel.js';
-import { createHalfIt } from './half-it/game.js';
-import { createHalfItPanel } from './half-it/panel.js';
-import { createBobs27 } from './bobs-27/game.js';
-import { createBobs27Panel } from './bobs-27/panel.js';
-import { createKiller } from './killer/game.js';
-import { createKillerPanel } from './killer/panel.js';
+import { GAMES } from './registry.js';
 
-const GAME_TYPES = {
-    x01: { createGame: createX01, createPanel: createX01Panel },
-    'around-the-clock': { createGame: createAroundTheClock, createPanel: createAroundTheClockPanel },
-    'cat-and-mouse': { createGame: createCatAndMouse, createPanel: createCatAndMousePanel },
-    'simon-says': { createGame: createSimonSays, createPanel: createSimonSaysPanel },
-    'count-up': { createGame: createCountUp, createPanel: createCountUpPanel },
-    'score-rush': { createGame: createScoreRush, createPanel: createScoreRushPanel },
-    cricket: { createGame: createCricket, createPanel: createCricketPanel },
-    shanghai: { createGame: createShanghai, createPanel: createShanghaiPanel },
-    scram: { createGame: createScram, createPanel: createScramPanel },
-    'half-it': { createGame: createHalfIt, createPanel: createHalfItPanel },
-    'bobs-27': { createGame: createBobs27, createPanel: createBobs27Panel },
-    killer: { createGame: createKiller, createPanel: createKillerPanel },
-};
+// type → { createGame, createPanel }, derived from the ordered registry so the
+// game roster stays a single source of truth.
+const GAME_TYPES = Object.fromEntries(
+    GAMES.map(({ type, createGame, createPanel }) => [type, { createGame, createPanel }]),
+);
 
 let activeGame = null;
 let activePanel = null;

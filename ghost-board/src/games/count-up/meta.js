@@ -3,6 +3,11 @@
 
 export const meta = {
     short: 'Add up your score over a fixed number of rounds — highest total wins.',
+    players: { min: 1, max: 8 },
+    playSkill: 2,
+    rulesComplexity: 2,
+    tags: ['scoring', 'beginner'],
+    scoringStyle: 'Count up',
     options: {
         maxRounds: 'How many rounds are played (8 is the standard game).',
         bullMode: 'Bull scoring: 25 outer / 50 inner (standard), or 50 / 50.',

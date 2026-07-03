@@ -6,7 +6,6 @@
 // log, win overlay, menu enable/disable) to createGameController() and wires
 // the BLE/debug event stream to handleEvent().
 
-import './game-controller.css';
 import { startGame, stopGame, getGame, getPanel } from './games/manager.js';
 import { saveGame, loadGame, clearGame } from './state/game-store.js';
 import { createPlayer } from './state/players.js';
@@ -16,81 +15,19 @@ import { showTargetLed } from './ble/target-led.js';
 import { playHit, playSwitch, playBust, playWin, playSprint } from './audio/sounds.js';
 import { processCallouts } from './audio/callouts.js';
 import { confirmDialog } from './ui/common/confirm.js';
-import { createX01Setup } from './games/x01/setup.js';
-import { createAroundTheClockSetup } from './games/around-the-clock/setup.js';
-import { createCatAndMouseSetup } from './games/cat-and-mouse/setup.js';
-import { createSimonSaysSetup } from './games/simon-says/setup.js';
-import { createCountUpSetup } from './games/count-up/setup.js';
-import { createScoreRushSetup } from './games/score-rush/setup.js';
-import { createCricketSetup } from './games/cricket/setup.js';
-import { createShanghaiSetup } from './games/shanghai/setup.js';
-import { createScramSetup } from './games/scram/setup.js';
-import { createHalfItSetup } from './games/half-it/setup.js';
-import { createBobs27Setup } from './games/bobs-27/setup.js';
-import { createKillerSetup } from './games/killer/setup.js';
-import { meta as x01Meta } from './games/x01/meta.js';
-import { meta as aroundTheClockMeta } from './games/around-the-clock/meta.js';
-import { meta as catAndMouseMeta } from './games/cat-and-mouse/meta.js';
-import { meta as simonSaysMeta } from './games/simon-says/meta.js';
-import { meta as countUpMeta } from './games/count-up/meta.js';
-import { meta as scoreRushMeta } from './games/score-rush/meta.js';
-import { meta as cricketMeta } from './games/cricket/meta.js';
-import { meta as shanghaiMeta } from './games/shanghai/meta.js';
-import { meta as scramMeta } from './games/scram/meta.js';
-import { meta as halfItMeta } from './games/half-it/meta.js';
-import { meta as bobs27Meta } from './games/bobs-27/meta.js';
-import { meta as killerMeta } from './games/killer/meta.js';
+import { GAMES } from './games/registry.js';
+import { createGameSelector } from './games/game-selector.js';
 import {
     createMatchState, isMatchPlay, startingPlayerIndex, recordLegWin,
     advanceLeg, currentSetNumber, currentLegNumber, firstToWin,
 } from './games/match.js';
 import { reorderUuids } from './games/roster.js';
 
-const GAME_LABELS = {
-    x01: 'X01',
-    'around-the-clock': 'Around the Clock',
-    'cat-and-mouse': 'Cat and Mouse',
-    'simon-says': 'Simon Says',
-    'count-up': 'Count Up',
-    'score-rush': 'Score Rush',
-    cricket: 'Cricket',
-    shanghai: 'Shanghai',
-    scram: 'Scram',
-    'half-it': 'Half It',
-    'bobs-27': "Bob's 27",
-    killer: 'Killer',
-};
-
-const GAME_SETUPS = {
-    x01: createX01Setup,
-    'around-the-clock': createAroundTheClockSetup,
-    'cat-and-mouse': createCatAndMouseSetup,
-    'simon-says': createSimonSaysSetup,
-    'count-up': createCountUpSetup,
-    'score-rush': createScoreRushSetup,
-    cricket: createCricketSetup,
-    shanghai: createShanghaiSetup,
-    scram: createScramSetup,
-    'half-it': createHalfItSetup,
-    'bobs-27': createBobs27Setup,
-    killer: createKillerSetup,
-};
-
-// Per-game short descriptions for the picker hover title.
-const GAME_META = {
-    x01: x01Meta,
-    'around-the-clock': aroundTheClockMeta,
-    'cat-and-mouse': catAndMouseMeta,
-    'simon-says': simonSaysMeta,
-    'count-up': countUpMeta,
-    'score-rush': scoreRushMeta,
-    cricket: cricketMeta,
-    shanghai: shanghaiMeta,
-    scram: scramMeta,
-    'half-it': halfItMeta,
-    'bobs-27': bobs27Meta,
-    killer: killerMeta,
-};
+// type → label / setup-factory maps derived from the ordered registry, so the
+// picker and setup flow stay a single source of truth. GAME_LABELS preserves
+// registry order (its entries drive the picker), so games render gentlest-first.
+const GAME_LABELS = Object.fromEntries(GAMES.map(({ type, label }) => [type, label]));
+const GAME_SETUPS = Object.fromEntries(GAMES.map(({ type, createSetup }) => [type, createSetup]));
 
 // Format a dart hit for the log (e.g. "T20 (60)", "D-Bull (50)", "Miss")
 function formatHit(hit) {
@@ -421,37 +358,16 @@ export function createGameController({ gameArea, board, headline, log, winDispla
     }
 
     function showGamePicker() {
-        const picker = document.createElement('div');
-        picker.className = 'game-picker';
-
-        const gamesRow = document.createElement('div');
-        gamesRow.className = 'game-picker-row';
-        picker.appendChild(gamesRow);
-
-        for (const [type, label] of Object.entries(GAME_LABELS)) {
-            const btn = document.createElement('button');
-            btn.className = 'btn btn-block';
-            btn.textContent = label;
-            if (GAME_META[type]) {
-                btn.title = GAME_META[type].short;
-            }
-            btn.addEventListener('click', () => {
-                picker.remove();
+        const selector = createGameSelector(gameArea, {
+            onPick: (type) => {
+                selector.destroy();
                 showGameSetup(type);
-            });
-            gamesRow.appendChild(btn);
-        }
-
-        // Cancel → back to the home screen
-        const cancelBtn = document.createElement('button');
-        cancelBtn.className = 'btn btn-small btn-danger game-picker-cancel';
-        cancelBtn.textContent = 'Cancel';
-        cancelBtn.addEventListener('click', () => {
-            picker.remove();
+            },
+            // Cancel → back to the home screen
+            onCancel: () => {
+                selector.destroy();
+            },
         });
-        picker.appendChild(cancelBtn);
-
-        gameArea.appendChild(picker);
     }
 
     // New Game from the persistent menu: abandon any active game / in-flight

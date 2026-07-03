@@ -4,6 +4,11 @@
 export const meta = {
     short: 'Race to a target score — first to reach it wins. A friendly, no-checkout alternative to X01.',
     aka: ['High Score'],
+    players: { min: 1, max: 8 },
+    playSkill: 2,
+    rulesComplexity: 2,
+    tags: ['scoring', 'beginner'],
+    scoringStyle: 'Count up',
     options: {
         targetScore: 'The score to reach first (300 is a common target). No exact finish — reach or pass it to win.',
         bullMode: 'Bull scoring: 25 outer / 50 inner (standard), or 50 / 50.',

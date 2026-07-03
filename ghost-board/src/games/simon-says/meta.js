@@ -3,6 +3,11 @@
 
 export const meta = {
     short: 'Simon picks three numbers each round — hit them in any order, most points wins.',
+    players: { min: 1, max: 8 },
+    playSkill: 2,
+    rulesComplexity: 1,
+    tags: ['race', 'beginner'],
+    scoringStyle: 'Hit count',
     options: {
         hitMode: 'Which ring counts as a hit: any, doubles only, or trebles only.',
         scoring: 'Flat: 1 point per hit.\n\nStaggered: 1, 2, then 3 points for the first, second, and third hit of a turn.',

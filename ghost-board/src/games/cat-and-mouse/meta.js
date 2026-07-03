@@ -3,6 +3,11 @@
 
 export const meta = {
     short: 'The mouse races around the board while the cat chases — escape the lap or get caught.',
+    players: { min: 2, max: 2 },
+    playSkill: 2,
+    rulesComplexity: 1,
+    tags: ['race', 'tactical'],
+    scoringStyle: 'Sequence',
     options: {
         gap: 'How many steps behind the mouse the cat starts.',
         hitMode: 'Which ring counts as a hit: any, doubles only, or trebles only.',

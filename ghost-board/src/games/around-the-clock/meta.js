@@ -4,6 +4,11 @@
 export const meta = {
     short: 'Hit 1 through 20 (and the bull) in order — first to clear the board wins.',
     aka: ['Around the World', 'Clock'],
+    players: { min: 1, max: 8 },
+    playSkill: 2,
+    rulesComplexity: 1,
+    tags: ['race', 'beginner'],
+    scoringStyle: 'Sequence',
     options: {
         bullFinish: 'Whether you must finish on the bull, and if it must be the single or double bull.',
         hitMode: 'Which ring counts as a hit: any, doubles only, or trebles only.',

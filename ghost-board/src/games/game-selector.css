@@ -1,0 +1,217 @@
+/* Game selector — search + filters on one row, then a collapsible row per game */
+/* Fill the (bounded, scrollable) game area so only the list scrolls — the
+   search/filters and Cancel stay pinned. */
+.game-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    height: 100%;
+    min-height: 0;
+    /* .game-area scrolls (clips both axes), so keep a hair of inset or the
+       search/Cancel focus rings get their top/left edges cut off. */
+    padding: 3px;
+}
+
+/* Controls: search grows, the two filters sit beside it (wrap when narrow). */
+.game-selector-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.game-selector-search {
+    flex: 1 1 10rem;
+    min-width: 8rem;
+    padding: 0.45rem 0.7rem;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background: #2a2a2a;
+    color: #e0e0e0;
+    font-size: 0.95rem;
+}
+
+.game-selector-search::placeholder {
+    color: #777;
+}
+
+.game-selector-filter-select {
+    flex: none;
+    padding: 0.4rem 0.5rem;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background: #2a2a2a;
+    color: #e0e0e0;
+    font-size: 0.85rem;
+}
+
+/* One compact row per game — this is the only part that scrolls. */
+.game-selector-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.game-selector-row {
+    border-radius: 4px;
+    background: #1e1e1e;
+    border: 1px solid #2a2a2a;
+}
+
+/* Header — clickable to expand; name grows, badges + Play sit right. */
+.game-selector-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.45rem 0.6rem 0.45rem 0.5rem;
+    cursor: pointer;
+}
+
+.game-selector-header:hover {
+    background: #242424;
+}
+
+.game-selector-chevron {
+    flex: none;
+    color: #666;
+    font-size: 0.7rem;
+    transition: transform 0.12s;
+}
+
+.game-selector-row.expanded .game-selector-chevron {
+    transform: rotate(90deg);
+}
+
+.game-selector-name {
+    flex: 1;
+    min-width: 5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #e0e0e0;
+}
+
+/* Fixed columns so Players / Play / Rules / Scoring line up down the list
+   (they'd otherwise shift with the scoring tag's length). justify-items:start
+   keeps each badge content-sized + left-aligned in its cell, so pills don't
+   stretch. */
+.game-selector-badges {
+    display: grid;
+    grid-template-columns: 3.1rem 3.25rem 3.25rem 5.5rem;
+    align-items: center;
+    justify-items: start;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+}
+
+.game-selector-rating-icon {
+    display: inline-flex;
+    color: #888;
+}
+
+.game-selector-rating-icon svg {
+    width: 0.85rem;
+    height: 0.85rem;
+}
+
+.game-selector-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: #aaa;
+    white-space: nowrap;
+}
+
+.game-selector-players {
+    padding: 0.05rem 0.35rem;
+    border-radius: 3px;
+    background: #333;
+    color: #ddd;
+    font-variant-numeric: tabular-nums;
+    /* Fill the fixed grid cell so the "2" pill is as wide as "1–8" (no "2–2"). */
+    justify-self: stretch;
+}
+
+.game-selector-players-icon {
+    display: inline-flex;
+}
+
+.game-selector-players-icon svg {
+    width: 0.8rem;
+    height: 0.8rem;
+}
+
+.game-selector-badge-label {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #888;
+}
+
+.game-selector-dots {
+    display: inline-flex;
+    gap: 0.05rem;
+}
+
+.game-selector-dot {
+    color: #444; /* empty */
+    font-size: 0.6rem;
+    line-height: 1;
+}
+
+.game-selector-dot.filled {
+    color: #e0e0e0;
+}
+
+/* Play button — consistent size, far right of the header. */
+.game-selector-play {
+    flex: none;
+    min-width: 4.5rem;
+}
+
+/* Scoring style as a small tag after the Rules badge. */
+.game-selector-scoring {
+    padding: 0.05rem 0.4rem;
+    border-radius: 3px;
+    background: #2d2d33;
+    color: #b6b6c6;
+}
+
+/* Details revealed on click (indented under the name). display:flex beats the
+   UA [hidden] rule, so re-hide explicitly when collapsed. */
+.game-selector-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.1rem 0.75rem 0.6rem 1.6rem;
+}
+
+.game-selector-details[hidden] {
+    display: none;
+}
+
+.game-selector-aka {
+    font-size: 0.72rem;
+    color: #888;
+}
+
+.game-selector-short {
+    font-size: 0.82rem;
+    color: #bbb;
+}
+
+.game-selector-style {
+    font-size: 0.72rem;
+    color: #888;
+}
+
+.game-selector-empty {
+    color: #888;
+    font-size: 0.85rem;
+    padding: 0.5rem 0;
+}
+
+.game-selector-cancel {
+    align-self: flex-start;
+}
