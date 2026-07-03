@@ -1,0 +1,149 @@
+/* Landing / welcome screen — full-screen "front door" shown at / before the app. */
+.landing {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 28%, #26263a 0%, #16161f 70%);
+}
+
+.landing-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 2rem;
+    text-align: center;
+}
+
+.landing-stage {
+    position: relative;
+    display: inline-flex;
+}
+
+/* Dartboard behind the ghost — blurred + dimmed so it reads as distant. */
+.landing-board {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    width: min(44vw, 240px);
+    transform: translate(-50%, -50%);
+    filter: blur(2px) brightness(0.62) drop-shadow(0 8px 20px rgba(0, 0, 0, 0.55));
+}
+
+.landing-scene {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+}
+
+/* Only the ghost bobs. Its baked-in ground shadow is removed from the SVG; we
+   draw a separate white one (.landing-shadow) that scales instead. */
+.landing-hero {
+    width: min(32vw, 170px);
+    height: auto;
+    animation: landing-bob 4s ease-in-out infinite;
+}
+
+/* White float shadow (matches the ghost) — grows + fades as the ghost rises,
+   synced to the same bob: biggest/faintest at the top. */
+.landing-shadow {
+    position: absolute;
+    z-index: 0;
+    bottom: 16%;
+    left: 50%;
+    width: min(26vw, 138px);
+    height: min(5.5vw, 28px);
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(245, 247, 251, 0.95) 0%, rgba(245, 247, 251, 0.55) 48%, transparent 74%);
+    animation: shadow-float 4s ease-in-out infinite;
+}
+
+@keyframes shadow-float {
+    0%, 100% { transform: translateX(-50%) scale(0.8); opacity: 0.92; }
+    50%      { transform: translateX(-50%) scale(1.0); opacity: 0.74; }
+}
+
+/* Three darts stuck in the ghost from different sides. Positions are a rough
+   first pass — tune each block's width / offset / rotation to taste. */
+.landing-dart {
+    position: absolute;
+    pointer-events: none;
+    filter: drop-shadow(-2px 5px 4px rgba(0, 0, 0, 0.4));
+}
+
+/* #4 — from the bottom-left, pointing up-right into the ghost. */
+.landing-dart-a {
+    width: min(22vw, 108px);
+    left: -40%;
+    top: 44%;
+    transform: rotate(180deg);
+}
+
+/* #1 (mirrored) — bottom-right; smaller and moved up. */
+.landing-dart-b {
+    width: min(29vw, 145px);
+    right: -60%;
+    top: 32%;
+    transform: scaleX(-1) rotate(-8deg);
+}
+
+/* #5 — top-right; smaller still and lower. */
+.landing-dart-c {
+    width: min(25vw, 126px);
+    right: -52%;
+    top: -8%;
+    transform: rotate(4deg);
+}
+
+.landing-title-img {
+    width: min(74vw, 440px);
+    height: auto;
+}
+
+.landing-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.landing-tagline {
+    margin: 0;
+    max-width: 30rem;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    color: #b8b8c8;
+}
+
+.landing-subline {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #8f8fa4;
+}
+
+.landing-enter {
+    margin-top: 0.4rem;
+    padding: 0.7rem 2.4rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #16161f;
+    background: #ffd54f; /* win-gold accent */
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.landing-enter:hover {
+    background: #ffe083;
+}
+
+@keyframes landing-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}

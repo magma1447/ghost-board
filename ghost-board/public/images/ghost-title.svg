@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 250" role="img" aria-label="Ghost Board">
+  <defs>
+    <linearGradient id="tg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe9a8"/>
+      <stop offset="0.55" stop-color="#ffce4d"/>
+      <stop offset="1" stop-color="#ff9a2e"/>
+    </linearGradient>
+    <filter id="tglow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="7" flood-color="#ff9a2e" flood-opacity="0.75"/>
+    </filter>
+  </defs>
+  <g font-family="'Arial Black','Impact','Helvetica Neue',Arial,sans-serif" font-weight="900"
+     text-anchor="middle" letter-spacing="3" fill="url(#tg)" stroke="#2a1400" stroke-width="6"
+     paint-order="stroke" filter="url(#tglow)">
+    <text x="330" y="105" font-size="98">GHOST</text>
+    <text x="330" y="215" font-size="98">BOARD</text>
+  </g>
+</svg>
