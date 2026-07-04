@@ -10,7 +10,7 @@ import { startGame, stopGame, getGame, getPanel } from './games/manager.js';
 import { saveGame, loadGame, clearGame } from './state/game-store.js';
 import { settings } from './state/settings.js';
 import { createPlayer, aiLevelOf } from './state/players.js';
-import { aiThrow } from './games/ai.js';
+import { aiThrow } from './ai/ai.js';
 import { calcPoints } from './ble/protocol.js';
 import { onHit as ledHit, onSwitch as ledSwitch, allOff as ledsOff, attract as ledsAttract } from './led-controller.js';
 import { showTargetLed } from './ble/target-led.js';

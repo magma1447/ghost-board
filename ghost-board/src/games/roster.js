@@ -9,7 +9,7 @@
 
 import {
     getHumanPlayers, addPlayer, nameExists, getLastPlayers, setLastPlayers,
-    createAiPlayer, pruneAiPlayers, isAiPlayer, MAX_NAME_LENGTH,
+    createAiPlayer, pruneAiPlayers, isAiPlayer, aiLevelOf, MAX_NAME_LENGTH,
 } from '../state/players.js';
 import { settings, updateSettings } from '../state/settings.js';
 // Note: commit() returns the selected player UUIDs (not names) — games store
@@ -48,9 +48,18 @@ export function reorderUuids(uuids, op) {
 }
 
 export function createPlayerRoster(container, { min = 1, max = 8, supportsAi = false } = {}, onChange = null) {
-    const seeded = getLastPlayers().filter(
-        (uuid) => getHumanPlayers().some((p) => p.uuid === uuid),
-    );
+    // Rebuild the last line-up: humans by uuid, AIs as level rows. Drop entries
+    // that no longer resolve (deleted human), and AI rows when the game doesn't
+    // support them.
+    const seeded = getLastPlayers()
+        .map((uuid) => {
+            if (isAiPlayer(uuid)) {
+                const level = aiLevelOf(uuid);
+                return supportsAi && level !== null ? { ai: true, level } : null;
+            }
+            return getHumanPlayers().some((p) => p.uuid === uuid) ? uuid : null;
+        })
+        .filter((entry) => entry !== null);
     const initialCount = seeded.length > 0
         ? Math.min(Math.max(seeded.length, min), max)
         : Math.min(Math.max(2, min), max);
@@ -345,7 +354,7 @@ export function createPlayerRoster(container, { min = 1, max = 8, supportsAi = f
             return s;
         });
         pruneAiPlayers(uuids); // drop AI opponents left over from previous games
-        setLastPlayers(uuids.filter((u) => !isAiPlayer(u))); // remember humans only
+        setLastPlayers(uuids); // remember the whole line-up, AIs included
         return uuids;
     }
 
