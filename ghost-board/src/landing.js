@@ -16,10 +16,9 @@ export function renderLanding(onContinue) {
     const inner = document.createElement('div');
     inner.className = 'landing-inner';
 
-    const title = document.createElement('img');
-    title.className = 'landing-title-img';
-    title.src = '/images/ghost-title.svg'; // rough arcade wordmark — swap for a Recraft one
-    title.alt = 'Ghost Board';
+    const title = document.createElement('h1');
+    title.className = 'landing-title';
+    title.textContent = 'Ghost Board'; // styled as the wordmark (Luckiest Guy) in CSS
     inner.appendChild(title);
 
     // The board is what we're throwing at; the ghost just floats in front of it.

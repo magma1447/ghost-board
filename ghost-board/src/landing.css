@@ -1,4 +1,6 @@
 /* Landing / welcome screen — full-screen "front door" shown at / before the app. */
+@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+
 .landing {
     position: fixed;
     inset: 0;
@@ -101,9 +103,22 @@
     transform: rotate(4deg);
 }
 
-.landing-title-img {
-    width: min(74vw, 440px);
-    height: auto;
+/* Wordmark — Luckiest Guy with a gold gradient, dark outline and hard shadow. */
+.landing-title {
+    margin: 0;
+    font-family: 'Luckiest Guy', system-ui, sans-serif;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.05;
+    font-size: clamp(2.8rem, 10vw, 5rem);
+    background: linear-gradient(180deg, #ffe9a8 0%, #ffce4d 55%, #ff9a2e 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-stroke: 3px #2a1400;
+    paint-order: stroke fill;
+    filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.35));
 }
 
 .landing-copy {
