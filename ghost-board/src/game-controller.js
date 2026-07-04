@@ -8,7 +8,8 @@
 
 import { startGame, stopGame, getGame, getPanel } from './games/manager.js';
 import { saveGame, loadGame, clearGame } from './state/game-store.js';
-import { createPlayer } from './state/players.js';
+import { createPlayer, aiLevelOf } from './state/players.js';
+import { aiThrow } from './games/ai.js';
 import { calcPoints } from './ble/protocol.js';
 import { onHit as ledHit, onSwitch as ledSwitch, allOff as ledsOff, attract as ledsAttract } from './led-controller.js';
 import { showTargetLed } from './ble/target-led.js';
@@ -28,6 +29,7 @@ import { reorderUuids } from './games/roster.js';
 // registry order (its entries drive the picker), so games render gentlest-first.
 const GAME_LABELS = Object.fromEntries(GAMES.map(({ type, label }) => [type, label]));
 const GAME_SETUPS = Object.fromEntries(GAMES.map(({ type, createSetup }) => [type, createSetup]));
+const GAME_META = Object.fromEntries(GAMES.map(({ type, meta }) => [type, meta]));
 
 // Format a dart hit for the log (e.g. "T20 (60)", "D-Bull (50)", "Miss")
 function formatHit(hit) {
@@ -210,6 +212,9 @@ export function createGameController({ gameArea, board, headline, log, winDispla
     }
 
     function handleNextPlayer() {
+        if (aiThrowing) {
+            return; // ignore a manual advance while the AI is mid-turn
+        }
         // During match play, after a leg ends the advance button starts the next leg.
         if (pendingNextLeg) {
             startNextLeg();
@@ -243,9 +248,11 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         }
         headline.update();
         updateUndoButton();
+        maybeRunAiTurn();
     }
 
     function handleEndGame() {
+        aiThrowing = false; // cancel any in-flight AI turn
         stopGame();
         clearGame();
         ledsAttract();
@@ -297,6 +304,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         refreshPanel();
         headline.update();
         winDisplay.hide();
+        maybeRunAiTurn(); // if the opening player is an AI, let it throw
     }
 
     function launchGame(type, opts, resumed = false) {
@@ -438,8 +446,66 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         }
     }
 
+    // ── AI opponents ─────────────────────────────────────────────────────────
+    // When the turn lands on an AI player, throw its darts automatically (paced
+    // so you can watch), routed through handleEvent so audio/LEDs/log/undo/win
+    // behave exactly as for a human. Real input is ignored while it throws.
+    const AI_DART_DELAY = 700; // ms between an AI's darts
+    let aiThrowing = false;
+
+    function currentAiLevel() {
+        const game = getGame();
+        if (!game) {
+            return null;
+        }
+        const state = game.getState();
+        const player = state.players[state.currentPlayerIndex];
+        return player ? aiLevelOf(player.uuid) : null;
+    }
+
+    function maybeRunAiTurn() {
+        if (aiThrowing || pendingNextLeg) {
+            return;
+        }
+        const meta = GAME_META[currentGameType];
+        const game = getGame();
+        if (!meta || !meta.supportsAi || !game || game.getState().isGameOver) {
+            return;
+        }
+        if (currentAiLevel() === null) {
+            return; // a human is up
+        }
+        aiThrowing = true;
+        setTimeout(runAiDart, AI_DART_DELAY);
+    }
+
+    function runAiDart() {
+        const game = getGame();
+        if (!game) {
+            aiThrowing = false;
+            return;
+        }
+        const state = game.getState();
+        if (state.isGameOver) {
+            aiThrowing = false; // the winning dart was already handled
+            return;
+        }
+        if (state.turn.darts.length >= state.dartsPerTurn) {
+            aiThrowing = false; // release before advancing (may chain to the next AI)
+            handleEvent({ type: 'button', _ai: true });
+            return;
+        }
+        const dart = aiThrow(currentGameType, state, currentAiLevel());
+        handleEvent({ type: 'hit', ring: dart.ring, segment: dart.segment, _ai: true });
+        setTimeout(runAiDart, AI_DART_DELAY);
+    }
+
     // BLE / debug event sink: a board hit or the physical button.
     function handleEvent(event) {
+        // Ignore real input while the AI is mid-turn (its own darts carry _ai).
+        if (aiThrowing && !event._ai) {
+            return;
+        }
         if (event.type === 'hit') {
             board.highlight(event.ring, event.segment);
             ledHit(event.ring, event.segment);

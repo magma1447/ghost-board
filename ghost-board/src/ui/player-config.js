@@ -5,7 +5,7 @@
 
 import './player-config.css';
 import {
-    getPlayers, addPlayer, renamePlayer, deletePlayer, nameExists, MAX_NAME_LENGTH,
+    getHumanPlayers, addPlayer, renamePlayer, deletePlayer, nameExists, MAX_NAME_LENGTH,
 } from '../state/players.js';
 
 export function openPlayerConfig() {
@@ -90,7 +90,7 @@ export function openPlayerConfig() {
 
     function renderList() {
         list.innerHTML = '';
-        const players = getPlayers();
+        const players = getHumanPlayers();
 
         if (players.length === 0) {
             const empty = document.createElement('div');

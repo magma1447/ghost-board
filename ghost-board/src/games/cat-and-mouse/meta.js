@@ -8,6 +8,7 @@ export const meta = {
     rulesComplexity: 1,
     tags: ['race', 'tactical'],
     scoringStyle: 'Sequence',
+    supportsAi: false,
     options: {
         gap: 'How many steps behind the mouse the cat starts.',
         hitMode: 'Which ring counts as a hit: any, doubles only, or trebles only.',

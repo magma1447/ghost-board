@@ -10,6 +10,7 @@ export const meta = {
     rulesComplexity: 3,
     tags: ['elimination', 'tactical'],
     scoringStyle: 'Elimination',
+    supportsAi: false,
     options: {
         mode: 'How you arm and how you kill.\n\nStandard: Hit your own number with any dart to build lives up to the cap and become a killer; then a single / double / treble on an opponent\'s number takes 1 / 2 / 3 of their lives.\n\nDouble Trouble: Only doubles count — your double arms you, an opponent\'s double costs them one life.\n\nTreble Trouble: The same, but on trebles.',
         numberAssignment: 'How each player gets their number: throw a dart at a free number to claim it, or have distinct numbers dealt at random.',

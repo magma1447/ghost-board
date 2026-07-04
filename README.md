@@ -198,20 +198,20 @@ Any game can be played as a match rather than a single game:
 
 ### Game comparison
 
-| Game | Players | Can draw? | Equal turns? | Sets & legs | Asymmetric roles | Scoring style |
-|---|---|---|---|---|---|---|
-| X01 | 1–8 | Yes¹ | No | Yes | No | Count down |
-| Around the Clock | 1–8 | Yes¹ | No | Yes | No | Sequence |
-| Cat and Mouse | 2 | Yes¹ | No | Yes | Yes | Sequence |
-| Simon Says | 1–8 | Yes | Yes | Yes | No | Hit count |
-| Count Up | 1–8 | Yes | Yes | Yes | No | Count up |
-| Score Rush | 1–8 | No | No | Yes | No | Count up |
-| Cricket | 1–8 | No | No | Yes | No | Marks |
-| Shanghai | 1–8 | Yes | Yes² | Yes | No | Count up |
-| Scram | 2 | Yes | No | Yes | Yes | Marks |
-| Half It | 1–8 | Yes | Yes | Yes | No | Count up |
-| Bob's 27 | 1–8 | Yes¹ | No | Yes | No | Count up |
-| Killer | 2–8 | No | No | Yes | No | Elimination |
+| Game | Players | Can draw? | Equal turns? | Sets & legs | Asymmetric roles | Scoring style | AI |
+|---|---|---|---|---|---|---|---|
+| X01 | 1–8 | Yes¹ | No | Yes | No | Count down | No |
+| Around the Clock | 1–8 | Yes¹ | No | Yes | No | Sequence | Yes |
+| Cat and Mouse | 2 | Yes¹ | No | Yes | Yes | Sequence | No |
+| Simon Says | 1–8 | Yes | Yes | Yes | No | Hit count | No |
+| Count Up | 1–8 | Yes | Yes | Yes | No | Count up | No |
+| Score Rush | 1–8 | No | No | Yes | No | Count up | No |
+| Cricket | 1–8 | No | No | Yes | No | Marks | No |
+| Shanghai | 1–8 | Yes | Yes² | Yes | No | Count up | No |
+| Scram | 2 | Yes | No | Yes | Yes | Marks | No |
+| Half It | 1–8 | Yes | Yes | Yes | No | Count up | No |
+| Bob's 27 | 1–8 | Yes¹ | No | Yes | No | Count up | No |
+| Killer | 2–8 | No | No | Yes | No | Elimination | No |
 
 ¹ Depends on game options.<br>
 ² Unless an instant win ends the game early.

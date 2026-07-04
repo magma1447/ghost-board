@@ -9,6 +9,7 @@ export const meta = {
     rulesComplexity: 1,
     tags: ['race', 'beginner'],
     scoringStyle: 'Sequence',
+    supportsAi: true,
     options: {
         bullFinish: 'Whether you must finish on the bull, and if it must be the single or double bull.',
         hitMode: 'Which ring counts as a hit: any, doubles only, or trebles only.',

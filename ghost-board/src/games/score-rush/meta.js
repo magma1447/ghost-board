@@ -9,6 +9,7 @@ export const meta = {
     rulesComplexity: 2,
     tags: ['scoring', 'beginner'],
     scoringStyle: 'Count up',
+    supportsAi: false,
     options: {
         targetScore: 'The score to reach first (300 is a common target). No exact finish — reach or pass it to win.',
         bullMode: 'Bull scoring: 25 outer / 50 inner (standard), or 50 / 50.',

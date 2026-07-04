@@ -23,6 +23,9 @@ const DEFAULTS = {
     debug: {
         mouseInput: false,
     },
+    ai: {
+        level: 5, // last-used AI difficulty (1–10), remembered by the level picker
+    },
 };
 
 let current = null;

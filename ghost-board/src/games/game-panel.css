@@ -318,6 +318,20 @@
     flex: 1;
 }
 
+.game-roster-ai {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.game-roster-ai-badge {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #b8b8c8;
+    white-space: nowrap;
+}
+
 .game-roster-add {
     padding: 0.3rem 0.7rem;
     border: 1px dashed #555;

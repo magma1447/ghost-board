@@ -150,7 +150,7 @@ export function createGameSetup(container, onStart, onCancel, config) {
     </div>
   `;
 
-    const roster = createPlayerRoster(el.querySelector('[data-roster]'), rosterLimits, (count) => {
+    const roster = createPlayerRoster(el.querySelector('[data-roster]'), { ...rosterLimits, supportsAi: meta.supportsAi }, (count) => {
         const summary = el.querySelector('[data-summary="players"]');
         if (summary) {
             summary.textContent = `${count} player${count === 1 ? '' : 's'}`;

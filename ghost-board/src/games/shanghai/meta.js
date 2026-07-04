@@ -5,6 +5,7 @@ export const meta = {
     rulesComplexity: 2,
     tags: ['scoring'],
     scoringStyle: 'Count up',
+    supportsAi: false,
     options: {
         maxRounds: 'How many rounds — round 1 targets the 1, round 2 the 2, and so on. 7 is the classic short game; 20 is the full game.',
         shanghaiWin: 'Hitting a single, double and treble of the round\'s number in one turn wins instantly, whatever the score.',

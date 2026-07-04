@@ -86,6 +86,50 @@ export function deletePlayer(uuid) {
     updateSettings('players', players);
 }
 
+// ── AI opponents ────────────────────────────────────────────────────────────
+// Stored in the same registry as humans but flagged { isAi: true, aiLevel }.
+// They resolve by UUID like any player (so they flow into games unchanged) but
+// are hidden from the human-facing pickers via getHumanPlayers(). One reused
+// record per level (1–10), so at most ten ever exist.
+
+// Human players only — for the roster picker and the Players management list.
+export function getHumanPlayers() {
+    return getPlayers().filter((p) => !p.isAi);
+}
+
+export function isAiPlayer(uuid) {
+    const player = getPlayers().find((p) => p.uuid === uuid);
+    return Boolean(player && player.isAi);
+}
+
+export function aiLevelOf(uuid) {
+    const player = getPlayers().find((p) => p.uuid === uuid);
+    return player && player.isAi ? player.aiLevel : null;
+}
+
+// Create a fresh AI opponent, numbered per game (AI #1, #2, …) — never reused,
+// so two AIs of the same level are distinct opponents.
+export function createAiPlayer(index, level) {
+    const players = getPlayers();
+    const player = {
+        uuid: crypto.randomUUID(),
+        name: `AI #${index} (level ${level})`,
+        isAi: true,
+        aiLevel: level,
+    };
+    players.push(player);
+    updateSettings('players', players);
+    return player;
+}
+
+// Drop AI opponents not in `keepUuids` — called at game commit to clear the AI
+// records left behind by previous games (humans persist; AIs are per-game).
+export function pruneAiPlayers(keepUuids) {
+    const keep = new Set(keepUuids);
+    const players = getPlayers().filter((p) => !p.isAi || keep.has(p.uuid));
+    updateSettings('players', players);
+}
+
 // Last-used selection (array of UUIDs), for pre-filling the setup roster.
 export function getLastPlayers() {
     const stored = settings().lastPlayers;

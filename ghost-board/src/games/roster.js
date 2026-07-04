@@ -8,12 +8,22 @@
 // pass min === max === 2.
 
 import {
-    getPlayers, addPlayer, nameExists, getLastPlayers, setLastPlayers, MAX_NAME_LENGTH,
+    getHumanPlayers, addPlayer, nameExists, getLastPlayers, setLastPlayers,
+    createAiPlayer, pruneAiPlayers, isAiPlayer, MAX_NAME_LENGTH,
 } from '../state/players.js';
+import { settings, updateSettings } from '../state/settings.js';
 // Note: commit() returns the selected player UUIDs (not names) — games store
 // the UUID and resolve names via createPlayer().getName().
 
 const NEW_PLAYER = '__new__';
+const AI_MIN_LEVEL = 1;
+const AI_MAX_LEVEL = 10;
+
+// A row is a player UUID string, '' (unchosen), NEW_PLAYER (adding a name), or
+// an AI descriptor { ai: true, level }.
+function isAiRow(sel) {
+    return Boolean(sel && sel.ai);
+}
 
 // Pure reorder of a player-UUID list, returning a NEW array (the input is left
 // untouched). Shared by the setup roster's Order controls and the in-game
@@ -37,9 +47,9 @@ export function reorderUuids(uuids, op) {
     return result;
 }
 
-export function createPlayerRoster(container, { min = 1, max = 8 } = {}, onChange = null) {
+export function createPlayerRoster(container, { min = 1, max = 8, supportsAi = false } = {}, onChange = null) {
     const seeded = getLastPlayers().filter(
-        (uuid) => getPlayers().some((p) => p.uuid === uuid),
+        (uuid) => getHumanPlayers().some((p) => p.uuid === uuid),
     );
     const initialCount = seeded.length > 0
         ? Math.min(Math.max(seeded.length, min), max)
@@ -72,6 +82,19 @@ export function createPlayerRoster(container, { min = 1, max = 8 } = {}, onChang
             render();
         }
     });
+
+    // Add AI opponent (games that support it) — a row with a level picker.
+    const addAiBtn = document.createElement('button');
+    addAiBtn.type = 'button';
+    addAiBtn.className = 'game-roster-add game-roster-add-ai';
+    addAiBtn.textContent = '+ Add AI';
+    addAiBtn.addEventListener('click', () => {
+        if (selection.length < max) {
+            selection.push({ ai: true, level: settings().ai.level });
+            showErrors = false;
+            render();
+        }
+    });
     // Quick reorder controls. The row dropdowns already set explicit play
     // order (row 1 throws first); these are shortcuts on top of that.
     const orderBar = document.createElement('div');
@@ -80,7 +103,7 @@ export function createPlayerRoster(container, { min = 1, max = 8 } = {}, onChang
     // Add player (left) and the order controls (right) share one row
     const controls = document.createElement('div');
     controls.className = 'game-roster-controls';
-    controls.append(addBtn, orderBar);
+    controls.append(addBtn, addAiBtn, orderBar);
     el.appendChild(controls);
 
     function applyOrder(op) {
@@ -93,8 +116,9 @@ export function createPlayerRoster(container, { min = 1, max = 8 } = {}, onChang
     function takenElsewhere(exceptIndex) {
         const taken = new Set();
         for (let i = 0; i < selection.length; i++) {
-            if (i !== exceptIndex && selection[i] && selection[i] !== NEW_PLAYER) {
-                taken.add(selection[i]);
+            const sel = selection[i];
+            if (i !== exceptIndex && typeof sel === 'string' && sel && sel !== NEW_PLAYER) {
+                taken.add(sel);
             }
         }
         return taken;
@@ -113,7 +137,7 @@ export function createPlayerRoster(container, { min = 1, max = 8 } = {}, onChang
         select.appendChild(placeholder);
 
         const taken = takenElsewhere(i);
-        for (const p of getPlayers()) {
+        for (const p of getHumanPlayers()) {
             // Skip players chosen in other rows, but keep this row's own pick
             if (taken.has(p.uuid) && p.uuid !== selection[i]) {
                 continue;
@@ -136,6 +160,34 @@ export function createPlayerRoster(container, { min = 1, max = 8 } = {}, onChang
             render();
         });
         return select;
+    }
+
+    // AI opponent row — a difficulty (level) picker in the player-name slot.
+    function buildAiRow(i) {
+        const wrap = document.createElement('div');
+        wrap.className = 'game-roster-ai';
+
+        const badge = document.createElement('span');
+        badge.className = 'game-roster-ai-badge';
+        badge.textContent = 'AI';
+
+        const select = document.createElement('select');
+        select.className = 'game-roster-select';
+        for (let level = AI_MIN_LEVEL; level <= AI_MAX_LEVEL; level++) {
+            const opt = document.createElement('option');
+            opt.value = String(level);
+            opt.textContent = `Level ${level}`;
+            select.appendChild(opt);
+        }
+        select.value = String(selection[i].level);
+        select.addEventListener('change', () => {
+            const level = Number(select.value);
+            selection[i].level = level;
+            updateSettings('ai.level', level); // default for the next Add AI
+        });
+
+        wrap.append(badge, select);
+        return wrap;
     }
 
     // Inline "new player" name entry, shown when NEW_PLAYER is chosen
@@ -197,37 +249,43 @@ export function createPlayerRoster(container, { min = 1, max = 8 } = {}, onChang
         return wrap;
     }
 
+    function appendRemove(row, i) {
+        if (selection.length > min) {
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn btn-icon btn-danger';
+            removeBtn.textContent = '✕';
+            removeBtn.title = 'Remove';
+            removeBtn.addEventListener('click', () => {
+                selection.splice(i, 1);
+                showErrors = false;
+                render();
+            });
+            row.appendChild(removeBtn);
+        }
+    }
+
     function render() {
         rows.innerHTML = '';
         for (let i = 0; i < selection.length; i++) {
             const row = document.createElement('div');
             row.className = 'game-roster-row';
 
-            if (selection[i] === NEW_PLAYER) {
+            if (isAiRow(selection[i])) {
+                row.appendChild(buildAiRow(i));
+                appendRemove(row, i);
+            } else if (selection[i] === NEW_PLAYER) {
                 row.appendChild(buildNewInput(i));
             } else {
                 row.appendChild(buildSelect(i));
-
-                // Remove button only when above the minimum count
-                if (selection.length > min) {
-                    const removeBtn = document.createElement('button');
-                    removeBtn.type = 'button';
-                    removeBtn.className = 'btn btn-icon btn-danger';
-                    removeBtn.textContent = '✕';
-                    removeBtn.title = 'Remove player';
-                    removeBtn.addEventListener('click', () => {
-                        selection.splice(i, 1);
-                        showErrors = false;
-                        render();
-                    });
-                    row.appendChild(removeBtn);
-                }
+                appendRemove(row, i);
             }
 
             rows.appendChild(row);
         }
-        // Hide add button at max (and for fixed-count games where min === max)
+        // Hide add buttons at max (and for fixed-count games where min === max)
         addBtn.hidden = selection.length >= max;
+        addAiBtn.hidden = !supportsAi || selection.length >= max;
         // Reserve the ✕-column on the right of the controls row only when
         // rows actually have remove buttons (so Order aligns with the selects)
         el.classList.toggle('roster-has-remove', selection.length > min);
@@ -263,22 +321,31 @@ export function createPlayerRoster(container, { min = 1, max = 8 } = {}, onChang
     render();
     container.appendChild(el);
 
-    function selectedUuids() {
-        return selection.filter((s) => s && s !== NEW_PLAYER);
+    function completeCount() {
+        return selection.filter((s) => isAiRow(s) || (s && s !== NEW_PLAYER)).length;
     }
 
-    // Persist the selection and return the chosen player UUIDs for launch.
-    // Returns null (and flags the offending rows) if any row is empty/incomplete
-    // or fewer than `min` players are selected.
+    // Persist the selection and return the chosen player UUIDs for launch. AI
+    // rows become fresh AI opponents (numbered AI #1, #2, …). Returns null (and
+    // flags the offending rows) if a human row is empty or fewer than `min`
+    // players are chosen.
     function commit() {
-        const incomplete = selection.some((s) => !s || s === NEW_PLAYER);
-        const uuids = selectedUuids();
-        if (incomplete || uuids.length < min) {
+        const incomplete = selection.some((s) => !isAiRow(s) && (!s || s === NEW_PLAYER));
+        if (incomplete || completeCount() < min) {
             showErrors = true;
             render();
             return null;
         }
-        setLastPlayers(uuids);
+        let aiCount = 0;
+        const uuids = selection.map((s) => {
+            if (isAiRow(s)) {
+                aiCount += 1;
+                return createAiPlayer(aiCount, s.level).uuid;
+            }
+            return s;
+        });
+        pruneAiPlayers(uuids); // drop AI opponents left over from previous games
+        setLastPlayers(uuids.filter((u) => !isAiPlayer(u))); // remember humans only
         return uuids;
     }
 

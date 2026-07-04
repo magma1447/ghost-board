@@ -12,9 +12,7 @@
 // integer comparisons on progress values.
 
 import { currentPlayer, ringMatchesMode, stepsForRing } from '../game-helpers.js';
-
-// Standard dartboard clockwise order (physical layout, not numerical)
-const BOARD_ORDER = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
+import { BOARD_ORDER } from '../../board/segments.js';
 
 export function createCatAndMouse({
     numPlayers = 2,
