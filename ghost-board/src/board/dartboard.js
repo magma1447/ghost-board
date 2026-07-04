@@ -207,6 +207,61 @@ export function createDartboard(container) {
             activeHighlight.removeAttribute('fill-opacity');
             activeHighlight = null;
         }
+        clearAiThrow();
+    }
+
+    // AI debug overlay: where the AI aimed (hollow cyan ring) vs where it landed
+    // (solid red dot), joined by a line. Board coords are centre-relative, so
+    // shift by the centre. Cleared with the highlight (next dart / turn switch).
+    let aiMarkGroup = null;
+
+    function clearAiThrow() {
+        if (aiMarkGroup) {
+            aiMarkGroup.remove();
+            aiMarkGroup = null;
+        }
+    }
+
+    function showAiThrow(aim, land) {
+        clearAiThrow();
+        const g = document.createElementNS(SVG_NS, 'g');
+        g.setAttribute('pointer-events', 'none');
+        const ax = cx + aim.x;
+        const ay = cy + aim.y;
+        const lx = cx + land.x;
+        const ly = cy + land.y;
+
+        const line = document.createElementNS(SVG_NS, 'line');
+        line.setAttribute('x1', ax);
+        line.setAttribute('y1', ay);
+        line.setAttribute('x2', lx);
+        line.setAttribute('y2', ly);
+        line.setAttribute('stroke', '#ffffff');
+        line.setAttribute('stroke-width', '1');
+        line.setAttribute('stroke-dasharray', '3 2');
+        line.setAttribute('opacity', '0.85');
+        g.appendChild(line);
+
+        const aimMark = document.createElementNS(SVG_NS, 'circle'); // where it aimed
+        aimMark.setAttribute('cx', ax);
+        aimMark.setAttribute('cy', ay);
+        aimMark.setAttribute('r', '5');
+        aimMark.setAttribute('fill', 'none');
+        aimMark.setAttribute('stroke', '#37c8ff');
+        aimMark.setAttribute('stroke-width', '2');
+        g.appendChild(aimMark);
+
+        const landMark = document.createElementNS(SVG_NS, 'circle'); // where it hit
+        landMark.setAttribute('cx', lx);
+        landMark.setAttribute('cy', ly);
+        landMark.setAttribute('r', '3.5');
+        landMark.setAttribute('fill', '#ff2e2e');
+        landMark.setAttribute('stroke', '#ffffff');
+        landMark.setAttribute('stroke-width', '1');
+        g.appendChild(landMark);
+
+        svg.appendChild(g);
+        aiMarkGroup = g;
     }
 
     // Recolour the board by applying a colour theme: segments (by role), the
@@ -304,5 +359,5 @@ export function createDartboard(container) {
         },
     };
 
-    return { highlight, clearHighlight, onSegmentClick, setTheme, leds };
+    return { highlight, clearHighlight, onSegmentClick, setTheme, leds, showAiThrow, clearAiThrow };
 }

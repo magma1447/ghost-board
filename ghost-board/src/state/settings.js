@@ -22,9 +22,11 @@ const DEFAULTS = {
     },
     debug: {
         mouseInput: false,
+        aiMarks: false, // draw AI aim + hit marks on the board (debugging)
     },
     ai: {
         level: 5, // last-used AI difficulty (1–10), remembered by the level picker
+        throwMs: 1200, // pacing between an AI's darts (ms)
     },
 };
 

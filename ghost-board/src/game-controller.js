@@ -8,6 +8,7 @@
 
 import { startGame, stopGame, getGame, getPanel } from './games/manager.js';
 import { saveGame, loadGame, clearGame } from './state/game-store.js';
+import { settings } from './state/settings.js';
 import { createPlayer, aiLevelOf } from './state/players.js';
 import { aiThrow } from './games/ai.js';
 import { calcPoints } from './ble/protocol.js';
@@ -31,10 +32,10 @@ const GAME_LABELS = Object.fromEntries(GAMES.map(({ type, label }) => [type, lab
 const GAME_SETUPS = Object.fromEntries(GAMES.map(({ type, createSetup }) => [type, createSetup]));
 const GAME_META = Object.fromEntries(GAMES.map(({ type, meta }) => [type, meta]));
 
-// Format a dart hit for the log (e.g. "T20 (60)", "D-Bull (50)", "Miss")
+// Format a dart hit for the log (e.g. "T20 (60)", "D-Bull (50)", "Out")
 function formatHit(hit) {
     if (hit.ring === 'OUT') {
-        return 'Miss';
+        return 'Out';
     }
     if (hit.ring === 'DBULL') {
         return 'D-Bull (50)';
@@ -450,7 +451,6 @@ export function createGameController({ gameArea, board, headline, log, winDispla
     // When the turn lands on an AI player, throw its darts automatically (paced
     // so you can watch), routed through handleEvent so audio/LEDs/log/undo/win
     // behave exactly as for a human. Real input is ignored while it throws.
-    const AI_DART_DELAY = 700; // ms between an AI's darts
     let aiThrowing = false;
 
     function currentAiLevel() {
@@ -476,7 +476,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
             return; // a human is up
         }
         aiThrowing = true;
-        setTimeout(runAiDart, AI_DART_DELAY);
+        setTimeout(runAiDart, settings().ai.throwMs);
     }
 
     function runAiDart() {
@@ -497,7 +497,10 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         }
         const dart = aiThrow(currentGameType, state, currentAiLevel());
         handleEvent({ type: 'hit', ring: dart.ring, segment: dart.segment, _ai: true });
-        setTimeout(runAiDart, AI_DART_DELAY);
+        if (settings().debug.aiMarks && board.showAiThrow) {
+            board.showAiThrow(dart.aim, dart.land);
+        }
+        setTimeout(runAiDart, settings().ai.throwMs);
     }
 
     // BLE / debug event sink: a board hit or the physical button.

@@ -128,6 +128,13 @@ function setDebugMode(enabled) {
 }
 
 const savedDebug = settings().debug.mouseInput;
+
+// AI throw pacing presets (ms between an AI's darts).
+const AI_SPEED_OPTIONS = [
+    { label: 'Fast', ms: 500 },
+    { label: 'Normal', ms: 1200 },
+    { label: 'Slow', ms: 2500 },
+];
 if (savedDebug) {
     setDebugMode(true);
 }
@@ -274,6 +281,24 @@ const menu = createMenu(settingsBtn, [
                 onChange(enabled) {
                     updateSettings('debug.mouseInput', enabled);
                     setDebugMode(enabled);
+                },
+            },
+            {
+                label: 'AI speed',
+                type: 'select',
+                options: AI_SPEED_OPTIONS.map((o) => o.label),
+                value: (AI_SPEED_OPTIONS.find((o) => o.ms === settings().ai.throwMs) || AI_SPEED_OPTIONS[1]).label,
+                onChange(label) {
+                    const opt = AI_SPEED_OPTIONS.find((o) => o.label === label);
+                    updateSettings('ai.throwMs', opt.ms);
+                },
+            },
+            {
+                label: 'AI aim marks',
+                type: 'toggle',
+                value: settings().debug.aiMarks,
+                onChange(enabled) {
+                    updateSettings('debug.aiMarks', enabled);
                 },
             },
         ],

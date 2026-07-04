@@ -2,7 +2,7 @@
 
 export function formatDart(dart) {
     if (dart.ring === 'OUT') {
-        return 'Miss';
+        return 'Out';
     }
     if (dart.ring === 'DBULL') {
         return 'D-Bull';

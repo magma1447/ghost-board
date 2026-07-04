@@ -87,7 +87,7 @@ export function createPlayerRoster(container, { min = 1, max = 8, supportsAi = f
     const addAiBtn = document.createElement('button');
     addAiBtn.type = 'button';
     addAiBtn.className = 'game-roster-add game-roster-add-ai';
-    addAiBtn.textContent = '+ Add AI';
+    addAiBtn.textContent = '+ Add AI (beta)';
     addAiBtn.addEventListener('click', () => {
         if (selection.length < max) {
             selection.push({ ai: true, level: settings().ai.level });
