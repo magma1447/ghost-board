@@ -90,6 +90,19 @@ export function renderLanding(onContinue) {
     el.appendChild(inner);
     document.body.appendChild(el);
 
+    // Fade the content in only once the font + images are ready, so it doesn't
+    // reflow/blink into place. A timeout reveals it regardless if something hangs.
+    const reveal = () => el.classList.add('is-ready');
+    const assets = [...el.querySelectorAll('img')].map((img) => (img.complete
+        ? Promise.resolve()
+        : new Promise((res) => {
+            img.addEventListener('load', res);
+            img.addEventListener('error', res);
+        })));
+    assets.push(document.fonts.load('1em "Luckiest Guy"').catch(() => {}));
+    Promise.all(assets).then(reveal);
+    setTimeout(reveal, 1200);
+
     // Continue on click, or Enter / Space anywhere on the screen. Remove the key
     // listener as we leave so it doesn't linger into the app.
     function activate() {
