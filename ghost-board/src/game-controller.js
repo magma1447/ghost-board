@@ -92,6 +92,8 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         if (!game || undoStack.length === 0) {
             return;
         }
+        stopAiThrowing(); // cancel any AI turn we're reverting through
+        clearAiResumeCountdown();
         game.loadState(undoStack.pop());
         const state = game.getState();
         board.clearHighlight(); // drop the reverted (false) hit's highlight
@@ -101,6 +103,13 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         persistState();
         updateUndoButton();
         log.logEvent('Undo', 'game');
+        // Reverted onto an AI's turn? Arm the resume countdown so it isn't left
+        // frozen; otherwise a human is up, so just reset the button.
+        if (!state.isGameOver && currentAiLevel() !== null) {
+            startAiResumeCountdown();
+        } else {
+            refreshNextButton();
+        }
     }
 
     function persistState() {
@@ -217,6 +226,18 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         if (aiThrowing) {
             return; // ignore a manual advance while the AI is mid-turn
         }
+        // Paused into an *unfinished* AI turn (an undo landed here, or a human
+        // pressed the button while it's the AI's turn): resume the AI rather than
+        // advancing. A finished AI turn — its own end-of-turn advance — falls
+        // through to the switch, so a turn only ever advances on a human's turn or
+        // when the AI is genuinely done, and a mistimed press can't skip anyone.
+        const g = getGame();
+        const gs = g && g.getState();
+        const aiTurnUnfinished = gs && !gs.isGameOver && currentAiLevel() !== null && gs.turn.darts.length < gs.dartsPerTurn;
+        if (aiTurnUnfinished) {
+            maybeRunAiTurn();
+            return;
+        }
         // During match play, after a leg ends the advance button starts the next leg.
         if (pendingNextLeg) {
             startNextLeg();
@@ -250,11 +271,13 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         }
         headline.update();
         updateUndoButton();
+        refreshNextButton();
         maybeRunAiTurn();
     }
 
     function handleEndGame() {
-        aiThrowing = false; // cancel any in-flight AI turn
+        stopAiThrowing(); // cancel any in-flight AI turn
+        clearAiResumeCountdown();
         stopGame();
         clearGame();
         ledsAttract();
@@ -453,6 +476,69 @@ export function createGameController({ gameArea, board, headline, log, winDispla
     // so you can watch), routed through handleEvent so audio/LEDs/log/undo/win
     // behave exactly as for a human. Real input is ignored while it throws.
     let aiThrowing = false;
+    let aiThrowTimer = null; // pending runAiDart timeout, so an AI turn can be cancelled
+    let aiResumeTimer = null; // 1s-tick countdown armed when an undo lands on an AI turn
+    let aiResumeSecondsLeft = 0;
+    const AI_RESUME_SECONDS = 5;
+
+    // Cancel any in-flight AI turn (stops the throw chain).
+    function stopAiThrowing() {
+        if (aiThrowTimer) {
+            clearTimeout(aiThrowTimer);
+            aiThrowTimer = null;
+        }
+        aiThrowing = false;
+    }
+
+    function clearAiResumeCountdown() {
+        if (aiResumeTimer) {
+            clearInterval(aiResumeTimer);
+            aiResumeTimer = null;
+        }
+    }
+
+    // The Next Player button is a three-state label: "Next Player" (a human is
+    // up), "AI Playing" (the AI is throwing — disabled), or "AI Resuming in N
+    // seconds" (an undo landed on an AI's turn — clickable to resume now, and it
+    // auto-resumes at zero). Advancing only ever happens on a human's turn, so a
+    // mistimed press can never skip a turn.
+    function refreshNextButton() {
+        const panel = getPanel();
+        const game = getGame();
+        if (!panel || !panel.nextBtn) {
+            return;
+        }
+        const btn = panel.nextBtn;
+        const over = !game || game.getState().isGameOver;
+        if (aiResumeTimer && !over) {
+            const s = aiResumeSecondsLeft;
+            btn.textContent = `AI Resuming in ${s} second${s === 1 ? '' : 's'}`;
+            btn.disabled = false;
+        } else if (aiThrowing && !over) {
+            btn.textContent = 'AI Playing';
+            btn.disabled = true;
+        } else if (!pendingNextLeg) {
+            btn.textContent = 'Next Player';
+            btn.disabled = over;
+        }
+    }
+
+    // After an undo lands on an AI's turn, count down and then resume the AI. A
+    // further undo restarts it; pressing Next Player resumes immediately.
+    function startAiResumeCountdown() {
+        clearAiResumeCountdown();
+        aiResumeSecondsLeft = AI_RESUME_SECONDS;
+        refreshNextButton();
+        aiResumeTimer = setInterval(() => {
+            aiResumeSecondsLeft -= 1;
+            if (aiResumeSecondsLeft <= 0) {
+                clearAiResumeCountdown();
+                maybeRunAiTurn();
+            } else {
+                refreshNextButton();
+            }
+        }, 1000);
+    }
 
     function currentAiLevel() {
         const game = getGame();
@@ -476,23 +562,25 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         if (currentAiLevel() === null) {
             return; // a human is up
         }
+        clearAiResumeCountdown();
         aiThrowing = true;
-        setTimeout(runAiDart, settings().ai.throwMs);
+        refreshNextButton();
+        aiThrowTimer = setTimeout(runAiDart, settings().ai.throwMs);
     }
 
     function runAiDart() {
         const game = getGame();
         if (!game) {
-            aiThrowing = false;
+            stopAiThrowing();
             return;
         }
         const state = game.getState();
         if (state.isGameOver) {
-            aiThrowing = false; // the winning dart was already handled
+            stopAiThrowing(); // the winning dart was already handled
             return;
         }
         if (state.turn.darts.length >= state.dartsPerTurn) {
-            aiThrowing = false; // release before advancing (may chain to the next AI)
+            stopAiThrowing(); // release before advancing (may chain to the next AI)
             handleEvent({ type: 'button', _ai: true });
             return;
         }
@@ -501,7 +589,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         if (settings().debug.aiMarks && board.showAiThrow) {
             board.showAiThrow(dart.aim, dart.land);
         }
-        setTimeout(runAiDart, settings().ai.throwMs);
+        aiThrowTimer = setTimeout(runAiDart, settings().ai.throwMs);
     }
 
     // BLE / debug event sink: a board hit or the physical button.
@@ -524,6 +612,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                 // generic "wins!" banner so handleMatchWin can show leg/set text.
                 const matchWin = gameEvent === 'win' && isMatchPlay(match);
                 panel.update(state, matchWin ? null : gameEvent, match);
+                refreshNextButton(); // keep the AI/human button label + state in step
                 // 'ignored' = dart didn't count (turn complete/locked or game over):
                 // stay silent so it doesn't sound like progress, and mark it in the
                 // log. LEDs + board highlight still fire; audio follows game logic.
