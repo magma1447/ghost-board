@@ -2,6 +2,14 @@
 
 Notable changes to Ghost Board, newest first. Version numbers follow [semantic versioning](https://semver.org/): new features bump the middle number, fixes bump the last.
 
+## 0.7.0 — 2026-07-05
+
+### Added
+- **AI player support** — play against a computer opponent.
+  - Beta.
+  - Around the Clock only for now.
+  - Skill and behaviour will keep being tuned in future releases.
+
 ## 0.6.0 — 2026-07-05
 
 ### Added
