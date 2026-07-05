@@ -2,6 +2,17 @@
 
 Notable changes to Ghost Board, newest first. Version numbers follow [semantic versioning](https://semver.org/): new features bump the middle number, fixes bump the last.
 
+## 0.6.0 — 2026-07-05
+
+### Added
+- New game: **Killer**.
+- A **welcome screen** — the front door before the board, with brand art and a button (or Enter) to jump in.
+
+### Changed
+- The game picker is now a **searchable selector**.
+- **End Game** returns you to the same game's setup — for a quick replay or options tweak — instead of the game picker.
+- **Rematch** lets you set the player order from a pull-down.
+
 ## 0.5.1 — 2026-07-02
 
 ### Changed
