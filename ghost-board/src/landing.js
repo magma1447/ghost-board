@@ -50,9 +50,9 @@ export function renderLanding(onContinue) {
 
     // Three darts thrown into the ghost from different sides (a crossfire).
     const darts = [
-        { src: '/images/darts/dart-4.svg', cls: 'landing-dart-a' },
-        { src: '/images/darts/dart-1.svg', cls: 'landing-dart-b' },
-        { src: '/images/darts/dart-5.svg', cls: 'landing-dart-c' },
+        { src: '/images/darts/dart-A1.svg', cls: 'landing-dart-b' },
+        { src: '/images/darts/dart-B7.svg', cls: 'landing-dart-b7' },
+        { src: '/images/darts/dart-B6.svg', cls: 'landing-dart-b6' },
     ];
     for (const d of darts) {
         const dart = document.createElement('img');

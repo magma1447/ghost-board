@@ -87,28 +87,28 @@
     filter: drop-shadow(-2px 5px 4px rgba(0, 0, 0, 0.4));
 }
 
-/* #4 — from the bottom-left, pointing up-right into the ghost. */
-.landing-dart-a {
-    width: min(22vw, 108px);
-    left: -40%;
-    top: 44%;
-    transform: rotate(180deg);
-}
-
-/* #1 (mirrored) — bottom-right; smaller and moved up. */
+/* #1 (mirrored) — bottom-right; kept exactly as before. */
 .landing-dart-b {
     width: min(29vw, 145px);
     right: -60%;
-    top: 32%;
+    top: 30%;
     transform: scaleX(-1) rotate(-8deg);
 }
 
-/* #5 — top-right; smaller still and lower. */
-.landing-dart-c {
-    width: min(25vw, 126px);
-    right: -52%;
-    top: -8%;
-    transform: rotate(4deg);
+/* B7 (blue/red) — bottom-left, mirrored to point up-right into the ghost. */
+.landing-dart-b7 {
+    width: min(26vw, 130px);
+    left: -54%;
+    top: 34%;
+    transform: scaleX(-1) rotate(-12deg);
+}
+
+/* B6 (orange) — top-right, rotated to dive down-left into the ghost. */
+.landing-dart-b6 {
+    width: min(24vw, 118px);
+    right: -36%;
+    top: -19%;
+    transform: rotate(-90deg);
 }
 
 /* Wordmark — Luckiest Guy with a gold gradient, dark outline and hard shadow. */
