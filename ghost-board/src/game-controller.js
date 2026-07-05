@@ -24,6 +24,7 @@ import {
     advanceLeg, currentSetNumber, currentLegNumber, firstToWin,
 } from './games/match.js';
 import { reorderUuids } from './games/roster.js';
+import { formatDart } from './games/format.js';
 
 // type → label / setup-factory maps derived from the ordered registry, so the
 // picker and setup flow stay a single source of truth. GAME_LABELS preserves
@@ -496,7 +497,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
             return;
         }
         const dart = aiThrow(currentGameType, state, currentAiLevel());
-        handleEvent({ type: 'hit', ring: dart.ring, segment: dart.segment, _ai: true });
+        handleEvent({ type: 'hit', ring: dart.ring, segment: dart.segment, _ai: true, _aimTarget: dart.aimTarget });
         if (settings().debug.aiMarks && board.showAiThrow) {
             board.showAiThrow(dart.aim, dart.land);
         }
@@ -533,7 +534,11 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                 // a Next Player switch — switch sound, switch LEDs, drop the
                 // closing dart's highlight. No pending button, no press.
                 const half = gameEvent === 'half';
-                log.logEvent(`${formatHit(event)}${ignored ? ' (ignored)' : ''}`, 'hit');
+                // AI darts note their intended aim when the aim-marks debug is on.
+                const aimNote = event._aimTarget && settings().debug.aiMarks
+                    ? ` — aimed ${formatDart(event._aimTarget)}`
+                    : '';
+                log.logEvent(`${formatHit(event)}${ignored ? ' (ignored)' : ''}${aimNote}`, 'hit');
                 if (ignored) {
                     // no audio
                 } else if (half) {

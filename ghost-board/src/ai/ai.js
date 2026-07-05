@@ -142,5 +142,5 @@ export function aiThrow(gameType, state, level) {
         x: aimXY.x + gaussian() * profile.scatterHorizontal * spread,
         y: aimXY.y + gaussian() * profile.scatterVertical * spread,
     };
-    return { ...pointToHit(land.x, land.y), aim: aimXY, land };
+    return { ...pointToHit(land.x, land.y), aim: aimXY, land, aimTarget: pointToHit(aimXY.x, aimXY.y) };
 }

@@ -179,8 +179,18 @@ export function createDartboard(container) {
 
     let activeHighlight = null;
 
+    // Clear only the current cell fill, leaving any accumulated AI marks alone
+    // (those are cleared together at the turn switch, via clearHighlight).
+    function clearCell() {
+        if (activeHighlight) {
+            activeHighlight.setAttribute('fill', activeHighlight.dataset.originalFill);
+            activeHighlight.removeAttribute('fill-opacity');
+            activeHighlight = null;
+        }
+    }
+
     function highlight(ring, segment) {
-        clearHighlight();
+        clearCell();
 
         let id;
         if (ring === 'SBULL') {
@@ -202,28 +212,24 @@ export function createDartboard(container) {
     }
 
     function clearHighlight() {
-        if (activeHighlight) {
-            activeHighlight.setAttribute('fill', activeHighlight.dataset.originalFill);
-            activeHighlight.removeAttribute('fill-opacity');
-            activeHighlight = null;
-        }
+        clearCell();
         clearAiThrow();
     }
 
     // AI debug overlay: where the AI aimed (hollow cyan ring) vs where it landed
     // (solid red dot), joined by a line. Board coords are centre-relative, so
-    // shift by the centre. Cleared with the highlight (next dart / turn switch).
-    let aiMarkGroup = null;
+    // shift by the centre. One group per dart, cleared with the highlight at the
+    // turn switch.
+    const aiMarkGroups = [];
 
     function clearAiThrow() {
-        if (aiMarkGroup) {
-            aiMarkGroup.remove();
-            aiMarkGroup = null;
+        for (const g of aiMarkGroups) {
+            g.remove();
         }
+        aiMarkGroups.length = 0;
     }
 
     function showAiThrow(aim, land) {
-        clearAiThrow();
         const g = document.createElementNS(SVG_NS, 'g');
         g.setAttribute('pointer-events', 'none');
         const ax = cx + aim.x;
@@ -261,7 +267,7 @@ export function createDartboard(container) {
         g.appendChild(landMark);
 
         svg.appendChild(g);
-        aiMarkGroup = g;
+        aiMarkGroups.push(g);
     }
 
     // Recolour the board by applying a colour theme: segments (by role), the
