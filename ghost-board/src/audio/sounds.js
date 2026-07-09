@@ -275,6 +275,19 @@ export function playSprint() {
     tone(t + 0.28, 0.35, 1568, 'sine', 0.15);
 }
 
+// Bright, clearly-audible "correct!" confirmation for hitting a called target
+// (Simon Says). A plain scoring hit's single-ring tone is easy to miss outdoors,
+// so this is louder, distinctly upbeat, and theme-independent — a good hit always
+// reads the same (#71).
+export function playCorrect() {
+    ensureAudio();
+    const t = getCtx().currentTime;
+    tone(t, 0.12, 784, 'triangle', 0.4); // G5 — bright attack
+    tone(t + 0.09, 0.28, 1175, 'triangle', 0.45); // rising to D6 — cheerful jump
+    tone(t + 0.09, 0.3, 2349, 'sine', 0.14); // sparkle an octave up
+    tone(t, 0.14, 196, 'sine', 0.3, 130); // low body so it lands like a hit
+}
+
 // -- Speech synthesis for score calling --
 
 let selectedVoiceName = null;

@@ -117,7 +117,9 @@ export function createSimonSays({
         state.turn.darts.push({ ring, segment, hit: isHit });
         updateTargetSegments();
 
-        return { state, event: isHit ? null : 'miss', callouts: [] };
+        // 'correct' gives a good hit its own audible confirmation; the generic
+        // single-ring hit tone was too easy to miss outdoors (#71).
+        return { state, event: isHit ? 'correct' : 'miss', callouts: [] };
     }
 
     function nextPlayer() {

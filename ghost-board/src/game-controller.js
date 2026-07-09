@@ -14,7 +14,7 @@ import { aiThrow } from './ai/ai.js';
 import { calcPoints } from './ble/protocol.js';
 import { onHit as ledHit, onSwitch as ledSwitch, allOff as ledsOff, attract as ledsAttract } from './led-controller.js';
 import { showTargetLed } from './ble/target-led.js';
-import { playHit, playSwitch, playBust, playWin, playSprint } from './audio/sounds.js';
+import { playHit, playSwitch, playBust, playWin, playSprint, playCorrect } from './audio/sounds.js';
 import { processCallouts } from './audio/callouts.js';
 import { confirmDialog } from './ui/common/confirm.js';
 import { GAMES } from './game-engine/core/registry.js';
@@ -654,6 +654,11 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                     playSprint();
                     log.logEvent('Sprint — three more darts', 'game');
                     processCallouts(callouts); // the target for the bonus darts
+                } else if (gameEvent === 'correct') {
+                    // Hit a called target (Simon Says) — a distinct, audible
+                    // confirmation instead of the easy-to-miss single-ring tone.
+                    playCorrect();
+                    processCallouts(callouts);
                 } else {
                     playHit(event.ring);
                     processCallouts(callouts);
