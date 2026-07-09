@@ -1,7 +1,7 @@
 // X01 option schema — the defaults and field definitions, shared by the setup
 // panel (createGameSetup) and the in-game settings line (describeSettings).
 
-import { formatBool, formatRounds } from '../format.js';
+import { formatBool, formatRounds } from '../../game-engine/shared/format.js';
 
 export const defaults = {
     startingScore: 501,

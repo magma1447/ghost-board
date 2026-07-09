@@ -1,6 +1,6 @@
 // Cat and Mouse game setup panel
 
-import { createGameSetup } from '../setup-factory.js';
+import { createGameSetup } from '../../game-engine/core/setup-factory.js';
 import { meta } from './meta.js';
 import rulesMd from './rules.md?raw';
 import { defaults, fields } from './options.js';

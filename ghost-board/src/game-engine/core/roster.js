@@ -10,8 +10,8 @@
 import {
     getHumanPlayers, addPlayer, nameExists, getLastPlayers, setLastPlayers,
     createAiPlayer, pruneAiPlayers, isAiPlayer, aiLevelOf, MAX_NAME_LENGTH,
-} from '../state/players.js';
-import { settings, updateSettings } from '../state/settings.js';
+} from '../../state/players.js';
+import { settings, updateSettings } from '../../state/settings.js';
 // Note: commit() returns the selected player UUIDs (not names) — games store
 // the UUID and resolve names via createPlayer().getName().
 

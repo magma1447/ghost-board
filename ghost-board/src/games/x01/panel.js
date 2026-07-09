@@ -1,7 +1,7 @@
 // X01 game panel — renders x01 game state
 
-import { formatRoundLabel, settingsLine, averageLabel } from '../format.js';
-import { createGamePanel, renderScoreboard, winnerName } from '../panel-factory.js';
+import { formatRoundLabel, settingsLine, averageLabel } from '../../game-engine/shared/format.js';
+import { createGamePanel, renderScoreboard, winnerName } from '../../game-engine/core/panel-factory.js';
 import { defaults, fields } from './options.js';
 import { checkoutFor } from './checkout-sequence.js';
 import rulesMd from './rules.md?raw';

@@ -7,7 +7,7 @@
 // for the rest of the game and can't win. With elimination off, scores may go
 // negative and everyone plays the whole card. Highest total wins.
 
-import { currentPlayer, createTurnEndCallout } from '../game-helpers.js';
+import { currentPlayer, createTurnEndCallout } from '../../game-engine/shared/game-helpers.js';
 
 // Each entry is the DOUBLE of that number; 'bull' = the double bull.
 const SEQUENCE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 'bull'];

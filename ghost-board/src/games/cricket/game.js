@@ -12,8 +12,8 @@
 // Returns { state, event, callouts } from onDart() and nextPlayer().
 // Events: null (mark / score), 'miss', 'win', 'switch', 'ignored'
 
-import { currentPlayer, createTurnEndCallout, advancePlayerBase } from '../game-helpers.js';
-import { buildNumbers, dartMarks, numberValue } from '../cricket-marks.js';
+import { currentPlayer, createTurnEndCallout, advancePlayerBase } from '../../game-engine/shared/game-helpers.js';
+import { buildNumbers, dartMarks, numberValue } from '../../game-engine/shared/cricket-marks.js';
 
 export function createCricket({
     numPlayers = 2,

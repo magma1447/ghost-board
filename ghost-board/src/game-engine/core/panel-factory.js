@@ -11,12 +11,12 @@
 // total-vs-hit/miss dart rendering).
 
 import './game-panel.css';
-import '../ui/common/menu.css';
-import { formatDart } from './format.js';
-import { createPlayer } from '../state/players.js';
+import '../../ui/common/menu.css';
+import { formatDart } from '../shared/format.js';
+import { createPlayer } from '../../state/players.js';
 import { isMatchPlay, matchPositionLabel, playerMatchLabel, matchRanks } from './match.js';
-import { openMatchHistory } from '../ui/match-history.js';
-import { openRules } from '../ui/common/rules-dialog.js';
+import { openMatchHistory } from '../../ui/match-history.js';
+import { openRules } from '../../ui/common/rules-dialog.js';
 
 export function createGamePanel(container, { onNextPlayer, onEndGame, onRematch, onUndo }, { title = '', rulesMd = '' } = {}) {
     const el = document.createElement('div');

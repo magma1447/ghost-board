@@ -1,6 +1,6 @@
 import './panel.css';
-import { formatRoundLabel, settingsLine } from '../format.js';
-import { createGamePanel, renderScoreboard, winnerName } from '../panel-factory.js';
+import { formatRoundLabel, settingsLine } from '../../game-engine/shared/format.js';
+import { createGamePanel, renderScoreboard, winnerName } from '../../game-engine/core/panel-factory.js';
 import { defaults, fields } from './options.js';
 import rulesMd from './rules.md?raw';
 

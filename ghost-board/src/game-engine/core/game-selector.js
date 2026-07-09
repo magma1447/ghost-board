@@ -7,7 +7,7 @@
 
 import './game-selector.css';
 import { GAMES } from './registry.js';
-import { icons } from '../ui/common/icons.js';
+import { icons } from '../../ui/common/icons.js';
 
 const RATING_MAX = 5; // Play / Rules ratings are drawn as five dots
 

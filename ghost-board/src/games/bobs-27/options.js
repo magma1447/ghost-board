@@ -1,7 +1,7 @@
 // Bob's 27 option schema — defaults and field definitions, shared by the setup
 // panel (createGameSetup) and the in-game settings line (describeSettings).
 
-import { formatBool } from '../format.js';
+import { formatBool } from '../../game-engine/shared/format.js';
 
 export const defaults = {
     elimination: true,

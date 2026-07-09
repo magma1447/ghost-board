@@ -2,7 +2,7 @@
 // finish, unlike X01). Also known as High Score. Built on the shared
 // score-accumulation engine with the target end condition.
 
-import { createScoreGame } from '../score-engine.js';
+import { createScoreGame } from '../../game-engine/shared/score-engine.js';
 
 export function createScoreRush(opts = {}) {
     return createScoreGame({ ...opts, type: 'score-rush', endMode: 'target' });

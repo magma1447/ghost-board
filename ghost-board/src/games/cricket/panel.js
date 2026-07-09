@@ -3,10 +3,10 @@
 // name.
 
 import './panel.css';
-import { formatDart, settingsLine } from '../format.js';
-import { createGamePanel, winnerName } from '../panel-factory.js';
+import { formatDart, settingsLine } from '../../game-engine/shared/format.js';
+import { createGamePanel, winnerName } from '../../game-engine/core/panel-factory.js';
 import { createPlayer } from '../../state/players.js';
-import { isMatchPlay, playerMatchLabel } from '../match.js';
+import { isMatchPlay, playerMatchLabel } from '../../game-engine/core/match.js';
 import { defaults, fields } from './options.js';
 import rulesMd from './rules.md?raw';
 

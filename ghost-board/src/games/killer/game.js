@@ -19,7 +19,7 @@
 // Events: null (mark / arm / life change), 'miss', 'switch', 'half' (the
 //   assign→play handoff), 'win', 'draw', 'ignored'. No voice callouts (no score).
 
-import { currentPlayer } from '../game-helpers.js';
+import { currentPlayer } from '../../game-engine/shared/game-helpers.js';
 
 // Ring → life multiplier. Numbers are 1–20, so bull rings never apply.
 function ringMultiplier(ring) {

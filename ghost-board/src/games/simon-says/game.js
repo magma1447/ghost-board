@@ -11,7 +11,7 @@
 // turn. targetSegments lists the remaining unhit segment numbers for LED
 // display (main.js reads this to light up multiple segments).
 
-import { currentPlayer, ringMatchesMode, advancePlayerBase } from '../game-helpers.js';
+import { currentPlayer, ringMatchesMode, advancePlayerBase } from '../../game-engine/shared/game-helpers.js';
 
 export function createSimonSays({
     numPlayers = 2,

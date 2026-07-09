@@ -2,7 +2,7 @@
 // the setup panel (createGameSetup) and the in-game settings line
 // (describeSettings).
 
-import { formatBool, formatRounds } from '../format.js';
+import { formatBool, formatRounds } from '../../game-engine/shared/format.js';
 
 export const defaults = {
     gap: 1,

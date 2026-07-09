@@ -7,7 +7,7 @@
 // on that segment", 'double' = any double, 'treble' = any treble, 'bull' = the
 // bull. Rounds past the sequence (sudden death) are a bull-off.
 
-import { currentPlayer, advancePlayerBase, createTurnEndCallout } from '../game-helpers.js';
+import { currentPlayer, advancePlayerBase, createTurnEndCallout } from '../../game-engine/shared/game-helpers.js';
 
 const SEQUENCE = [20, 16, 'double', 17, 18, 'treble', 19, 20, 'bull'];
 

@@ -2,7 +2,7 @@
 // setup panel (createGameSetup) and the in-game settings line
 // (describeSettings).
 
-import { formatRounds } from '../format.js';
+import { formatRounds } from '../../game-engine/shared/format.js';
 
 export const defaults = {
     hitMode: 'any',

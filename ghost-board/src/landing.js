@@ -4,7 +4,7 @@
 // placeholder to iterate on — the wordmark will become a proper logo.
 
 import './landing.css';
-import { GAMES } from './games/registry.js';
+import { GAMES } from './game-engine/core/registry.js';
 import { createVersionTag } from './ui/version-tag.js';
 import { requestImmersiveFullscreen } from './ui/fullscreen.js';
 

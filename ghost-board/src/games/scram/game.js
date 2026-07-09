@@ -17,8 +17,8 @@
 //   and auto-advances (no Next Player press). Here it fires when the stopper
 //   shuts the last number, ending the half on that dart.
 
-import { currentPlayer, createTurnEndCallout } from '../game-helpers.js';
-import { buildNumbers, dartMarks, numberValue } from '../cricket-marks.js';
+import { currentPlayer, createTurnEndCallout } from '../../game-engine/shared/game-helpers.js';
+import { buildNumbers, dartMarks, numberValue } from '../../game-engine/shared/cricket-marks.js';
 
 export function createScram({
     numPlayers = 2,

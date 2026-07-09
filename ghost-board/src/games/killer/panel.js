@@ -5,8 +5,8 @@
 // players dimmed.
 
 import './panel.css';
-import { settingsLine } from '../format.js';
-import { createGamePanel, renderScoreboard, winnerName } from '../panel-factory.js';
+import { settingsLine } from '../../game-engine/shared/format.js';
+import { createGamePanel, renderScoreboard, winnerName } from '../../game-engine/core/panel-factory.js';
 import { createPlayer } from '../../state/players.js';
 import { icons } from '../../ui/common/icons.js';
 import { defaults, fields } from './options.js';

@@ -1,7 +1,7 @@
 // Score Rush game panel — running totals racing to a target score.
 
-import { formatRoundLabel, settingsLine, averageLabel } from '../format.js';
-import { createGamePanel, renderScoreboard, winnerName } from '../panel-factory.js';
+import { formatRoundLabel, settingsLine, averageLabel } from '../../game-engine/shared/format.js';
+import { createGamePanel, renderScoreboard, winnerName } from '../../game-engine/core/panel-factory.js';
 import { defaults, fields } from './options.js';
 import rulesMd from './rules.md?raw';
 

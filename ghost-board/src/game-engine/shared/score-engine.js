@@ -14,7 +14,7 @@
 // Callout types: 'turnTotal' (after the 3rd dart), 'remaining' (running total
 //   on switch).
 
-import { calcPoints } from '../ble/protocol.js';
+import { calcPoints } from '../../ble/protocol.js';
 import { currentPlayer, advancePlayerBase, createTurnEndCallout } from './game-helpers.js';
 
 export function createScoreGame({

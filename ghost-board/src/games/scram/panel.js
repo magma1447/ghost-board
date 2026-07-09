@@ -3,8 +3,8 @@
 // their role this half (Stopper / Scorer).
 
 import './panel.css';
-import { settingsLine } from '../format.js';
-import { createGamePanel, renderScoreboard, winnerName } from '../panel-factory.js';
+import { settingsLine } from '../../game-engine/shared/format.js';
+import { createGamePanel, renderScoreboard, winnerName } from '../../game-engine/core/panel-factory.js';
 import { defaults, fields } from './options.js';
 import rulesMd from './rules.md?raw';
 

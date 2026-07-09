@@ -6,7 +6,7 @@
 // log, win overlay, menu enable/disable) to createGameController() and wires
 // the BLE/debug event stream to handleEvent().
 
-import { startGame, stopGame, getGame, getPanel } from './games/manager.js';
+import { startGame, stopGame, getGame, getPanel } from './game-engine/core/manager.js';
 import { saveGame, loadGame, clearGame } from './state/game-store.js';
 import { settings } from './state/settings.js';
 import { createPlayer, aiLevelOf } from './state/players.js';
@@ -17,14 +17,14 @@ import { showTargetLed } from './ble/target-led.js';
 import { playHit, playSwitch, playBust, playWin, playSprint } from './audio/sounds.js';
 import { processCallouts } from './audio/callouts.js';
 import { confirmDialog } from './ui/common/confirm.js';
-import { GAMES } from './games/registry.js';
-import { createGameSelector } from './games/game-selector.js';
+import { GAMES } from './game-engine/core/registry.js';
+import { createGameSelector } from './game-engine/core/game-selector.js';
 import {
     createMatchState, isMatchPlay, startingPlayerIndex, recordLegWin,
     advanceLeg, currentSetNumber, currentLegNumber, firstToWin,
-} from './games/match.js';
-import { reorderUuids } from './games/roster.js';
-import { formatDart } from './games/format.js';
+} from './game-engine/core/match.js';
+import { reorderUuids } from './game-engine/core/roster.js';
+import { formatDart } from './game-engine/shared/format.js';
 
 // type → label / setup-factory maps derived from the ordered registry, so the
 // picker and setup flow stay a single source of truth. GAME_LABELS preserves

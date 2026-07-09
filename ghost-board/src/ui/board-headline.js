@@ -5,7 +5,7 @@
 // CSS) so board clicks (debug input) pass straight through.
 
 import './board-headline.css';
-import { getGame } from '../games/manager.js';
+import { getGame } from '../game-engine/core/manager.js';
 import { settings } from '../state/settings.js';
 
 export function createBoardHeadline(parent) {

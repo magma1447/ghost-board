@@ -11,7 +11,7 @@
 // This avoids circular comparison complexity — win conditions are simple
 // integer comparisons on progress values.
 
-import { currentPlayer, ringMatchesMode, stepsForRing } from '../game-helpers.js';
+import { currentPlayer, ringMatchesMode, stepsForRing } from '../../game-engine/shared/game-helpers.js';
 import { BOARD_ORDER } from '../../board/segments.js';
 
 export function createCatAndMouse({

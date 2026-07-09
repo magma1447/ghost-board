@@ -6,7 +6,7 @@
 // "Shanghai" instant win (optional): hitting a single, a double AND a treble
 // of the round's number within one turn wins outright, whatever the score.
 
-import { currentPlayer, advancePlayerBase } from '../game-helpers.js';
+import { currentPlayer, advancePlayerBase } from '../../game-engine/shared/game-helpers.js';
 
 export function createShanghai({
     numPlayers = 2,

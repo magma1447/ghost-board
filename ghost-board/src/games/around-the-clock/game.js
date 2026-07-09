@@ -13,7 +13,7 @@
 //   multiStep: doubles advance 2 targets, trebles advance 3
 //   bullFinish: 'off' (end at 20) | 'single' | 'double' (must finish on bull)
 
-import { currentPlayer, ringMatchesMode, stepsForRing, advancePlayerBase } from '../game-helpers.js';
+import { currentPlayer, ringMatchesMode, stepsForRing, advancePlayerBase } from '../../game-engine/shared/game-helpers.js';
 
 export function createAroundTheClock({
     numPlayers = 2,

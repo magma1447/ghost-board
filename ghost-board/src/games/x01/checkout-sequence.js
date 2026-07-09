@@ -10,7 +10,7 @@
 // Bogey numbers with no 3-dart double finish (169, 168, 166, 165, 163, 162,
 // 159) are simply absent from the table.
 
-import { suggestCheckout } from '../checkout.js';
+import { suggestCheckout } from './checkout.js';
 
 const CHECKOUTS = {
     170: ['T20', 'T20', 'D-Bull'],

@@ -11,7 +11,7 @@
 //   'checkout' (per-dart when score is below threshold)
 
 import { calcPoints } from '../../ble/protocol.js';
-import { currentPlayer, advancePlayerBase, createTurnEndCallout } from '../game-helpers.js';
+import { currentPlayer, advancePlayerBase, createTurnEndCallout } from '../../game-engine/shared/game-helpers.js';
 import { checkoutFor } from './checkout-sequence.js';
 
 export function createX01({

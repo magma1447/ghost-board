@@ -20,13 +20,13 @@
 // (best-of legs/sets > 1) that option is forced to its no-draw value and
 // disabled, since a leg must produce a winner.
 
-import '../games/game-panel.css';
+import './game-panel.css';
 import { createPlayerRoster } from './roster.js';
-import { createNumericSelect } from '../ui/common/numeric-select.js';
-import { attachOptionInfo } from '../ui/common/option-info.js';
-import { openRules } from '../ui/common/rules-dialog.js';
-import { describeSettings, SETTINGS_SEPARATOR } from './format.js';
-import { settings, updateSettings } from '../state/settings.js';
+import { createNumericSelect } from '../../ui/common/numeric-select.js';
+import { attachOptionInfo } from '../../ui/common/option-info.js';
+import { openRules } from '../../ui/common/rules-dialog.js';
+import { describeSettings, SETTINGS_SEPARATOR } from '../shared/format.js';
+import { settings, updateSettings } from '../../state/settings.js';
 
 // Legs / sets are a cross-game concept, so they're built in here rather than
 // declared per game. Best-of-1 means a single leg/set (match layer inactive).
