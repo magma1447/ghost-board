@@ -275,17 +275,23 @@ export function playSprint() {
     tone(t + 0.28, 0.35, 1568, 'sine', 0.15);
 }
 
-// Bright, clearly-audible "correct!" confirmation for hitting a called target
-// (Simon Says). A plain scoring hit's single-ring tone is easy to miss outdoors,
-// so this is louder, distinctly upbeat, and theme-independent — a good hit always
-// reads the same (#71).
-export function playCorrect() {
+// Bright, clearly-audible confirmation for hitting a called/round target (Simon
+// Says, Shanghai). `level` (1–3) is the hit's multiple — single/double/treble —
+// and drives the fanfare's length: ascending "ta" pickups lead to a bright "da"
+// resolution, so single = ta-da, double = ta-ta-da, treble = ta-ta-ta-da. A
+// better hit sounds better, and it's louder + theme-independent so a good hit
+// reads clearly even outdoors (#71).
+export function playCorrect(level = 1) {
     ensureAudio();
     const t = getCtx().currentTime;
-    tone(t, 0.12, 784, 'triangle', 0.4); // G5 — bright attack
-    tone(t + 0.09, 0.28, 1175, 'triangle', 0.45); // rising to D6 — cheerful jump
-    tone(t + 0.09, 0.3, 2349, 'sine', 0.14); // sparkle an octave up
-    tone(t, 0.14, 196, 'sine', 0.3, 130); // low body so it lands like a hit
+    const n = Math.max(1, Math.min(3, Math.round(level)));
+    const pickups = [523, 659, 784].slice(3 - n); // C5, E5, G5 — the last n climb
+    const step = 0.085;
+    pickups.forEach((f, i) => tone(t + i * step, 0.08, f, 'triangle', 0.32));
+    const resolveAt = t + n * step;
+    tone(resolveAt, 0.3, 1047, 'triangle', 0.45); // C6 — the bright "da"
+    tone(resolveAt, 0.32, 2093, 'sine', 0.13); // octave sparkle on top
+    tone(resolveAt, 0.14, 262, 'sine', 0.28, 175); // low body so it lands like a hit
 }
 
 // -- Speech synthesis for score calling --

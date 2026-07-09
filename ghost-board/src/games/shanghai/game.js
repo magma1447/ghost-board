@@ -111,7 +111,12 @@ export function createShanghai({
             return { state, event: 'win', callouts: [] };
         }
 
-        return { state, event: isHit ? null : 'miss', callouts: [] };
+        // A hit on the number gets an audible confirmation that climbs with the
+        // multiple (single/double/treble = level 1/2/3); a miss stays a miss (#71).
+        if (isHit) {
+            return { state, event: 'correct', hitLevel: points / state.target, callouts: [] };
+        }
+        return { state, event: 'miss', callouts: [] };
     }
 
     function nextPlayer() {

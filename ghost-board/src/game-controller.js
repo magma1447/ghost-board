@@ -614,7 +614,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
             const panel = getPanel();
             if (game && panel) {
                 const undoSnap = snapshotForUndo(); // capture state before the dart mutates it
-                const { state, event: gameEvent, callouts } = game.onDart(event.ring, event.segment);
+                const { state, event: gameEvent, callouts, hitLevel } = game.onDart(event.ring, event.segment);
                 // In match play a win ends a leg, not the match — suppress the
                 // generic "wins!" banner so handleMatchWin can show leg/set text.
                 const matchWin = gameEvent === 'win' && isMatchPlay(match);
@@ -655,9 +655,10 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                     log.logEvent('Sprint — three more darts', 'game');
                     processCallouts(callouts); // the target for the bonus darts
                 } else if (gameEvent === 'correct') {
-                    // Hit a called target (Simon Says) — a distinct, audible
-                    // confirmation instead of the easy-to-miss single-ring tone.
-                    playCorrect();
+                    // Hit a called/round target (Simon Says, Shanghai) — a distinct,
+                    // audible confirmation, scaled by the hit's multiple (hitLevel),
+                    // instead of the easy-to-miss single-ring tone.
+                    playCorrect(hitLevel);
                     processCallouts(callouts);
                 } else {
                     playHit(event.ring);
