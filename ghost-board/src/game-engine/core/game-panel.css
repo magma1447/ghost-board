@@ -552,3 +552,10 @@
 .game-setup-restore {
     margin-left: auto;
 }
+
+/* Shown under the buttons when the roster is below the game's minimum */
+.game-setup-start-note {
+    margin: 0.4rem 0 0;
+    color: #c8a44c;
+    font-size: 0.78rem;
+}

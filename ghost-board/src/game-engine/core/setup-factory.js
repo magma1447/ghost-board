@@ -150,11 +150,25 @@ export function createGameSetup(container, onStart, onCancel, config) {
     </div>
   `;
 
+    // Removing a slot can drop the roster below the game's minimum (e.g. taking
+    // an AI out of a fixed 2-player game to swap in a human). Block Start with a
+    // visible note until the count is back at min, rather than a silent no-op.
+    const startBtn = el.querySelector('.game-setup-start');
+    const minPlayers = rosterLimits.min ?? 1;
+    const startNote = document.createElement('p');
+    startNote.className = 'game-setup-start-note';
+    startNote.hidden = true;
+    el.querySelector('.game-setup-buttons').insertAdjacentElement('afterend', startNote);
+
     const roster = createPlayerRoster(el.querySelector('[data-roster]'), { ...rosterLimits, supportsAi: meta.supportsAi }, (count) => {
         const summary = el.querySelector('[data-summary="players"]');
         if (summary) {
             summary.textContent = `${count} player${count === 1 ? '' : 's'}`;
         }
+        const belowMin = count < minPlayers;
+        startBtn.disabled = belowMin;
+        startNote.hidden = !belowMin;
+        startNote.textContent = belowMin ? `Needs at least ${minPlayers} players.` : '';
     });
 
     const inputs = {};

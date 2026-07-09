@@ -259,7 +259,11 @@ export function createPlayerRoster(container, { min = 1, max = 8, supportsAi = f
     }
 
     function appendRemove(row, i) {
-        if (selection.length > min) {
+        // Removable down to a single row — never a dead-end, even for
+        // fixed-count games (min === max). Dropping below min re-enables the add
+        // buttons so a slot can be rebuilt (e.g. swap an AI for a human); Start
+        // stays blocked until min is met again (#81).
+        if (selection.length > 1) {
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
             removeBtn.className = 'btn btn-icon btn-danger';
@@ -297,7 +301,7 @@ export function createPlayerRoster(container, { min = 1, max = 8, supportsAi = f
         addAiBtn.hidden = !supportsAi || selection.length >= max;
         // Reserve the ✕-column on the right of the controls row only when
         // rows actually have remove buttons (so Order aligns with the selects)
-        el.classList.toggle('roster-has-remove', selection.length > min);
+        el.classList.toggle('roster-has-remove', selection.length > 1);
 
         // Reorder controls — Swap at 2 players, the trio at 3+, none at 1
         orderBar.innerHTML = '';
