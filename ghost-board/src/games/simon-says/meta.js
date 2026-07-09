@@ -8,7 +8,7 @@ export const meta = {
     rulesComplexity: 1,
     tags: ['race', 'beginner'],
     scoringStyle: 'Hit count',
-    supportsAi: false,
+    supportsAi: true,
     options: {
         hitMode: 'Which ring counts as a hit: any, doubles only, or trebles only.',
         scoring: 'Flat: 1 point per hit.\n\nStaggered: 1, 2, then 3 points for the first, second, and third hit of a turn.',

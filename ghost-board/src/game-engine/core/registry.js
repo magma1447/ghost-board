@@ -27,21 +27,25 @@ import { createCatAndMouse } from '../../games/cat-and-mouse/game.js';
 import { createCatAndMousePanel } from '../../games/cat-and-mouse/panel.js';
 import { createCatAndMouseSetup } from '../../games/cat-and-mouse/setup.js';
 import { meta as catAndMouseMeta } from '../../games/cat-and-mouse/meta.js';
+import { catAndMouseAim } from '../../games/cat-and-mouse/ai.js';
 
 import { createSimonSays } from '../../games/simon-says/game.js';
 import { createSimonSaysPanel } from '../../games/simon-says/panel.js';
 import { createSimonSaysSetup } from '../../games/simon-says/setup.js';
 import { meta as simonSaysMeta } from '../../games/simon-says/meta.js';
+import { simonSaysAim } from '../../games/simon-says/ai.js';
 
 import { createCountUp } from '../../games/count-up/game.js';
 import { createCountUpPanel } from '../../games/count-up/panel.js';
 import { createCountUpSetup } from '../../games/count-up/setup.js';
 import { meta as countUpMeta } from '../../games/count-up/meta.js';
+import { countUpAim } from '../../games/count-up/ai.js';
 
 import { createScoreRush } from '../../games/score-rush/game.js';
 import { createScoreRushPanel } from '../../games/score-rush/panel.js';
 import { createScoreRushSetup } from '../../games/score-rush/setup.js';
 import { meta as scoreRushMeta } from '../../games/score-rush/meta.js';
+import { scoreRushAim } from '../../games/score-rush/ai.js';
 
 import { createCricket } from '../../games/cricket/game.js';
 import { createCricketPanel } from '../../games/cricket/panel.js';
@@ -52,6 +56,7 @@ import { createShanghai } from '../../games/shanghai/game.js';
 import { createShanghaiPanel } from '../../games/shanghai/panel.js';
 import { createShanghaiSetup } from '../../games/shanghai/setup.js';
 import { meta as shanghaiMeta } from '../../games/shanghai/meta.js';
+import { shanghaiAim } from '../../games/shanghai/ai.js';
 
 import { createScram } from '../../games/scram/game.js';
 import { createScramPanel } from '../../games/scram/panel.js';
@@ -62,11 +67,13 @@ import { createHalfIt } from '../../games/half-it/game.js';
 import { createHalfItPanel } from '../../games/half-it/panel.js';
 import { createHalfItSetup } from '../../games/half-it/setup.js';
 import { meta as halfItMeta } from '../../games/half-it/meta.js';
+import { halfItAim } from '../../games/half-it/ai.js';
 
 import { createBobs27 } from '../../games/bobs-27/game.js';
 import { createBobs27Panel } from '../../games/bobs-27/panel.js';
 import { createBobs27Setup } from '../../games/bobs-27/setup.js';
 import { meta as bobs27Meta } from '../../games/bobs-27/meta.js';
+import { bobs27Aim } from '../../games/bobs-27/ai.js';
 
 import { createKiller } from '../../games/killer/game.js';
 import { createKillerPanel } from '../../games/killer/panel.js';
@@ -83,6 +90,7 @@ export const GAMES = [
         createPanel: createCountUpPanel,
         createSetup: createCountUpSetup,
         meta: countUpMeta,
+        aim: countUpAim,
     },
     {
         type: 'simon-says',
@@ -91,6 +99,7 @@ export const GAMES = [
         createPanel: createSimonSaysPanel,
         createSetup: createSimonSaysSetup,
         meta: simonSaysMeta,
+        aim: simonSaysAim,
     },
     {
         type: 'around-the-clock',
@@ -108,6 +117,7 @@ export const GAMES = [
         createPanel: createScoreRushPanel,
         createSetup: createScoreRushSetup,
         meta: scoreRushMeta,
+        aim: scoreRushAim,
     },
     {
         type: 'half-it',
@@ -116,6 +126,7 @@ export const GAMES = [
         createPanel: createHalfItPanel,
         createSetup: createHalfItSetup,
         meta: halfItMeta,
+        aim: halfItAim,
     },
     {
         type: 'shanghai',
@@ -124,6 +135,7 @@ export const GAMES = [
         createPanel: createShanghaiPanel,
         createSetup: createShanghaiSetup,
         meta: shanghaiMeta,
+        aim: shanghaiAim,
     },
     {
         type: 'cat-and-mouse',
@@ -132,6 +144,7 @@ export const GAMES = [
         createPanel: createCatAndMousePanel,
         createSetup: createCatAndMouseSetup,
         meta: catAndMouseMeta,
+        aim: catAndMouseAim,
     },
     {
         type: 'cricket',
@@ -157,6 +170,7 @@ export const GAMES = [
         createPanel: createBobs27Panel,
         createSetup: createBobs27Setup,
         meta: bobs27Meta,
+        aim: bobs27Aim,
     },
     {
         type: 'scram',

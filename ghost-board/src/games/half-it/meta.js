@@ -5,7 +5,7 @@ export const meta = {
     rulesComplexity: 3,
     tags: ['scoring'],
     scoringStyle: 'Count up',
-    supportsAi: false,
+    supportsAi: true,
     options: {
         startScore: 'The total everyone begins with. Usually 0, so scores build up from the first round.',
         onDraw: 'If totals are tied at the end: a draw, or sudden-death bull-off rounds until someone leads.',

@@ -8,7 +8,7 @@ export const meta = {
     rulesComplexity: 2,
     tags: ['scoring', 'beginner'],
     scoringStyle: 'Count up',
-    supportsAi: false,
+    supportsAi: true,
     options: {
         maxRounds: 'How many rounds are played (8 is the standard game).',
         bullMode: 'Bull scoring: 25 outer / 50 inner (standard), or 50 / 50.',
