@@ -43,6 +43,45 @@ Horizontal spread drives *wrong-number* misses (which stay on the board);
 vertical spread drives *OUT* and *which ring*, so it doubles as the
 doubles-difficulty dial.
 
+## Benchmark — measuring each level's 501 average (#75)
+
+`bin/x01-benchmark.mjs` plays many solo, standard 501 legs (double-out, 25/50
+bull) with each level and reports the pooled **3-dart average** — `(total points
+/ total darts) × 3` across all legs, a busted / non-checkout visit counting as a
+full three darts (only the winning visit can be fewer), the way a match average
+is figured. It also gives rounds/leg, OUTs/leg and bust rate. Legs are
+independent, so it runs across a `worker_threads` pool (~70s for the default 10k
+legs/level on 8 threads; ~4 min single-threaded).
+
+```
+docker compose -f docker/compose.yaml run --rm toolbox \
+    node bin/x01-benchmark.mjs [--legs 10000] [--levels 1-3,5,8-10] [--threads N]
+```
+
+**Regenerate this whenever the profiles change** — the numbers derive from them.
+
+### Current output (10k legs/level)
+
+```
+Lvl |  3-dart avg | rounds/leg | outs/leg | busts/leg | stuck
+  1 |       15.32 |       33.1 |     24.1 |     13.97 |     0
+  2 |       17.60 |       28.9 |     18.3 |     11.21 |     0
+  3 |       20.48 |       24.9 |     13.5 |      8.56 |     0
+  4 |       24.39 |       20.9 |      9.0 |      5.97 |     0
+  5 |       29.25 |       17.5 |      5.9 |      3.89 |     0
+  6 |       36.47 |       14.1 |      3.5 |      2.12 |     0
+  7 |       46.27 |       11.2 |      2.2 |      1.11 |     0
+  8 |       57.42 |        9.1 |      1.5 |      0.59 |     0
+  9 |       89.94 |        5.9 |      0.6 |      0.17 |     0
+ 10 |      167.00 |        3.0 |      0.0 |      0.00 |     0
+```
+
+L10 is exact (a flawless 9-darter = 167). The rest sit **below** the anchors
+above — L1 ~15 vs the ~20–30 target, L9 ~90 vs 100+ — i.e. the scatter is still
+too wide. Calibrating the profiles against this curve is tracked in **#80**, and
+is best left until after the strategy work in #77 / #78, which will move these
+numbers.
+
 ## Tuning notes & ideas
 
 - Every constant is gut-feel and wants a lot of play-testing; adjust by feel

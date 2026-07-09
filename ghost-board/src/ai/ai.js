@@ -6,7 +6,7 @@
 // scatter.js — so adding AI to a new game means dropping an ai.js in its folder
 // and registering it, with nothing to change here.
 
-import { AI_PROFILES, gaussian, aimPoint, pointToHit, RING_RADIUS } from './scatter.js';
+import { AI_PROFILES, RING_RADIUS, applyScatter } from './scatter.js';
 import { GAMES } from '../game-engine/core/registry.js';
 
 // type → aim strategy, drawn from the games that ship one.
@@ -20,12 +20,5 @@ export function aiThrow(gameType, state, level) {
     const profile = AI_PROFILES[level] || AI_PROFILES[5];
     const strategy = STRATEGIES[gameType];
     const aim = strategy ? strategy(state, profile) : { segment: 25, radius: RING_RADIUS.bull };
-
-    const aimXY = aimPoint(aim.segment, aim.radius);
-    const spread = Math.random() < profile.fumbleChance ? profile.fumbleScatter : 1;
-    const land = {
-        x: aimXY.x + gaussian() * profile.scatterHorizontal * spread,
-        y: aimXY.y + gaussian() * profile.scatterVertical * spread,
-    };
-    return { ...pointToHit(land.x, land.y), aim: aimXY, land, aimTarget: pointToHit(aimXY.x, aimXY.y) };
+    return applyScatter(aim, profile);
 }

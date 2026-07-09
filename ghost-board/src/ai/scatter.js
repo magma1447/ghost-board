@@ -41,7 +41,7 @@ export const AI_PROFILES = {
 };
 
 // Standard-normal sample (Box–Muller).
-export function gaussian() {
+function gaussian() {
     let u1 = Math.random();
     const u2 = Math.random();
     if (u1 < 1e-9) {
@@ -52,14 +52,14 @@ export function gaussian() {
 
 // Board point (relative to centre) for segment N at a given radius. 0° = top,
 // clockwise — matching segments.js.
-export function aimPoint(segment, radius) {
+function aimPoint(segment, radius) {
     const idx = Math.max(0, BOARD_ORDER.indexOf(segment));
     const rad = ((idx * 18 - 90) * Math.PI) / 180;
     return { x: radius * Math.cos(rad), y: radius * Math.sin(rad) };
 }
 
 // Where a landing point actually scored, read off the real geometry.
-export function pointToHit(x, y) {
+function pointToHit(x, y) {
     const r = Math.hypot(x, y);
     if (r > RADII.DOUBLE_OUTER) {
         return { ring: 'OUT', segment: 0 };
@@ -105,4 +105,19 @@ const RISK_THRESHOLD = 0.5;
 // the call.
 export function takesRisk(profile) {
     return profile.confidence + gaussian() * profile.confidenceVariance >= RISK_THRESHOLD;
+}
+
+// Apply the scatter model to an aim { segment, radius }: place the intended
+// point, add the Gaussian core plus the occasional wider fumble spray, and read
+// off where it actually landed. Returns the scored { ring, segment } plus the
+// aim / landing points (board coords) for the debug overlay. Shared by aiThrow
+// (live play) and the headless benchmark, so both run the identical model.
+export function applyScatter(aim, profile) {
+    const aimXY = aimPoint(aim.segment, aim.radius);
+    const spread = Math.random() < profile.fumbleChance ? profile.fumbleScatter : 1;
+    const land = {
+        x: aimXY.x + gaussian() * profile.scatterHorizontal * spread,
+        y: aimXY.y + gaussian() * profile.scatterVertical * spread,
+    };
+    return { ...pointToHit(land.x, land.y), aim: aimXY, land, aimTarget: pointToHit(aimXY.x, aimXY.y) };
 }

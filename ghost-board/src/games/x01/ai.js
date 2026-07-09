@@ -35,19 +35,20 @@ function layupValue(left, doubleOut) {
     if (doubleOut && left === 1) {
         return -Infinity; // dead — 1 can't be finished on a double
     }
-    if (left === 40) {
-        return 5000;
+    // Score down first: a smaller leftover is better, and this dominates (a T20
+    // beats a stray single by ~60). A modest bonus then nudges close calls toward
+    // a forgiving double, so 40/32/even win over odd only when the leftovers are
+    // within a dart's reach — never worth throwing a tiny single just to fix
+    // parity at a high score.
+    let bonus = 0;
+    if (left === 40 || left === 32) {
+        bonus = 30; // the classic safe outs
+    } else if (left <= 40 && left % 2 === 0) {
+        bonus = 20; // a direct double
+    } else if (left % 2 === 0) {
+        bonus = 5; // even, but needs two darts
     }
-    if (left === 32) {
-        return 4900;
-    }
-    if (left <= 40 && left % 2 === 0) {
-        return 4000 + left; // a direct double; the bigger the easier to hit
-    }
-    if (left % 2 === 0) {
-        return 2000 - left; // even but needs two darts; smaller is closer
-    }
-    return 1000 - left; // odd — least preferred
+    return -left + bonus;
 }
 
 // Fallback aim when no finish fits the darts remaining: pick the shot that never
