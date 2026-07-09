@@ -330,7 +330,10 @@ function applyVoice(utterance) {
     }
 }
 
-export function speakScore(points) {
+// `emphatic` is the darts "one hundred and eighty!" shout — reserved for a turn
+// total of 180 (three treble-20s). Any other 180 (e.g. 180 points remaining) is
+// spoken plainly.
+export function speakScore(points, { emphatic = false } = {}) {
     if (!window.speechSynthesis) {
         return;
     }
@@ -343,7 +346,7 @@ export function speakScore(points) {
     }
     window.speechSynthesis.cancel();
 
-    if (points === 180) {
+    if (emphatic && points === 180) {
         const u = new SpeechSynthesisUtterance('one hundred and eighty!');
         u.rate = 0.4;
         u.pitch = 1.3;

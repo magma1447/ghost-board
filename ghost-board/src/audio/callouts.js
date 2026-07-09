@@ -87,7 +87,9 @@ export function processCallouts(callouts) {
         }
 
         const d = delay;
-        pendingCallouts.push(setTimeout(() => speakScore(c.value), d));
+        // The "180!" shout is only for a turn total of 180, not e.g. 180 left.
+        const emphatic = c.type === 'turnTotal';
+        pendingCallouts.push(setTimeout(() => speakScore(c.value, { emphatic }), d));
         delay += 1500;
     }
 }
