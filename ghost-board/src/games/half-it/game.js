@@ -7,7 +7,7 @@
 // on that segment", 'double' = any double, 'treble' = any treble, 'bull' = the
 // bull. Rounds past the sequence (sudden death) are a bull-off.
 
-import { currentPlayer } from '../game-helpers.js';
+import { currentPlayer, advancePlayerBase, createTurnEndCallout } from '../game-helpers.js';
 
 const SEQUENCE = [20, 16, 'double', 17, 18, 'treble', 19, 20, 'bull'];
 
@@ -93,6 +93,20 @@ export function createHalfIt({
         return tie ? null : bestIdx;
     }
 
+    // The halve + running total belong to the turn that just ended.
+    const turnEnd = createTurnEndCallout();
+
+    // Resolve the completed turn: miss the target with all three darts and the
+    // running total is halved (rounded down). Returns the running-total callout.
+    // Runs once — last dart, or switch fallback — so the halve can't double-apply.
+    function resolveTurn() {
+        const p = currentPlayer(state);
+        if (state.turn.roundPoints === 0) {
+            p.score = Math.floor(p.score / 2);
+        }
+        return { type: 'remaining', value: p.score };
+    }
+
     function onDart(ring, segment) {
         // Dart didn't count (game over, or turn already complete/locked) —
         // 'ignored' lets the UI skip audio while LEDs still flash.
@@ -111,45 +125,37 @@ export function createHalfIt({
         }
         state.turn.darts.push({ ring, segment, hit, points });
 
-        // Points bank per dart, like every other game. The only turn-end effect
-        // is the halve, applied in nextPlayer() when the whole turn missed.
-        return { state, event: hit ? null : 'miss', callouts: [] };
+        // End of turn (last dart landed): resolve the halve + call the running
+        // total now, not on the switch.
+        const callouts = [];
+        if (state.turn.darts.length >= dartsPerTurn) {
+            callouts.push(turnEnd.onTurnEnd(resolveTurn));
+        }
+        return { state, event: hit ? null : 'miss', callouts };
     }
 
     function nextPlayer() {
-        // Points were banked per dart during the turn; the only turn-end effect
-        // is the halve — when the whole turn missed the target (rounded down).
-        const p = currentPlayer(state);
-        if (state.turn.roundPoints === 0) {
-            p.score = Math.floor(p.score / 2);
-        }
+        // The halve + running total were resolved on the last dart; here it's the
+        // fallback for an undetected last dart.
+        const endCall = turnEnd.onSwitch(resolveTurn);
 
-        p.lastDarts = state.turn.darts.slice(); // keep visible until their next turn
-        state.turn = { darts: [], locked: false, roundPoints: 0 };
-        state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
-
-        if (state.currentPlayerIndex === 0) {
-            // All players have thrown this round — advance.
-            state.round++;
-            if (state.round > SEQUENCE.length) {
-                const winner = determineWinner();
-                // End after the final round unless it's a tie and we play until
-                // a winner (sudden death — a bull-off, keep going).
-                if (winner !== null || onDraw === 'draw') {
-                    state.isGameOver = true;
-                    state.winner = winner;
-                    state.targetSegments = [];
-                    return { state, event: winner !== null ? 'win' : 'draw', callouts: [] };
-                }
-            }
+        // Rotate + bump the round; the sequence length is the round limit. The
+        // extra turn field (roundPoints) is reset here — advancePlayerBase clears
+        // only darts + locked.
+        const event = advancePlayerBase(state, SEQUENCE.length, { determineWinner, onDraw });
+        state.turn.roundPoints = 0;
+        if (event) {
+            state.targetSegments = [];
+            return { state, event, callouts: [] };
         }
 
         state.target = targetFor(state.round);
         refreshTargets();
-        // Call the target to the incoming player — numbers only (see getCallouts).
-        const callouts = typeof state.target === 'number'
-            ? [{ type: 'target', value: state.target }]
-            : [];
+        // The incoming player's target — numbers only (see getCallouts).
+        const callouts = endCall ? [endCall] : [];
+        if (typeof state.target === 'number') {
+            callouts.push({ type: 'target', value: state.target });
+        }
         return { state, event: 'switch', callouts };
     }
 

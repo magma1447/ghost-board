@@ -15,7 +15,7 @@
 //   on switch).
 
 import { calcPoints } from '../ble/protocol.js';
-import { currentPlayer } from './game-helpers.js';
+import { currentPlayer, advancePlayerBase, createTurnEndCallout } from './game-helpers.js';
 
 export function createScoreGame({
     type,
@@ -48,8 +48,9 @@ export function createScoreGame({
         targetSegments: [], // no fixed targets; nothing to light on the board
     };
 
-    // Ephemeral — whether onDart already emitted this turn's total callout
-    let turnTotalReturned = false;
+    // The turn total belongs to the turn that just ended — spoken on the last
+    // dart, or as a switch fallback if that dart went undetected.
+    const turnEnd = createTurnEndCallout();
 
     function getPoints(ring, segment) {
         // In 50/50 bull mode, single bull scores 50 instead of the standard 25
@@ -112,14 +113,14 @@ export function createScoreGame({
             player.lastDarts = state.turn.darts.slice();
             state.isGameOver = true;
             state.winner = state.currentPlayerIndex;
-            turnTotalReturned = true;
+            turnEnd.suppress();
             return { state, event: 'win', callouts: [] };
         }
 
+        // End of turn (last dart landed): call the turn total now, not on the switch.
         const callouts = [];
         if (state.turn.darts.length >= dartsPerTurn) {
-            callouts.push({ type: 'turnTotal', value: turnTotal() });
-            turnTotalReturned = true;
+            callouts.push(turnEnd.onTurnEnd(() => ({ type: 'turnTotal', value: turnTotal() })));
         }
 
         // A dart that missed the board scores nothing → 'miss' feedback
@@ -128,34 +129,25 @@ export function createScoreGame({
 
     function nextPlayer() {
         const callouts = [];
-        // Turn total if not already spoken after the 3rd dart
-        if (!turnTotalReturned && state.turn.darts.length > 0) {
-            callouts.push({ type: 'turnTotal', value: turnTotal() });
+        // Turn total — fallback for an undetected last dart (normally the 3rd).
+        const totalCall = turnEnd.onSwitch(() => (state.turn.darts.length > 0
+            ? { type: 'turnTotal', value: turnTotal() }
+            : null));
+        if (totalCall) {
+            callouts.push(totalCall);
         }
 
-        recordVisit(currentPlayer(state));
-        currentPlayer(state).lastDarts = state.turn.darts; // keep visible until their next turn
-        state.turn.darts = [];
-        state.turn.locked = false;
-        turnTotalReturned = false;
-        state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
-
-        if (state.currentPlayerIndex === 0) {
-            // All players completed this round
-            state.round++;
-            // Round-limited games end at the limit (target games end in onDart)
-            if (endMode === 'rounds' && maxRounds !== null && state.round > maxRounds) {
-                const winner = determineWinner();
-                // End unless it's a tie and we play until a winner (sudden death)
-                if (winner !== null || onDraw === 'draw') {
-                    state.isGameOver = true;
-                    state.winner = winner;
-                    return { state, event: winner !== null ? 'win' : 'draw', callouts };
-                }
-            }
+        recordVisit(currentPlayer(state)); // the leaving player, before the rotate
+        // Count Up resolves a winner at the round limit; Score Rush ends in onDart
+        // (first to the target), so it never ends on a round.
+        const event = endMode === 'rounds'
+            ? advancePlayerBase(state, maxRounds, { determineWinner, onDraw })
+            : advancePlayerBase(state, null);
+        if (event) {
+            return { state, event, callouts };
         }
 
-        // Announce the incoming player's running total
+        // Announce the incoming player's running total (start of round).
         callouts.push({ type: 'remaining', value: currentPlayer(state).score });
         return { state, event: 'switch', callouts };
     }
@@ -171,7 +163,6 @@ export function createScoreGame({
 
     function loadState(saved) {
         Object.assign(state, saved);
-        turnTotalReturned = false;
     }
 
     // Big heads-up number for the current player: their running total

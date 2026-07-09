@@ -3,6 +3,25 @@
 // These factor out the turn/round mechanics and ring-matching rules that were
 // previously copy-pasted into each game.js. Games still own their scoring and
 // win conditions — only the common skeleton lives here.
+//
+// Every game.js follows the same lifecycle, so reading one prepares you for the
+// next. The controller drives it; these helpers implement the shared stages:
+//   • setup        — createXxx(options) builds state and returns the six methods
+//                    { onDart, nextPlayer, getCallouts, getHeadline, getState,
+//                    loadState }.
+//   • round start  — getCallouts() (and the tail of nextPlayer) announce the
+//                    incoming player's target/score (a 'target' / 'remaining'
+//                    callout).
+//   • read a dart  — onDart(ring, segment) scores the dart and, on the LAST dart,
+//                    resolves the turn (createTurnEndCallout): any turn-end
+//                    penalty plus the end-of-round callout.
+//   • next player  — nextPlayer() rotates and, at the round limit, ends the leg
+//                    (advancePlayerBase). It's also the fallback for a turn-end
+//                    callout whose last dart went undetected.
+//   • leg/game end — a 'win' / 'draw' event bubbles up to the controller + match
+//                    layer.
+// Games that skip eliminated players (Bob's 27, Killer) or swap roles mid-game
+// (Scram, Cat and Mouse) own their advance; the rest share advancePlayerBase.
 
 // The player whose turn it currently is.
 export function currentPlayer(state) {
@@ -38,12 +57,16 @@ export function stepsForRing(ring, multiStep) {
     return 1;
 }
 
-// Common end-of-turn skeleton: stash the leaving player's darts, clear the
-// turn, rotate to the next player, bump the round on wrap, and end in a draw
-// if the round limit is exceeded. Returns 'draw' when the limit ends the game,
-// otherwise null. Games with custom turn state (e.g. Cat and Mouse's sprint
-// display, or Simon's per-round sequence) handle their own advance.
-export function advancePlayerBase(state, maxRounds) {
+// Common end-of-turn skeleton: stash the leaving player's darts, clear the turn,
+// rotate to the next player, and bump the round on wrap. Past the round limit it
+// resolves the outcome and returns 'win' / 'draw' (else null, to play on):
+//   - no options → a plain draw at the limit (for games that decide a winner
+//     mid-dart, like X01 and Around the Clock — they only need the draw fallback).
+//   - { determineWinner, onDraw } → ask the game who leads: a winner ends it; a
+//     tie ends as a draw unless onDraw keeps play going (sudden death → null).
+// Games with extra turn state (Half It's roundPoints) reset those fields
+// themselves — this clears only darts + locked.
+export function advancePlayerBase(state, maxRounds, { determineWinner, onDraw } = {}) {
     currentPlayer(state).lastDarts = state.turn.darts; // keep this turn visible until their next
     state.turn.darts = [];
     state.turn.locked = false;
@@ -53,9 +76,14 @@ export function advancePlayerBase(state, maxRounds) {
     }
 
     if (maxRounds !== null && state.round > maxRounds) {
-        state.isGameOver = true;
-        state.winner = null;
-        return 'draw';
+        const winner = determineWinner ? determineWinner() : null;
+        // No winner-finder → a plain draw. With one, a tie ends as a draw unless
+        // the game plays on to break it (sudden death).
+        if (winner !== null || !determineWinner || onDraw === 'draw') {
+            state.isGameOver = true;
+            state.winner = winner;
+            return winner !== null ? 'win' : 'draw';
+        }
     }
     return null;
 }

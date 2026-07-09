@@ -6,7 +6,7 @@
 // "Shanghai" instant win (optional): hitting a single, a double AND a treble
 // of the round's number within one turn wins outright, whatever the score.
 
-import { currentPlayer } from '../game-helpers.js';
+import { currentPlayer, advancePlayerBase } from '../game-helpers.js';
 
 export function createShanghai({
     numPlayers = 2,
@@ -115,31 +115,17 @@ export function createShanghai({
     }
 
     function nextPlayer() {
-        currentPlayer(state).lastDarts = state.turn.darts; // keep visible until their next
-        state.turn = { darts: [], locked: false };
-        state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
-
-        if (state.currentPlayerIndex === 0) {
-            // All players have thrown this round — advance.
-            state.round++;
-            if (maxRounds !== null && state.round > maxRounds) {
-                const winner = determineWinner();
-                // End at the limit unless it's a tie and we play until a winner
-                // (sudden death — keep going; the target climbs, capped at 20).
-                if (winner !== null || onDraw === 'draw') {
-                    state.isGameOver = true;
-                    state.winner = winner;
-                    state.targetSegments = [];
-                    return { state, event: winner !== null ? 'win' : 'draw', callouts: [] };
-                }
-            }
+        // Rotate + bump the round; at the limit, highest score wins (a tie is a
+        // draw unless sudden death plays on — the target climbs, capped at 20).
+        const event = advancePlayerBase(state, maxRounds, { determineWinner, onDraw });
+        if (event) {
+            state.targetSegments = [];
+            return { state, event, callouts: [] };
         }
 
         state.target = targetForRound(state.round);
         state.targetSegments = [state.target];
-
-        const callouts = state.isGameOver ? [] : [{ type: 'target', value: state.target }];
-        return { state, event: 'switch', callouts };
+        return { state, event: 'switch', callouts: [{ type: 'target', value: state.target }] };
     }
 
     // First player never gets a nextPlayer() call — announce the opening target.

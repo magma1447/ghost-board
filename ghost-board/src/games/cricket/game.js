@@ -12,7 +12,7 @@
 // Returns { state, event, callouts } from onDart() and nextPlayer().
 // Events: null (mark / score), 'miss', 'win', 'switch', 'ignored'
 
-import { currentPlayer, createTurnEndCallout } from '../game-helpers.js';
+import { currentPlayer, createTurnEndCallout, advancePlayerBase } from '../game-helpers.js';
 import { buildNumbers, dartMarks, numberValue } from '../cricket-marks.js';
 
 export function createCricket({
@@ -162,17 +162,11 @@ export function createCricket({
 
     function nextPlayer() {
         const leaving = currentPlayer(state);
-        leaving.lastDarts = state.turn.darts; // keep visible until their next turn
         // The running score belongs to the turn that just ended (spoken on the
         // last dart); here it's only the fallback for an undetected last dart.
         const scoreCall = variant === 'simple' ? null : turnEnd.onSwitch(() => ({ type: 'remaining', value: leaving.score }));
         const callouts = scoreCall ? [scoreCall] : [];
-        state.turn.darts = [];
-        state.turn.locked = false;
-        state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
-        if (state.currentPlayerIndex === 0) {
-            state.round++;
-        }
+        advancePlayerBase(state, null); // no round limit — Cricket wins in onDart
         refreshTargets();
         return { state, event: 'switch', callouts };
     }

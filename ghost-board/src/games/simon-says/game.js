@@ -11,7 +11,7 @@
 // turn. targetSegments lists the remaining unhit segment numbers for LED
 // display (main.js reads this to light up multiple segments).
 
-import { currentPlayer, ringMatchesMode } from '../game-helpers.js';
+import { currentPlayer, ringMatchesMode, advancePlayerBase } from '../game-helpers.js';
 
 export function createSimonSays({
     numPlayers = 2,
@@ -121,43 +121,31 @@ export function createSimonSays({
     }
 
     function nextPlayer() {
-        currentPlayer(state).lastDarts = state.turn.darts; // keep this turn visible until their next
-        state.turn.darts = [];
-        state.turn.locked = false;
         state.targetsHit = [false, false, false];
-        state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
-
-        if (state.currentPlayerIndex === 0) {
-            // All players completed this round — advance
-            state.round++;
-
-            if (maxRounds !== null && state.round > maxRounds) {
-                const winner = determineWinner();
-                // End at the limit unless it's a tie and we play until a winner
-                // (sudden death — keep playing further rounds until one leads).
-                if (winner !== null || onDraw === 'draw') {
-                    state.isGameOver = true;
-                    state.targetSegments = [];
-                    state.winner = winner;
-                    const event = winner !== null ? 'win' : 'draw';
-                    return { state, event, callouts: [] };
-                }
-            }
-
-            state.sequence = generateSequence();
+        const roundBefore = state.round;
+        // Rotate + bump the round; at the limit, highest score wins (a tie is a
+        // draw unless sudden death plays on — keep going until one player leads).
+        const event = advancePlayerBase(state, maxRounds, { determineWinner, onDraw });
+        if (event) {
+            state.targetSegments = [];
+            return { state, event, callouts: [] };
+        }
+        if (state.round !== roundBefore) {
+            state.sequence = generateSequence(); // fresh targets each new round
         }
 
         updateTargetSegments();
 
         // Announce all 3 targets in sequence, as spoken numbers.
-        const callouts = [];
-        if (!state.isGameOver) {
-            callouts.push({ type: 'target', value: state.sequence[0] });
-            callouts.push({ type: 'target', value: state.sequence[1] });
-            callouts.push({ type: 'target', value: state.sequence[2] });
-        }
-
-        return { state, event: 'switch', callouts };
+        return {
+            state,
+            event: 'switch',
+            callouts: [
+                { type: 'target', value: state.sequence[0] },
+                { type: 'target', value: state.sequence[1] },
+                { type: 'target', value: state.sequence[2] },
+            ],
+        };
     }
 
     // Initial callouts for game start (first player never gets a nextPlayer call)
