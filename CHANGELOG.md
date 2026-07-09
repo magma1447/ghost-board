@@ -2,6 +2,15 @@
 
 Notable changes to Ghost Board, newest first. Version numbers follow [semantic versioning](https://semver.org/): new features bump the middle number, fixes bump the last.
 
+## 0.7.5 — 2026-07-09
+
+### Fixed
+- Two-player games like Cat and Mouse and Scram now let you swap an AI opponent for a human (or the other way round) without restarting setup — remove the slot and add the other in its place.
+- Around the Clock and Cat and Mouse now call out your new target on your third dart too, not just the first two — and Cat and Mouse calls the target for a sprint's bonus darts.
+- Hitting the target in Simon Says and Shanghai now plays a clear confirmation sound — one that climbs for a double or treble in Shanghai — instead of a tone too quiet to hear.
+- The "one hundred and eighty!" shout only plays for a 180 scored in a turn, not when you have 180 points left.
+- On phones and tablets the app returns to full-screen after you unlock the device or switch back to it.
+
 ## 0.7.4 — 2026-07-09
 
 ### Added
