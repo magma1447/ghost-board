@@ -1,8 +1,11 @@
 # AI opponents
 
-`ai.js` is the throw engine; this file is the **design brief** — what each
-difficulty level should *feel* like. The constants in `AI_PROFILES` are gut-feel
-and get tuned by playing, so they need a target to aim at. That target is here.
+`scatter.js` is the shared throw engine — it holds `AI_PROFILES` and the
+board-scatter model; `ai.js` applies it to a game's chosen aim, and each game's
+aim strategy lives in `src/games/<game>/ai.js`. This file is the **design
+brief** — what each difficulty level should *feel* like. The constants in
+`AI_PROFILES` are gut-feel and get tuned by playing, so they need a target to aim
+at. That target is here.
 
 ## Difficulty scale
 

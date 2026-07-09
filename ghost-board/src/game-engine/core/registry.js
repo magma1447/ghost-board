@@ -1,10 +1,11 @@
 // Game registry — the single ordered source of truth for every game.
 //
 // Each descriptor bundles everything the app needs for a game type: its label,
-// its factory functions (createGame / createPanel / createSetup) and its meta
-// (short synopsis, option blurbs, player range, difficulty ratings, tags).
-// Consumers (manager.js, game-controller.js) derive their per-game maps from
-// this array instead of maintaining parallel ones.
+// its factory functions (createGame / createPanel / createSetup), its meta
+// (short synopsis, option blurbs, player range, difficulty ratings, tags), and
+// — for games that support AI — an `aim` strategy (src/games/<game>/ai.js) the
+// scatter engine reads. Consumers (manager.js, game-controller.js, ai/ai.js)
+// derive their per-game maps from this array instead of maintaining parallel ones.
 //
 // The array order IS the recommended play order — gentlest first — and drives
 // the order games appear in the picker. Reorder entries here to reorder the
@@ -14,11 +15,13 @@ import { createX01 } from '../../games/x01/game.js';
 import { createX01Panel } from '../../games/x01/panel.js';
 import { createX01Setup } from '../../games/x01/setup.js';
 import { meta as x01Meta } from '../../games/x01/meta.js';
+import { x01Aim } from '../../games/x01/ai.js';
 
 import { createAroundTheClock } from '../../games/around-the-clock/game.js';
 import { createAroundTheClockPanel } from '../../games/around-the-clock/panel.js';
 import { createAroundTheClockSetup } from '../../games/around-the-clock/setup.js';
 import { meta as aroundTheClockMeta } from '../../games/around-the-clock/meta.js';
+import { aroundTheClockAim } from '../../games/around-the-clock/ai.js';
 
 import { createCatAndMouse } from '../../games/cat-and-mouse/game.js';
 import { createCatAndMousePanel } from '../../games/cat-and-mouse/panel.js';
@@ -96,6 +99,7 @@ export const GAMES = [
         createPanel: createAroundTheClockPanel,
         createSetup: createAroundTheClockSetup,
         meta: aroundTheClockMeta,
+        aim: aroundTheClockAim,
     },
     {
         type: 'score-rush',
@@ -144,6 +148,7 @@ export const GAMES = [
         createPanel: createX01Panel,
         createSetup: createX01Setup,
         meta: x01Meta,
+        aim: x01Aim,
     },
     {
         type: 'bobs-27',
