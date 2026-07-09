@@ -15,7 +15,11 @@
     white-space: nowrap;
     overflow: hidden; /* never let the number/flash spill out and trigger page scrollbars */
     text-shadow: 0 0 16px rgba(0, 0, 0, 0.85);
-    -webkit-text-stroke: 3px rgba(0, 0, 0, 0.8);
+    /* Outline in em so it scales with the number — a fixed px stroke turns muddy
+       on small renders (e.g. a non-fullscreen tablet). paint-order draws the
+       stroke behind the fill so it outlines cleanly instead of eating the glyph. */
+    -webkit-text-stroke: 0.01em rgba(0, 0, 0, 0.8);
+    paint-order: stroke fill;
     transition: opacity 1s ease;
 }
 
