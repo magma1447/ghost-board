@@ -63,14 +63,15 @@ export function createKillerPanel(container, callbacks) {
             panel.setRound(`Round ${state.round}`, match);
 
             renderScoreboard(panel.scoreboard, state, {
-                valueFor: () => '', // hearts rendered as equal-size pips below
-                infoFor: (p) => {
-                    const label = `Number: ${p.number}`;
-                    if (p.out) {
-                        return `Out · ${label}`;
-                    }
-                    return `${p.killer ? 'Killer' : 'Not armed'} · ${label}`;
+                // Suffix the role after the name, like Cat and Mouse's — e.g.
+                // "Alice (Killer)". The number stays in the info line below.
+                nameFor: (p) => {
+                    const name = createPlayer(p.uuid).getName();
+                    const role = p.out ? 'Out' : (p.killer ? 'Killer' : 'Not armed');
+                    return `${name} (${role})`;
                 },
+                valueFor: () => '', // hearts rendered as equal-size pips below
+                infoFor: (p) => `Number: ${p.number}`,
                 dartMode: 'total',
                 match,
             });
