@@ -2,6 +2,11 @@
 
 Notable changes to Ghost Board, newest first. Version numbers follow [semantic versioning](https://semver.org/): new features bump the middle number, fixes bump the last.
 
+## 0.7.4 — 2026-07-09
+
+### Added
+- AI opponents now play most games — added **X01**, **Count Up**, **Score Rush**, **Cat and Mouse**, **Shanghai**, **Simon Says**, **Half It**, and **Bob's 27** (Around the Clock was already supported; Cricket, Scram, and Killer are still to come). Still beta — skill and behaviour keep being tuned.
+
 ## 0.7.3 — 2026-07-09
 
 ### Changed
