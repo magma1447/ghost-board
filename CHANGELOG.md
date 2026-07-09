@@ -2,6 +2,14 @@
 
 Notable changes to Ghost Board, newest first. Version numbers follow [semantic versioning](https://semver.org/): new features bump the middle number, fixes bump the last.
 
+## 0.7.1 — 2026-07-09
+
+### Fixed
+- The big current-player number reads cleaner on smaller screens — its outline no longer thickens into a muddy look.
+
+### Changed
+- The build-version tag now also shows on the welcome screen.
+
 ## 0.7.0 — 2026-07-05
 
 ### Added
