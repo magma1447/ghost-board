@@ -5,6 +5,7 @@
 
 import './landing.css';
 import { GAMES } from './games/registry.js';
+import { createVersionTag } from './ui/version-tag.js';
 
 const TAGLINE = 'Play darts on your Granboard — scored, lit, and called out.';
 
@@ -88,6 +89,11 @@ export function renderLanding(onContinue) {
     inner.appendChild(enter);
 
     el.appendChild(inner);
+
+    // The version footnote (bottom-right), inside the landing so it's removed
+    // with it when the app takes over.
+    el.appendChild(createVersionTag());
+
     document.body.appendChild(el);
 
     // Fade the content in only once the font + images are ready, so it doesn't
