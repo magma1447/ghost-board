@@ -12,3 +12,29 @@ export function requestImmersiveFullscreen() {
         el.requestFullscreen().catch(() => {}); // rejected without a gesture / when blocked
     }
 }
+
+// Keep the app immersive across foregrounding. Full-screen needs a user gesture,
+// and browsers drop it when the screen locks or the tab is backgrounded (#72),
+// so we can't just re-request it on return. Instead we arm a one-shot pointer
+// handler — the next tap restores full-screen — and re-arm it whenever the page
+// comes back to the foreground having lost it. Touch-only via
+// requestImmersiveFullscreen's own guard; a harmless no-op elsewhere.
+export function keepImmersiveFullscreen() {
+    let armed = false;
+    const arm = () => {
+        if (armed) {
+            return; // one pending handler at a time
+        }
+        armed = true;
+        window.addEventListener('pointerdown', () => {
+            armed = false;
+            requestImmersiveFullscreen();
+        }, { once: true });
+    };
+    arm(); // covers a reload straight into the app (no landing Enter gesture)
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && !document.fullscreenElement) {
+            arm(); // returned from lock / background and lost full-screen — re-arm
+        }
+    });
+}
