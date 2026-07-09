@@ -59,3 +59,31 @@ export function advancePlayerBase(state, maxRounds) {
     }
     return null;
 }
+
+// Runs a turn-end step exactly once — on the last dart, or, if that dart wasn't
+// detected (an undetected out), as a fallback on the switch; never twice. The
+// step is a thunk that returns the end-of-round callout (the outgoing player's
+// result — turn total, running score, …), or null when there's nothing to say.
+// The game supplies the thunk + any guards; this only owns the "when / once".
+// suppress() covers busts/wins where the round ends with nothing to announce.
+export function createTurnEndCallout() {
+    let done = false;
+    return {
+        // Last dart of the turn: run the step and hand back its callout to push.
+        onTurnEnd(step) {
+            done = true;
+            return step();
+        },
+        // On the switch: run the step only if it hasn't run yet (the fallback),
+        // then reset for the next turn.
+        onSwitch(step) {
+            const callout = done ? null : step();
+            done = false;
+            return callout;
+        },
+        // Bust / win / early end: mark done so the switch doesn't run the step.
+        suppress() {
+            done = true;
+        },
+    };
+}

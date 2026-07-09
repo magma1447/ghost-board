@@ -12,7 +12,7 @@
 // Returns { state, event, callouts } from onDart() and nextPlayer().
 // Events: null (mark / score), 'miss', 'win', 'switch', 'ignored'
 
-import { currentPlayer } from '../game-helpers.js';
+import { currentPlayer, createTurnEndCallout } from '../game-helpers.js';
 import { buildNumbers, dartMarks, numberValue } from '../cricket-marks.js';
 
 export function createCricket({
@@ -47,6 +47,9 @@ export function createCricket({
         winner: null,
         targetSegments: [],
     };
+
+    // Running-score announcement belongs to the turn that just ended.
+    const turnEnd = createTurnEndCallout();
 
     const isClosed = (p, n) => p.marks[n] >= 3;
     // Read state.numbers (not the construction-time array) so a restored game —
@@ -141,18 +144,26 @@ export function createCricket({
             player.lastDarts = state.turn.darts.slice();
             state.isGameOver = true;
             state.winner = winner;
+            turnEnd.suppress();
             return { state, event: 'win', callouts: [] };
         }
 
-        return { state, event: null, callouts: [] };
+        // End of turn (last dart landed): call the running score now, not on the
+        // switch. The Simple variant keeps no score, so it stays silent.
+        const callouts = [];
+        if (variant !== 'simple' && state.turn.darts.length >= dartsPerTurn) {
+            callouts.push(turnEnd.onTurnEnd(() => ({ type: 'remaining', value: player.score })));
+        }
+        return { state, event: null, callouts };
     }
 
     function nextPlayer() {
         const leaving = currentPlayer(state);
         leaving.lastDarts = state.turn.darts; // keep visible until their next turn
-        // Call the leaving player's running score (numbers only). The Simple
-        // variant keeps no score, so it stays silent.
-        const callouts = variant === 'simple' ? [] : [{ type: 'remaining', value: leaving.score }];
+        // The running score belongs to the turn that just ended (spoken on the
+        // last dart); here it's only the fallback for an undetected last dart.
+        const scoreCall = variant === 'simple' ? null : turnEnd.onSwitch(() => ({ type: 'remaining', value: leaving.score }));
+        const callouts = scoreCall ? [scoreCall] : [];
         state.turn.darts = [];
         state.turn.locked = false;
         state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;

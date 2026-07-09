@@ -11,7 +11,7 @@
 //   'checkout' (per-dart when score is below threshold)
 
 import { calcPoints } from '../../ble/protocol.js';
-import { currentPlayer, advancePlayerBase } from '../game-helpers.js';
+import { currentPlayer, advancePlayerBase, createTurnEndCallout } from '../game-helpers.js';
 import { checkoutFor } from './checkout-sequence.js';
 
 export function createX01({
@@ -47,8 +47,9 @@ export function createX01({
         targetSegments: [], // checkout numbers to light on the board (kept in sync below)
     };
 
-    // Ephemeral — tracks whether onDart already returned a turnTotal callout
-    let turnTotalReturned = false;
+    // The turn total belongs to the turn that just ended — spoken on the 3rd
+    // dart, or as a switch fallback if that dart went undetected.
+    const turnEnd = createTurnEndCallout();
 
     function advancePlayer() {
         // Count the completed visit (for the 3-dart average) before rotating:
@@ -72,13 +73,17 @@ export function createX01({
     function nextPlayer() {
         const callouts = [];
 
-        // Turn total if not already spoken after 3rd dart
-        if (!turnTotalReturned && state.turn.darts.length > 0) {
-            callouts.push({ type: 'turnTotal', value: turnTotal() });
+        // Fallback for an undetected last dart: the turn total is normally spoken
+        // on the 3rd dart. onSwitch also clears the once-guard for the next turn,
+        // so it runs even on an empty turn (nothing to total → null).
+        const totalCall = turnEnd.onSwitch(() => (state.turn.darts.length > 0
+            ? { type: 'turnTotal', value: turnTotal() }
+            : null));
+        if (totalCall) {
+            callouts.push(totalCall);
         }
 
         const drawEvent = advancePlayer();
-        turnTotalReturned = false;
 
         // Remaining for the incoming player
         if (!state.isGameOver) {
@@ -130,7 +135,7 @@ export function createX01({
         if (newScore < 0 || (doubleOut && newScore === 1)) {
             player.score = state.turn.startScore;
             state.turn.locked = true;
-            turnTotalReturned = true; // suppress on switch
+            turnEnd.suppress(); // nothing to total on a bust
             return { state, event: 'bust', callouts: [] };
         }
 
@@ -142,7 +147,7 @@ export function createX01({
             if (doubleOut && !isDouble(ring)) {
                 player.score = state.turn.startScore;
                 state.turn.locked = true;
-                turnTotalReturned = true;
+                turnEnd.suppress();
                 return { state, event: 'bust', callouts: [] };
             }
             // Record the winning visit (no advancePlayer follows a win)
@@ -151,16 +156,15 @@ export function createX01({
             player.lastDarts = state.turn.darts.slice();
             state.isGameOver = true;
             state.winner = state.currentPlayerIndex;
-            turnTotalReturned = true;
+            turnEnd.suppress();
             return { state, event: 'win', callouts: [] };
         }
 
         // Build callouts
         const callouts = [];
         if (state.turn.darts.length >= dartsPerTurn) {
-            // 3rd dart — call turn total
-            callouts.push({ type: 'turnTotal', value: turnTotal() });
-            turnTotalReturned = true;
+            // 3rd dart — call turn total (belongs to the turn that just ended)
+            callouts.push(turnEnd.onTurnEnd(() => ({ type: 'turnTotal', value: turnTotal() })));
         } else if (checkoutThreshold !== null && player.score <= checkoutThreshold) {
             callouts.push({ type: 'checkout', value: points, remaining: player.score });
         }
@@ -181,7 +185,6 @@ export function createX01({
 
     function loadState(saved) {
         Object.assign(state, saved);
-        turnTotalReturned = false;
         refreshCheckoutTargets();
     }
 

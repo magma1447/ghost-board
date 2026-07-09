@@ -17,7 +17,7 @@
 //   and auto-advances (no Next Player press). Here it fires when the stopper
 //   shuts the last number, ending the half on that dart.
 
-import { currentPlayer } from '../game-helpers.js';
+import { currentPlayer, createTurnEndCallout } from '../game-helpers.js';
 import { buildNumbers, dartMarks, numberValue } from '../cricket-marks.js';
 
 export function createScram({
@@ -142,6 +142,18 @@ export function createScram({
         return { state, event: 'half', callouts: [] };
     }
 
+    // The scorer's running total belongs to the turn that just ended.
+    const turnEnd = createTurnEndCallout();
+
+    // End of the scorer's turn (last dart landed): call their running score now,
+    // not on the switch. Only the scorer scores, so the stopper stays silent.
+    function scorerTurnEnd(idx, isStopper) {
+        if (isStopper || state.turn.darts.length < dartsPerTurn) {
+            return [];
+        }
+        return [turnEnd.onTurnEnd(() => ({ type: 'remaining', value: state.players[idx].score }))];
+    }
+
     function onDart(ring, segment) {
         // Dart didn't count (game over, or turn already complete/locked) —
         // 'ignored' lets the UI skip audio while LEDs still flash.
@@ -159,7 +171,7 @@ export function createScram({
         // Not a target number → nothing happens
         if (!hit) {
             state.turn.darts.push({ ring, segment, hit: false, points: 0 });
-            return { state, event: 'miss', callouts: [] };
+            return { state, event: 'miss', callouts: scorerTurnEnd(idx, isStopper) };
         }
 
         const { number, marks: hitMarks } = hit;
@@ -185,7 +197,7 @@ export function createScram({
         state.players[idx].score += points;
         state.turn.darts.push({ ring, segment, hit: true, number, marks: hitMarks, points });
         refreshTargets();
-        return { state, event: null, callouts: [] };
+        return { state, event: null, callouts: scorerTurnEnd(idx, false) };
     }
 
     // Pure rotation now: the half only ever ends on a closing dart (endHalf),
@@ -193,11 +205,13 @@ export function createScram({
     function nextPlayer() {
         const leavingIdx = state.currentPlayerIndex;
         currentPlayer(state).lastDarts = state.turn.darts.slice(); // keep visible until their next turn
-        // Call the scorer's running total after their turn (numbers only); the
-        // stopper wasn't scoring, so stay silent on their turn.
-        const callouts = leavingIdx === state.stopperIndex
-            ? []
-            : [{ type: 'remaining', value: state.players[leavingIdx].score }];
+        // The scorer's running total was called on their last dart; here it's only
+        // the fallback for an undetected last dart. The stopper wasn't scoring, so
+        // stays silent either way.
+        const scoreCall = leavingIdx === state.stopperIndex
+            ? null
+            : turnEnd.onSwitch(() => ({ type: 'remaining', value: state.players[leavingIdx].score }));
+        const callouts = scoreCall ? [scoreCall] : [];
         state.turn = { darts: [], locked: false };
         state.currentPlayerIndex = otherIndex(state.currentPlayerIndex);
         refreshTargets();
