@@ -7,7 +7,7 @@
 // for the rest of the game and can't win. With elimination off, scores may go
 // negative and everyone plays the whole card. Highest total wins.
 
-import { currentPlayer } from '../game-helpers.js';
+import { currentPlayer, createTurnEndCallout } from '../game-helpers.js';
 
 // Each entry is the DOUBLE of that number; 'bull' = the double bull.
 const SEQUENCE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 'bull'];
@@ -80,6 +80,13 @@ export function createBobs27({
         state.targetSegments = typeof state.target === 'number' ? [state.target] : [];
     }
 
+    // The current target as a spoken number, or null on the bull round (no clean
+    // number to say numbers-only). Doubles-only is implicit, so a bare "four"
+    // means D4 — matching the lit segment.
+    function targetCallout() {
+        return typeof state.target === 'number' ? { type: 'target', value: state.target } : null;
+    }
+
     function activeCount() {
         return state.players.filter((p) => !p.out).length;
     }
@@ -104,6 +111,28 @@ export function createBobs27({
         return tie ? null : bestIdx;
     }
 
+    // The turn's result belongs to the turn that just ended.
+    const turnEnd = createTurnEndCallout();
+
+    // Resolve the current player's completed turn: a full miss subtracts the
+    // target's value (hits banked per dart), and dropping to 0 or below is
+    // elimination. Returns the round-end callout — the loss sting when they're
+    // knocked out, otherwise their new total. Runs once per turn (last dart, or
+    // switch fallback) via createTurnEndCallout, so the penalty can't double-apply.
+    function resolveTurn() {
+        const p = currentPlayer(state);
+        if (state.turn.roundHits === 0) {
+            p.score -= missPenalty(state.target, bullMode);
+        }
+        if (elimination && p.score <= 0) {
+            p.out = true;
+            return { type: 'eliminated' };
+        }
+        // With elimination off a score can sit below zero — the audio layer
+        // refuses to speak negatives, so nothing is announced until it recovers.
+        return { type: 'remaining', value: p.score };
+    }
+
     function onDart(ring, segment) {
         // Dart didn't count (game over, or turn already complete/locked) —
         // 'ignored' lets the UI skip audio while LEDs still flash.
@@ -122,27 +151,27 @@ export function createBobs27({
         }
         state.turn.darts.push({ ring, segment, hit, points });
 
-        return { state, event: hit ? null : 'miss', callouts: [] };
+        // End of turn (last dart landed): resolve the penalty/elimination and
+        // announce now, not on the switch.
+        const callouts = [];
+        if (state.turn.darts.length >= dartsPerTurn) {
+            callouts.push(turnEnd.onTurnEnd(resolveTurn));
+        }
+        return { state, event: hit ? null : 'miss', callouts };
     }
 
     function nextPlayer() {
         const leaving = currentPlayer(state);
 
-        // Full miss: no dart landed on the round's target, so its value is
-        // subtracted (points were banked per dart when they did hit).
-        if (state.turn.roundHits === 0) {
-            leaving.score -= missPenalty(state.target, bullMode);
-        }
-        // Elimination: drop to 0 or below and you're out for the rest of the game.
-        if (elimination && leaving.score <= 0) {
-            leaving.out = true;
-        }
+        // The turn was resolved on the last dart; here it's the fallback for an
+        // undetected last dart. resolveTurn applies the penalty/elimination, so it
+        // must run (for its side effects) before the win checks read the score.
+        const endCall = turnEnd.onSwitch(resolveTurn);
 
         leaving.lastDarts = state.turn.darts.slice(); // keep visible until their next turn
         state.turn = { darts: [], locked: false, roundHits: 0 };
 
-        // Announce the leaving player's new total — numbers only (see getCallouts).
-        const callouts = [{ type: 'remaining', value: leaving.score }];
+        const callouts = endCall ? [endCall] : [];
 
         state.turnsThisRound++;
 
@@ -187,13 +216,20 @@ export function createBobs27({
 
         state.target = targetFor(state.round);
         refreshTargets();
+        // Announce the incoming player's target (see targetCallout).
+        const targetCall = targetCallout();
+        if (targetCall) {
+            callouts.push(targetCall);
+        }
         return { state, event: 'switch', callouts };
     }
 
-    // No opening callout — announcing a bare "double" is ambiguous, and the audio
-    // engine speaks numbers only (turn-end score callouts come from nextPlayer).
+    // Opening callout: the first player's target as a bare number (doubles-only
+    // is implicit). Turn-end score callouts come from resolveTurn, on the last
+    // dart — not here.
     function getCallouts() {
-        return [];
+        const targetCall = targetCallout();
+        return targetCall ? [targetCall] : [];
     }
 
     // Big heads-up label: the current target as a short board label — 'D6' for a

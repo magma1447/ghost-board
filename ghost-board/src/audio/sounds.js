@@ -243,6 +243,16 @@ export function playWin() {
     }
 }
 
+// A downcast, sinking sting for a player being knocked out (Bob's 27
+// elimination) — spoken totals can't say "out", so a sound stands in.
+// Theme-independent so a loss always reads the same.
+export function playLost() {
+    ensureAudio();
+    const t = getCtx().currentTime;
+    tone(t, 0.55, 330, 'sawtooth', 0.22, 110); // slow downward droop
+    tone(t + 0.06, 0.55, 165, 'triangle', 0.16, 55); // low body underneath
+}
+
 // Cool rising power-up arpeggio with a sparkle on top — Cat and Mouse sprint.
 // Theme-independent so the bonus always sounds special.
 export function playSprint() {
@@ -313,6 +323,13 @@ function applyVoice(utterance) {
 
 export function speakScore(points) {
     if (!window.speechSynthesis) {
+        return;
+    }
+    // Numbers only — and never a negative. The engine would render "-3" as a
+    // word ("minus three") that varies by language, defeating numbers-only. A
+    // negative reaching here means a game let one through; stay silent rather
+    // than mis-speak it (a monitoring hook would ideally report it).
+    if (typeof points !== 'number' || !Number.isFinite(points) || points < 0) {
         return;
     }
     window.speechSynthesis.cancel();

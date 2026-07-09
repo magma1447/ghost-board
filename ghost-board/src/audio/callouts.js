@@ -14,7 +14,7 @@
 // Each new dart cancels any pending callouts to avoid overlap.
 
 import { settings } from '../state/settings.js';
-import { playChime, speakScore } from './sounds.js';
+import { playChime, speakScore, playLost } from './sounds.js';
 
 const pendingCallouts = [];
 
@@ -36,21 +36,34 @@ export function processCallouts(callouts) {
     let delay = 0;
 
     for (const c of callouts) {
-    // Skip callout types the user has disabled in settings
+        // The round hand-off callouts — a leaving player's running total
+        // ('remaining'), their knock-out sting ('eliminated'), and the incoming
+        // player's target number ('target') — share the 'remaining' toggle and
+        // the same spacing.
+        const roundHandoff = c.type === 'remaining' || c.type === 'eliminated' || c.type === 'target';
+
+        // Skip callout types the user has disabled in settings
         if (c.type === 'turnTotal' && !audio.callTurnTotal) {
             continue;
         }
-        if (c.type === 'remaining' && !audio.callRemaining) {
+        if (roundHandoff && !audio.callRemaining) {
             continue;
         }
         if (c.type === 'checkout' && !audio.callCheckout) {
             continue;
         }
 
-        // Add a pause before 'remaining' if a previous callout was already queued
+        // Add a pause before a hand-off callout if something was already queued
         // (e.g. turn total was spoken first — need a gap so they don't blend)
-        if (c.type === 'remaining' && delay > 0) {
+        if (roundHandoff && delay > 0) {
             delay += 1000;
+        }
+
+        // A knocked-out player gets the loss sting instead of a spoken total.
+        if (c.type === 'eliminated') {
+            pendingCallouts.push(setTimeout(() => playLost(), delay));
+            delay += 1500;
+            continue;
         }
 
         // 'remaining' callouts get a chime sound before the spoken number

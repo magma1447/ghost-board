@@ -51,6 +51,15 @@ export function createCricket({
     // Running-score announcement belongs to the turn that just ended.
     const turnEnd = createTurnEndCallout();
 
+    // End of turn (last dart landed, hit or miss): call the running score now,
+    // not on the switch. The Simple variant keeps no score, so it stays silent.
+    function turnEndCallouts() {
+        if (variant === 'simple' || state.turn.darts.length < dartsPerTurn) {
+            return [];
+        }
+        return [turnEnd.onTurnEnd(() => ({ type: 'remaining', value: currentPlayer(state).score }))];
+    }
+
     const isClosed = (p, n) => p.marks[n] >= 3;
     // Read state.numbers (not the construction-time array) so a restored game —
     // e.g. a Random set from before a reload — uses the right targets.
@@ -106,7 +115,7 @@ export function createCricket({
         // Not a target number → nothing happens
         if (!hit) {
             state.turn.darts.push({ ring, segment, hit: false, points: 0 });
-            return { state, event: 'miss', callouts: [] };
+            return { state, event: 'miss', callouts: turnEndCallouts() };
         }
 
         const { number, marks } = hit;
@@ -148,13 +157,7 @@ export function createCricket({
             return { state, event: 'win', callouts: [] };
         }
 
-        // End of turn (last dart landed): call the running score now, not on the
-        // switch. The Simple variant keeps no score, so it stays silent.
-        const callouts = [];
-        if (variant !== 'simple' && state.turn.darts.length >= dartsPerTurn) {
-            callouts.push(turnEnd.onTurnEnd(() => ({ type: 'remaining', value: player.score })));
-        }
-        return { state, event: null, callouts };
+        return { state, event: null, callouts: turnEndCallouts() };
     }
 
     function nextPlayer() {

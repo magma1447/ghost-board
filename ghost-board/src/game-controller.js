@@ -636,6 +636,10 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                     board.clearHighlight();
                 } else if (gameEvent === 'bust' || gameEvent === 'miss') {
                     playBust();
+                    // A miss can still be a turn's last dart, carrying its
+                    // end-of-turn callout (e.g. the running total) — play it after
+                    // the thud. Busts carry none, so this is a no-op there.
+                    processCallouts(callouts);
                 } else if (gameEvent === 'win') {
                     playWin();
                 } else if (gameEvent === 'sprint') {
