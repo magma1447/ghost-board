@@ -50,7 +50,7 @@ export default defineConfig({
                 description: 'Web interface for Granboard electronic dartboards',
                 theme_color: '#1a1a1a',
                 background_color: '#1a1a1a',
-                display: 'standalone',
+                display: 'fullscreen',
                 orientation: 'any',
                 start_url: '/',
                 icons: [

@@ -22,6 +22,7 @@ import { createWinDisplay } from './ui/win-display.js';
 import { createBoardHeadline } from './ui/board-headline.js';
 import { createGameController } from './game-controller.js';
 import { createVersionTag } from './ui/version-tag.js';
+import { requestImmersiveFullscreen } from './ui/fullscreen.js';
 
 const app = document.getElementById('app');
 
@@ -331,3 +332,7 @@ function onStatus({ status, detail }) {
 const ble = createConnection(controller.handleEvent, onStatus);
 // The physical board is the other LED output (encodes → BLE).
 registerLedOutput(createPhysicalLeds((data) => ble.write(data)), { physical: true });
+
+// On touch, drop into immersive full-screen on the first interaction — covers a
+// reload straight into the app, where the landing's Enter gesture is skipped.
+window.addEventListener('pointerdown', requestImmersiveFullscreen, { once: true });

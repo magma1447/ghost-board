@@ -6,6 +6,7 @@
 import './landing.css';
 import { GAMES } from './games/registry.js';
 import { createVersionTag } from './ui/version-tag.js';
+import { requestImmersiveFullscreen } from './ui/fullscreen.js';
 
 const TAGLINE = 'Play darts on your Granboard — scored, lit, and called out.';
 
@@ -113,6 +114,7 @@ export function renderLanding(onContinue) {
     // listener as we leave so it doesn't linger into the app.
     function activate() {
         window.removeEventListener('keydown', onKey);
+        requestImmersiveFullscreen(); // touch: go immersive on the way in (Enter is the gesture)
         onContinue();
     }
     function onKey(e) {
