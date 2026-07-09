@@ -161,14 +161,14 @@ export function createCatAndMouse({
         // set — reset the darts so the same player keeps throwing.
         if (sprint && state.turn.darts.length >= dartsPerTurn && state.turn.darts.every((d) => d.hit)) {
             state.turn.darts = [];
-            return { state, event: 'sprint', callouts: [] };
+            // The same player throws on — call the target for the bonus darts (#82).
+            return { state, event: 'sprint', callouts: [{ type: 'target', value: player.currentTarget }] };
         }
 
-        // Call out next target (not on last dart)
-        const callouts = [];
-        if (state.turn.darts.length < dartsPerTurn) {
-            callouts.push({ type: 'target', value: player.currentTarget });
-        }
+        // Call out the new target after every advancing hit, the last dart
+        // included — the thrower hears their advance, not just the incoming
+        // player's target on the switch (#82).
+        const callouts = [{ type: 'target', value: player.currentTarget }];
         return { state, event: null, callouts };
     }
 

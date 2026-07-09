@@ -121,11 +121,10 @@ export function createAroundTheClock({
             return { state, event: 'win', callouts: [] };
         }
 
-        // Call out the next target (but not on last dart — switch will handle it)
-        const callouts = [];
-        if (state.turn.darts.length < dartsPerTurn) {
-            callouts.push({ type: 'target', value: formatTarget(player.currentTarget) });
-        }
+        // Call out the new target after every advancing hit, the last dart
+        // included — the thrower hears where they got to, not just the incoming
+        // player's target on the switch (#82).
+        const callouts = [{ type: 'target', value: formatTarget(player.currentTarget) }];
         return { state, event: null, callouts };
     }
 

@@ -653,6 +653,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                     // Perfect set in Cat and Mouse — earned another three darts
                     playSprint();
                     log.logEvent('Sprint — three more darts', 'game');
+                    processCallouts(callouts); // the target for the bonus darts
                 } else {
                     playHit(event.ring);
                     processCallouts(callouts);
