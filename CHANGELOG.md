@@ -2,6 +2,18 @@
 
 Notable changes to Ghost Board, newest first. Version numbers follow [semantic versioning](https://semver.org/): new features bump the middle number, fixes bump the last.
 
+## 0.7.3 — 2026-07-09
+
+### Changed
+- Your turn score is now called out the moment your final dart lands, instead of only when the next player starts.
+- Target numbers get their own callout sound, so a target no longer sounds like a score.
+- Bob's 27 now calls the target at the start of each turn, and sounds a knockout when a player is out.
+- Half It now calls your running total at the end of your turn.
+- Killer shows each player's status — Killer / Not armed / Out — next to their name.
+
+### Fixed
+- Killer: a player knocked back below the arming threshold now correctly loses Killer status and rebuilds — hitting your own number adds a life again, instead of costing one.
+
 ## 0.7.2 — 2026-07-09
 
 ### Fixed
