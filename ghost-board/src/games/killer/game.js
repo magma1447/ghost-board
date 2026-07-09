@@ -6,7 +6,9 @@
 //   standard        — count-up, any ring. Hit your own number to gain lives
 //                     (single/double/treble = +1/+2/+3, capped at the lives
 //                     value); reach the cap to become a killer. As a killer,
-//                     hitting an opponent's number removes 1/2/3.
+//                     hitting an opponent's number removes 1/2/3. Losing a life
+//                     — attacked, or self-kill — drops you below the cap, so you
+//                     revert to a non-killer and must re-earn it.
 //   double-trouble  — doubles only. Your double arms you; an opponent's double
 //                     costs them one life. Other rings on a number do nothing.
 //   treble-trouble  — the same, but the treble is the qualifying ring.
@@ -243,19 +245,23 @@ export function createKiller({
                 if (!me.killer) {
                     // Count up toward the cap; reaching it arms you.
                     me.lives = Math.min(state.cap, me.lives + m);
-                    if (me.lives >= state.cap) {
-                        me.killer = true;
-                    }
+                    me.killer = me.lives >= state.cap;
                     hit = true;
                     event = null;
                 } else if (selfKill) {
-                    // Already a killer: hitting your own number costs you.
+                    // Already a killer: hitting your own number costs you, which
+                    // drops you below the cap — so you're no longer a killer and
+                    // must climb back to it.
                     me.lives -= m;
+                    me.killer = me.lives >= state.cap;
                     hit = true;
                     event = checkElimination(me);
                 }
             } else if (owner && me.killer) {
+                // Attack an opponent's number: any life they lose reverts them to
+                // a non-killer (they re-earn back up to the cap).
                 owner.lives -= m;
+                owner.killer = owner.lives >= state.cap;
                 hit = true;
                 event = checkElimination(owner);
             }
