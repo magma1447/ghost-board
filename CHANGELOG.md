@@ -2,6 +2,11 @@
 
 Notable changes to Ghost Board, newest first. Version numbers follow [semantic versioning](https://semver.org/): new features bump the middle number, fixes bump the last.
 
+## 0.7.2 — 2026-07-09
+
+### Fixed
+- On phones and tablets the app now uses the whole screen — the status and navigation bars are hidden (immersive full-screen), instead of being left showing.
+
 ## 0.7.1 — 2026-07-09
 
 ### Fixed
