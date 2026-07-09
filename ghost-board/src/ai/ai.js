@@ -13,6 +13,7 @@
 // Custom profiles later — see #68.
 
 import { BOARD_ORDER, RADII } from '../board/segments.js';
+import { checkoutFor } from '../games/x01/checkout-sequence.js';
 
 // level → skill constants.
 //   scatterHorizontal/Vertical  std-dev of aim error (mm); horizontal tighter
@@ -125,8 +126,67 @@ function aroundTheClockAim(state, profile) {
     return { segment: target, radius: RING_RADIUS.any };
 }
 
+// Convert an X01 checkout label ('T20', 'D20', '25', 'D-Bull', '9') to an aim.
+function checkoutAim(label) {
+    if (label === 'D-Bull' || label === '25') {
+        return { segment: 25, radius: RING_RADIUS.bull };
+    }
+    if (label[0] === 'T') {
+        return { segment: parseInt(label.slice(1), 10), radius: RING_RADIUS.treble };
+    }
+    if (label[0] === 'D') {
+        return { segment: parseInt(label.slice(1), 10), radius: RING_RADIUS.double };
+    }
+    return { segment: parseInt(label, 10), radius: RING_RADIUS.any }; // plain single
+}
+
+// A single (1–20) to leave a friendly even leftover — a double to sit on — when
+// this dart can't finish under double-out and a treble would bust or leave a
+// dead 1. Prefers to leave 40 (D20); otherwise keeps the leftover even.
+function setupSingle(score) {
+    if (score - 40 >= 1 && score - 40 <= 20) {
+        return score - 40; // leave 40 → D20
+    }
+    for (let k = 20; k >= 1; k--) {
+        const left = score - k;
+        if (left >= 2 && left % 2 === 0) {
+            return k; // biggest single leaving an even number ≥ 2
+        }
+    }
+    return 1;
+}
+
+// X01: hammer the treble 20 while the finish is out of reach; once a checkout
+// fits the darts left, aim its first dart — the shared solver's path sets up
+// and lands on the double. With no finish and a low score, set up a double
+// rather than bust.
+function x01Aim(state) {
+    const index = state.currentPlayerIndex;
+    const { doubleIn, doubleOut } = state.options;
+
+    // Double-in and not yet opened: a double opens you (and scores). D20 = 40.
+    if (doubleIn && state.opened && !state.opened[index]) {
+        return { segment: 20, radius: RING_RADIUS.double };
+    }
+
+    // A finish that fits the darts remaining → aim its first dart.
+    const path = checkoutFor(state);
+    if (path && path.length > 0) {
+        return checkoutAim(path[0]);
+    }
+
+    // No finish this visit: treble 20 while it's safe; near the end, set up a
+    // double instead of busting or leaving a dead number.
+    const score = state.players[index].score;
+    if (!doubleOut || score > 61) {
+        return { segment: 20, radius: RING_RADIUS.treble };
+    }
+    return { segment: setupSingle(score), radius: RING_RADIUS.any };
+}
+
 const STRATEGIES = {
     'around-the-clock': aroundTheClockAim,
+    'x01': x01Aim,
 };
 
 // One AI dart: the scored { ring, segment } plus the aim and landing points

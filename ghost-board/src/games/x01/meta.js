@@ -10,7 +10,7 @@ export const meta = {
     rulesComplexity: 3,
     tags: ['scoring', 'classic'],
     scoringStyle: 'Count down',
-    supportsAi: false,
+    supportsAi: true,
     options: {
         startingScore: 'The score each player counts down from.',
         doubleIn: 'Darts only start counting after you hit a double.',

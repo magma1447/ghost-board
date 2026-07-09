@@ -233,7 +233,11 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         // when the AI is genuinely done, and a mistimed press can't skip anyone.
         const g = getGame();
         const gs = g && g.getState();
-        const aiTurnUnfinished = gs && !gs.isGameOver && currentAiLevel() !== null && gs.turn.darts.length < gs.dartsPerTurn;
+        // A locked turn is finished, not unfinished — a bust locks the turn with
+        // fewer than dartsPerTurn darts, and without this it would look resumable
+        // and the AI would loop (resume → hit the locked turn → resume → …).
+        const aiTurnUnfinished = gs && !gs.isGameOver && currentAiLevel() !== null
+            && !gs.turn.locked && gs.turn.darts.length < gs.dartsPerTurn;
         if (aiTurnUnfinished) {
             maybeRunAiTurn();
             return;
@@ -579,7 +583,10 @@ export function createGameController({ gameArea, board, headline, log, winDispla
             stopAiThrowing(); // the winning dart was already handled
             return;
         }
-        if (state.turn.darts.length >= state.dartsPerTurn) {
+        // Turn's over — all darts thrown, or the turn locked early (an X01 bust
+        // leaves fewer darts but no more may be thrown). Advance the same way a
+        // human would with the Next Player button.
+        if (state.turn.locked || state.turn.darts.length >= state.dartsPerTurn) {
             stopAiThrowing(); // release before advancing (may chain to the next AI)
             handleEvent({ type: 'button', _ai: true });
             return;
