@@ -140,20 +140,51 @@ function checkoutAim(label) {
     return { segment: parseInt(label, 10), radius: RING_RADIUS.any }; // plain single
 }
 
-// A single (1–20) to leave a friendly even leftover — a double to sit on — when
-// this dart can't finish under double-out and a treble would bust or leave a
-// dead 1. Prefers to leave 40 (D20); otherwise keeps the leftover even.
-function setupSingle(score) {
-    if (score - 40 >= 1 && score - 40 <= 20) {
-        return score - 40; // leave 40 → D20
+// Value a leftover for the next visit (higher = better) so the fallback picks a
+// shot that never busts and leaves the most out-chances for next time. Prefer
+// sitting on a friendly, forgiving double — 40 and 32 are the classics, then any
+// direct double (≤ 40 even), then any even, then odd. Applies to both finishes:
+// leaving 40 beats 39 either way (D20 / 20+20, and misses stay outable). A dead 1
+// is forbidden under double-out; it's fine under any-out (finish on S1).
+function layupValue(left, doubleOut) {
+    if (left <= 0) {
+        return -Infinity; // a bust, or 0 with no finish available
     }
-    for (let k = 20; k >= 1; k--) {
-        const left = score - k;
-        if (left >= 2 && left % 2 === 0) {
-            return k; // biggest single leaving an even number ≥ 2
+    if (doubleOut && left === 1) {
+        return -Infinity; // dead — 1 can't be finished on a double
+    }
+    if (left === 40) {
+        return 5000;
+    }
+    if (left === 32) {
+        return 4900;
+    }
+    if (left <= 40 && left % 2 === 0) {
+        return 4000 + left; // a direct double; the bigger the easier to hit
+    }
+    if (left % 2 === 0) {
+        return 2000 - left; // even but needs two darts; smaller is closer
+    }
+    return 1000 - left; // odd — least preferred
+}
+
+// Fallback aim when no finish fits the darts remaining: pick the shot that never
+// busts and leaves the best position. Candidates are the singles (precise
+// lay-ups) plus the treble 20 (fastest score-down); the scatter model handles
+// the risk of the chosen target.
+function fallbackAim(score, doubleOut) {
+    let best = { segment: 20, radius: RING_RADIUS.any, value: -Infinity };
+    const consider = (segment, radius, shotValue) => {
+        const value = layupValue(score - shotValue, doubleOut);
+        if (value > best.value) {
+            best = { segment, radius, value };
         }
+    };
+    for (let n = 1; n <= 20; n++) {
+        consider(n, RING_RADIUS.any, n); // single n — a precise lay-up
     }
-    return 1;
+    consider(20, RING_RADIUS.treble, 60); // treble 20 — fastest score-down
+    return { segment: best.segment, radius: best.radius };
 }
 
 // X01: hammer the treble 20 while the finish is out of reach; once a checkout
@@ -175,13 +206,8 @@ function x01Aim(state) {
         return checkoutAim(path[0]);
     }
 
-    // No finish this visit: treble 20 while it's safe; near the end, set up a
-    // double instead of busting or leaving a dead number.
-    const score = state.players[index].score;
-    if (!doubleOut || score > 61) {
-        return { segment: 20, radius: RING_RADIUS.treble };
-    }
-    return { segment: setupSingle(score), radius: RING_RADIUS.any };
+    // No finish this visit: reduce without busting and lay up as well as we can.
+    return fallbackAim(state.players[index].score, doubleOut);
 }
 
 const STRATEGIES = {
