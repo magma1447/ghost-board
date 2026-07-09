@@ -138,13 +138,13 @@ export function createShanghai({
         state.target = targetForRound(state.round);
         state.targetSegments = [state.target];
 
-        const callouts = state.isGameOver ? [] : [{ type: 'remaining', value: state.target }];
+        const callouts = state.isGameOver ? [] : [{ type: 'target', value: state.target }];
         return { state, event: 'switch', callouts };
     }
 
     // First player never gets a nextPlayer() call — announce the opening target.
     function getCallouts() {
-        return state.isGameOver ? [] : [{ type: 'remaining', value: state.target }];
+        return state.isGameOver ? [] : [{ type: 'target', value: state.target }];
     }
 
     // Big heads-up number: the number to aim at this round.

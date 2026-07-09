@@ -107,7 +107,7 @@ export function createCatAndMouse({
 
         if (!state.isGameOver) {
             const player = currentPlayer(state);
-            callouts.push({ type: 'remaining', value: player.currentTarget });
+            callouts.push({ type: 'target', value: player.currentTarget });
         }
 
         return { state, event: endEvent || 'switch', callouts };
@@ -167,7 +167,7 @@ export function createCatAndMouse({
         // Call out next target (not on last dart)
         const callouts = [];
         if (state.turn.darts.length < dartsPerTurn) {
-            callouts.push({ type: 'checkout', value: player.currentTarget });
+            callouts.push({ type: 'target', value: player.currentTarget });
         }
         return { state, event: null, callouts };
     }
@@ -176,7 +176,7 @@ export function createCatAndMouse({
         if (state.isGameOver) {
             return [];
         }
-        return [{ type: 'remaining', value: currentPlayer(state).currentTarget }];
+        return [{ type: 'target', value: currentPlayer(state).currentTarget }];
     }
 
     function getState() {

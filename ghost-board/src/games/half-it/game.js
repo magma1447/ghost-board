@@ -148,7 +148,7 @@ export function createHalfIt({
         refreshTargets();
         // Call the target to the incoming player — numbers only (see getCallouts).
         const callouts = typeof state.target === 'number'
-            ? [{ type: 'remaining', value: state.target }]
+            ? [{ type: 'target', value: state.target }]
             : [];
         return { state, event: 'switch', callouts };
     }
@@ -157,7 +157,7 @@ export function createHalfIt({
     // numbers (a non-English voice would mangle "double"), so the double/treble/
     // bull rounds stay silent.
     function getCallouts() {
-        return typeof state.target === 'number' ? [{ type: 'remaining', value: state.target }] : [];
+        return typeof state.target === 'number' ? [{ type: 'target', value: state.target }] : [];
     }
 
     // Big heads-up label: the current target, kept short so it fits the board —

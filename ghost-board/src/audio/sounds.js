@@ -225,6 +225,15 @@ export function playChime() {
     tone(t, 0.15, 1800, 'sine', 0.1);
 }
 
+// A soft rising cue that leads a spoken target number — deliberately unlike the
+// score-chime (playChime, a bright double sine) so "aim here" never sounds like
+// "your points".
+export function playTargetCue() {
+    ensureAudio();
+    const t = getCtx().currentTime;
+    tone(t, 0.16, 520, 'triangle', 0.18, 780); // gentle upward "aim" pip
+}
+
 export function playBust() {
     ensureAudio();
     const t = getCtx().currentTime;

@@ -149,12 +149,12 @@ export function createSimonSays({
 
         updateTargetSegments();
 
-        // Announce all 3 targets: chime + first number, then second and third
+        // Announce all 3 targets in sequence, as spoken numbers.
         const callouts = [];
         if (!state.isGameOver) {
-            callouts.push({ type: 'remaining', value: state.sequence[0] });
-            callouts.push({ type: 'checkout', value: state.sequence[1] });
-            callouts.push({ type: 'checkout', value: state.sequence[2] });
+            callouts.push({ type: 'target', value: state.sequence[0] });
+            callouts.push({ type: 'target', value: state.sequence[1] });
+            callouts.push({ type: 'target', value: state.sequence[2] });
         }
 
         return { state, event: 'switch', callouts };
@@ -166,9 +166,9 @@ export function createSimonSays({
             return [];
         }
         return [
-            { type: 'remaining', value: state.sequence[0] },
-            { type: 'checkout', value: state.sequence[1] },
-            { type: 'checkout', value: state.sequence[2] },
+            { type: 'target', value: state.sequence[0] },
+            { type: 'target', value: state.sequence[1] },
+            { type: 'target', value: state.sequence[2] },
         ];
     }
 

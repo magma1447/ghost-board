@@ -1,20 +1,25 @@
 // Spoken callout scheduler.
 //
-// Games return callout arrays from onDart() and nextPlayer(). Each callout has
-// a type ('turnTotal', 'remaining', 'checkout') and a numeric value to speak.
-// processCallouts() schedules them as timed speech events, respecting user
-// settings.
+// Games return callout arrays from onDart() and nextPlayer(); processCallouts()
+// schedules them as timed speech events, respecting user settings. Each callout
+// has a type and a numeric value to speak. The vocabulary — one type per meaning:
+//   'turnTotal'  — points scored this turn (end of round). Gated by Call turn total.
+//   'remaining'  — a score you track: points left, or a running total (end of a
+//                  turn) / the incoming player's score (start). Chime, then number.
+//                  Gated by Call remaining.
+//   'target'     — the number you're aiming at (start of round / next-target
+//                  prompt). Its own cue (playTargetCue), distinct from the score
+//                  chime. Shares the Call remaining toggle.
+//   'eliminated' — a player knocked out: a loss sting instead of a spoken score.
+//                  Shares the Call remaining toggle.
+//   'checkout'   — X01 finishable-score prompt. Gated by Call checkout.
 //
-// Timing sequence for a player switch with turn total enabled:
-//   0ms:    speak turn total (e.g. "sixty")
-//   1500ms: extra gap before remaining score
-//   2500ms: play chime
-//   2900ms: speak remaining (e.g. "three oh one")
-//
-// Each new dart cancels any pending callouts to avoid overlap.
+// Timing: same-type callouts flow at base spacing (e.g. a Simon target sequence);
+// a different type gets an extra gap so they don't blend. A new dart cancels any
+// pending callouts to avoid overlap.
 
 import { settings } from '../state/settings.js';
-import { playChime, speakScore, playLost } from './sounds.js';
+import { playChime, playTargetCue, speakScore, playLost } from './sounds.js';
 
 const pendingCallouts = [];
 
@@ -34,6 +39,7 @@ export function processCallouts(callouts) {
 
     const audio = settings().audio;
     let delay = 0;
+    let prevType = null; // last emitted callout type, for cross-type spacing
 
     for (const c of callouts) {
         // The round hand-off callouts — a leaving player's running total
@@ -53,9 +59,13 @@ export function processCallouts(callouts) {
             continue;
         }
 
-        // Add a pause before a hand-off callout if something was already queued
-        // (e.g. turn total was spoken first — need a gap so they don't blend)
-        if (roundHandoff && delay > 0) {
+        // Add a pause before a hand-off callout only when it follows a DIFFERENT
+        // callout type (e.g. turn total → remaining — need a gap so they don't
+        // blend). Consecutive same-type callouts — a Simon target sequence — flow
+        // at the base spacing.
+        const sameAsPrev = prevType === c.type;
+        prevType = c.type;
+        if (roundHandoff && delay > 0 && !sameAsPrev) {
             delay += 1000;
         }
 
@@ -66,9 +76,13 @@ export function processCallouts(callouts) {
             continue;
         }
 
-        // 'remaining' callouts get a chime sound before the spoken number
+        // A score ('remaining') gets the chime; a 'target' gets its own cue —
+        // once, at the head of a target run, so a Simon sequence flows after it.
         if (c.type === 'remaining') {
             pendingCallouts.push(setTimeout(() => playChime(), delay));
+            delay += 400;
+        } else if (c.type === 'target' && !sameAsPrev) {
+            pendingCallouts.push(setTimeout(() => playTargetCue(), delay));
             delay += 400;
         }
 

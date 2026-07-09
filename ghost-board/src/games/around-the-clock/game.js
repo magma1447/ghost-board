@@ -82,7 +82,7 @@ export function createAroundTheClock({
         const drawEvent = advancePlayerBase(state, maxRounds);
 
         if (!state.isGameOver) {
-            callouts.push({ type: 'remaining', value: formatTarget(currentPlayer(state).currentTarget) });
+            callouts.push({ type: 'target', value: formatTarget(currentPlayer(state).currentTarget) });
         }
 
         return { state, event: drawEvent || 'switch', callouts };
@@ -124,7 +124,7 @@ export function createAroundTheClock({
         // Call out the next target (but not on last dart — switch will handle it)
         const callouts = [];
         if (state.turn.darts.length < dartsPerTurn) {
-            callouts.push({ type: 'checkout', value: formatTarget(player.currentTarget) });
+            callouts.push({ type: 'target', value: formatTarget(player.currentTarget) });
         }
         return { state, event: null, callouts };
     }
@@ -133,7 +133,7 @@ export function createAroundTheClock({
         if (state.isGameOver) {
             return [];
         }
-        return [{ type: 'remaining', value: formatTarget(currentPlayer(state).currentTarget) }];
+        return [{ type: 'target', value: formatTarget(currentPlayer(state).currentTarget) }];
     }
 
     function getState() {
