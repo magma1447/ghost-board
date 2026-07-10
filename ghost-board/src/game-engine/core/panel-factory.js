@@ -13,7 +13,7 @@
 import './game-panel.css';
 import '../../ui/common/menu.css';
 import { formatDart } from '../shared/format.js';
-import { createPlayer } from '../../state/players.js';
+import { createPlayer, teamMembersOf } from '../../state/players.js';
 import { isMatchPlay, matchPositionLabel, playerMatchLabel, matchRanks } from './match.js';
 import { openMatchHistory } from '../../ui/match-history.js';
 import { openRules } from '../../ui/common/rules-dialog.js';
@@ -258,7 +258,15 @@ export function renderScoreboard(scoreboard, state, options = {}) {
 
         const name = document.createElement('span');
         name.className = 'game-player-name';
-        name.textContent = nameFor(p); // textContent — names are user-entered
+        // For a team slot, append whoever is up this turn — the turn layer stashes
+        // per-team rotation counters on the state as `teamTurns`.
+        let label = nameFor(p);
+        const members = teamMembersOf(p.uuid);
+        if (members && members.length) {
+            const turns = (state.teamTurns && state.teamTurns[p.uuid]) || 0;
+            label += ` — ${createPlayer(members[turns % members.length]).getName()}`;
+        }
+        name.textContent = label; // textContent — names are user-entered
 
         // With a sub-line (e.g. average), name + info stack on the left.
         if (infoFor) {

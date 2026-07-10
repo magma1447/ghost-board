@@ -7,6 +7,9 @@ const DEFAULTS = {
     players: [],
     // Last-used player selection (array of UUIDs), for pre-filling setup
     lastPlayers: [],
+    // Last-used team line-up ([{ name, members: [uuid] }]); [] = individuals.
+    // Re-seeds the setup roster so a team night carries over between games.
+    lastTeams: [],
     audio: {
         theme: 'impact',
         voice: '',

@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "lucide-static": "^1.22.0",
-    "marked": "^18.0.5"
+    "marked": "^18.0.5",
+    "sortablejs": "^1.15.7"
   },
   "devDependencies": {
     "eslint": "^9.28.0",

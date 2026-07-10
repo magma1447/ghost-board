@@ -9,7 +9,7 @@
 import { startGame, stopGame, getGame, getPanel } from './game-engine/core/manager.js';
 import { saveGame, loadGame, clearGame } from './state/game-store.js';
 import { settings } from './state/settings.js';
-import { createPlayer, aiLevelOf } from './state/players.js';
+import { createPlayer, aiLevelOf, teamMembersOf } from './state/players.js';
 import { aiThrow } from './ai/ai.js';
 import { calcPoints } from './ble/protocol.js';
 import { onHit as ledHit, onSwitch as ledSwitch, allOff as ledsOff, attract as ledsAttract } from './led-controller.js';
@@ -255,6 +255,13 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         playSwitch();
         ledSwitch();
         board.clearHighlight(); // don't carry the previous player's last hit over
+        // The leaving team advances to its next member for its next turn. The
+        // snapshot above captured the pre-advance value, so undo rolls it back.
+        const leavingState = game.getState();
+        const leavingUuid = leavingState.players[leavingState.currentPlayerIndex].uuid;
+        if (leavingState.teamTurns && leavingUuid in leavingState.teamTurns) {
+            leavingState.teamTurns[leavingUuid] += 1;
+        }
         const { state, event, callouts } = game.nextPlayer();
         // In match play a win (e.g. Cat and Mouse at the round limit) ends a leg,
         // not the whole match — suppress the generic banner and route it to the
@@ -267,7 +274,11 @@ export function createGameController({ gameArea, board, headline, log, winDispla
 
         logRound(state);
         if (event === 'switch') {
-            log.logEvent(`Player: ${playerLabel(state.players[state.currentPlayerIndex])}`, 'player');
+            const idx = state.currentPlayerIndex;
+            const memberUuid = currentMemberUuid(state, idx);
+            const memberNote = memberUuid !== state.players[idx].uuid
+                ? ` · ${createPlayer(memberUuid).getName()}` : '';
+            log.logEvent(`Player: ${playerLabel(state.players[idx])}${memberNote}`, 'player');
         } else if (matchWin) {
             handleMatchWin(state);
         } else {
@@ -330,6 +341,16 @@ export function createGameController({ gameArea, board, headline, log, winDispla
             onRematch: (op) => rematch(op),
             onUndo: undo,
         });
+        // Seed per-leg team member-rotation counters on the fresh state — each
+        // team-turn advances its counter, and the member up is members[n % len].
+        // A restore overlays the saved counters via loadState right afterwards.
+        const freshState = getGame().getState();
+        freshState.teamTurns = {};
+        for (const p of freshState.players) {
+            if (teamMembersOf(p.uuid)) {
+                freshState.teamTurns[p.uuid] = 0;
+            }
+        }
         refreshPanel();
         headline.update();
         winDisplay.hide();
@@ -544,14 +565,29 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         }, 1000);
     }
 
+    // The UUID actually throwing for a player slot: a team's current member
+    // (rotates each team-turn), or the player itself for an individual.
+    function currentMemberUuid(state, index) {
+        const player = state.players[index];
+        if (!player) {
+            return null;
+        }
+        const members = teamMembersOf(player.uuid);
+        if (members && members.length) {
+            const turns = (state.teamTurns && state.teamTurns[player.uuid]) || 0;
+            return members[turns % members.length];
+        }
+        return player.uuid;
+    }
+
     function currentAiLevel() {
         const game = getGame();
         if (!game) {
             return null;
         }
         const state = game.getState();
-        const player = state.players[state.currentPlayerIndex];
-        return player ? aiLevelOf(player.uuid) : null;
+        const uuid = currentMemberUuid(state, state.currentPlayerIndex);
+        return uuid ? aiLevelOf(uuid) : null;
     }
 
     function maybeRunAiTurn() {

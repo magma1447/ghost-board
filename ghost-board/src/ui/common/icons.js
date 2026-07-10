@@ -6,9 +6,10 @@
 
 import bluetooth from 'lucide-static/icons/bluetooth.svg?raw';
 import bookOpen from 'lucide-static/icons/book-open.svg?raw';
+import gripVertical from 'lucide-static/icons/grip-vertical.svg?raw';
 import heart from 'lucide-static/icons/heart.svg?raw';
 import settings from 'lucide-static/icons/settings.svg?raw';
 import target from 'lucide-static/icons/target.svg?raw';
 import user from 'lucide-static/icons/user.svg?raw';
 
-export const icons = { bluetooth, bookOpen, heart, settings, target, user };
+export const icons = { bluetooth, bookOpen, gripVertical, heart, settings, target, user };

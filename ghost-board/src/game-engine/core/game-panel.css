@@ -318,18 +318,66 @@
     flex: 1;
 }
 
-.game-roster-ai {
+.game-roster-ai,
+.game-roster-player {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     flex: 1;
 }
 
-.game-roster-ai-badge {
+/* Row-type label (Team / Player / AI), fixed width so the selects line up */
+.game-roster-role {
+    flex: 0 0 auto;
+    min-width: 3.4rem;
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: #b8b8c8;
     white-space: nowrap;
+}
+
+/* Drag handle (far left of a row) — the only element that starts a drag */
+.game-roster-grip {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    color: #666;
+    cursor: grab;
+    touch-action: none; /* drag on touch without scrolling the panel */
+}
+
+.game-roster-grip:active {
+    cursor: grabbing;
+}
+
+.game-roster-grip svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* SortableJS placeholder for the row being dragged */
+.sortable-ghost {
+    opacity: 0.4;
+}
+
+/* Shuffle sits at the right of the controls row, mirroring the Order buttons */
+.game-roster-shuffle {
+    margin-left: auto;
+}
+
+/* Briefly highlight a freshly added row so it's clear where it landed */
+@keyframes roster-flash {
+    from {
+        background: rgba(76, 175, 80, 0.3);
+    }
+    to {
+        background: transparent;
+    }
+}
+
+.game-roster-flash {
+    animation: roster-flash 0.8s ease-out;
+    border-radius: 4px;
 }
 
 .game-roster-add {
@@ -373,6 +421,40 @@
     color: #888;
     text-transform: uppercase;
     letter-spacing: 0.04em;
+}
+
+/* Individuals / N-teams selector at the top of the roster */
+.game-roster-mode {
+    display: flex;
+}
+
+/* One card per team: name, member rows, and its own add buttons */
+.game-roster-team {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 0.55rem;
+    border: 1px solid #444;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.game-roster-team-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Half width so the team name reads as a card header, not another player row */
+.game-roster-team-name {
+    flex: 0 1 auto;
+    width: 50%;
+    font-weight: 600;
+}
+
+/* Keep an emptied team a droppable target for drag-and-drop */
+.game-roster-team .game-roster-rows {
+    min-height: 1.8rem;
 }
 
 /* -- Setup panel -- */

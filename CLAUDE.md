@@ -10,7 +10,7 @@
 ## Code style
 
 - 4-space indentation (enforced by ESLint)
-- ES6 modules (import/export), vanilla JS, no frameworks
+- ES6 modules (import/export), vanilla JS — no UI framework (React/Vue etc.); lean, well-established libraries are welcome and preferred over reinventing the wheel (e.g. SortableJS), just avoid bloat
 - Single quotes, semicolons, always use curly braces
 - Descriptive function names — no abbreviations (`formatBool` not `fmtBool`)
 - Comment non-obvious logic: BLE protocol details, game rules/edge cases, timing sequences

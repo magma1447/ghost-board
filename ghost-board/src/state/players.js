@@ -93,8 +93,9 @@ export function deletePlayer(uuid) {
 // record per level (1–10), so at most ten ever exist.
 
 // Human players only — for the roster picker and the Players management list.
+// Excludes the synthetic entities (AI opponents and team entities).
 export function getHumanPlayers() {
-    return getPlayers().filter((p) => !p.isAi);
+    return getPlayers().filter((p) => !p.isAi && !p.isTeam);
 }
 
 export function isAiPlayer(uuid) {
@@ -122,11 +123,42 @@ export function createAiPlayer(index, level) {
     return player;
 }
 
-// Drop AI opponents not in `keepUuids` — called at game commit to clear the AI
-// records left behind by previous games (humans persist; AIs are per-game).
-export function pruneAiPlayers(keepUuids) {
+// ── Teams ─────────────────────────────────────────────────────────────────
+// A team is one game "player" a group shares (shared score). Stored in the same
+// registry, flagged { isTeam: true, members: [uuid] }, so it resolves by UUID
+// like any player and flows into games unchanged. The turn layer reads `members`
+// to rotate who's up. Per-game like AI opponents (minted at commit, pruned).
+
+export function isTeamPlayer(uuid) {
+    const player = getPlayers().find((p) => p.uuid === uuid);
+    return Boolean(player && player.isTeam);
+}
+
+// The ordered member UUIDs of a team entity (or null if not a team).
+export function teamMembersOf(uuid) {
+    const player = getPlayers().find((p) => p.uuid === uuid);
+    return player && player.isTeam ? player.members : null;
+}
+
+export function createTeamPlayer(name, members) {
+    const players = getPlayers();
+    const player = {
+        uuid: crypto.randomUUID(),
+        name,
+        isTeam: true,
+        members: [...members],
+    };
+    players.push(player);
+    updateSettings('players', players);
+    return player;
+}
+
+// Drop synthetic players (AI opponents + team entities) not in `keepUuids` —
+// called at game commit to clear the records left by previous games. Humans
+// persist; AIs and teams are per-game.
+export function pruneSyntheticPlayers(keepUuids) {
     const keep = new Set(keepUuids);
-    const players = getPlayers().filter((p) => !p.isAi || keep.has(p.uuid));
+    const players = getPlayers().filter((p) => (!p.isAi && !p.isTeam) || keep.has(p.uuid));
     updateSettings('players', players);
 }
 
@@ -138,4 +170,15 @@ export function getLastPlayers() {
 
 export function setLastPlayers(uuids) {
     updateSettings('lastPlayers', uuids);
+}
+
+// Last-used team line-up ([{ name, members: [uuid] }]); [] = individuals. Lets a
+// team night carry over: the roster re-seeds these when setup opens.
+export function getLastTeams() {
+    const stored = settings().lastTeams;
+    return Array.isArray(stored) ? stored : [];
+}
+
+export function setLastTeams(teams) {
+    updateSettings('lastTeams', teams);
 }

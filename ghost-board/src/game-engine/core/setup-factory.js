@@ -150,25 +150,23 @@ export function createGameSetup(container, onStart, onCancel, config) {
     </div>
   `;
 
-    // Removing a slot can drop the roster below the game's minimum (e.g. taking
-    // an AI out of a fixed 2-player game to swap in a human). Block Start with a
-    // visible note until the count is back at min, rather than a silent no-op.
+    // The roster reports its live summary and whether Start is allowed (blocked
+    // below the game's minimum, or while a team count is selected — team play is
+    // a setup preview for now). Surface the reason next to a disabled Start.
     const startBtn = el.querySelector('.game-setup-start');
-    const minPlayers = rosterLimits.min ?? 1;
     const startNote = document.createElement('p');
     startNote.className = 'game-setup-start-note';
     startNote.hidden = true;
     el.querySelector('.game-setup-buttons').insertAdjacentElement('afterend', startNote);
 
-    const roster = createPlayerRoster(el.querySelector('[data-roster]'), { ...rosterLimits, supportsAi: meta.supportsAi }, (count) => {
-        const summary = el.querySelector('[data-summary="players"]');
-        if (summary) {
-            summary.textContent = `${count} player${count === 1 ? '' : 's'}`;
+    const roster = createPlayerRoster(el.querySelector('[data-roster]'), { ...rosterLimits, supportsAi: meta.supportsAi }, ({ summary, canStart, note }) => {
+        const summaryEl = el.querySelector('[data-summary="players"]');
+        if (summaryEl) {
+            summaryEl.textContent = summary;
         }
-        const belowMin = count < minPlayers;
-        startBtn.disabled = belowMin;
-        startNote.hidden = !belowMin;
-        startNote.textContent = belowMin ? `Needs at least ${minPlayers} players.` : '';
+        startBtn.disabled = !canStart;
+        startNote.hidden = !note;
+        startNote.textContent = note || '';
     });
 
     const inputs = {};
