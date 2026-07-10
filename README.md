@@ -8,6 +8,7 @@ Web interface for [Granboard](https://granboards.com/product-category/gran-board
 - [Screenshots](#screenshots)
 - [Features](#features)
 - [Players](#players)
+- [Teams](#teams)
 - [Match play (legs & sets)](#match-play-legs--sets)
 - [Games](#games)
 - [Getting Started](#getting-started)
@@ -50,6 +51,7 @@ Ghost Board is a web-based alternative to the official Granboard app. It connect
 
 - Interactive SVG dartboard with real-time hit highlighting
 - Named players, 1–8 per game (Cat and Mouse is always two)
+- **Teams** — play any game as 2, 3, or 4 sides; players (and AI) share a team's score and take turns throwing
 - Legs & sets match play with a rotating starting player and a leg-by-leg history
 - **Undo** to correct false hits (vibration/sensor glitches), and one-tap **Rematch**
 - Heads-up big number on the board showing the current player's score/target
@@ -71,7 +73,13 @@ Ghost Board is a web-based alternative to the official Granboard app. It connect
 
 ## Players
 
-Games are played by **named players**, managed in a Player Configuration screen. Most games take **1–8 players** (Cat and Mouse is always two). The roster remembers who played last, enforces unique names, and lets you reorder players before starting — swap (2 players) or randomize / rotate / reverse (3+).
+Games are played by **named players**, managed in a Player Configuration screen. Most games take **1–8 players** (Cat and Mouse is always two). The roster remembers who played last, enforces unique names, and lets you reorder players before starting — drag them by the handle, or use swap (2 players) / randomize / rotate / reverse (3+).
+
+## Teams
+
+Any game can be played in **teams** rather than as individuals — 2, 3, or 4 sides. A team shares one score (and marks / position); its members take turns throwing, and the app shows and calls who's up. This turns a big group into a fast, decisive game — Cricket or a closing game stays quick with six or eight people when it's played 2v2 or 3v3.
+
+Set it up in the **Players** section: choose a team count, name each team, and add players or AI to each. Drag players between teams, or use **Shuffle teams** to deal them out at random. Each person stays a distinct player within their team, and the line-up is remembered for the next game.
 
 ## Match play (legs & sets)
 

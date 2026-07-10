@@ -2,6 +2,15 @@
 
 Notable changes to Ghost Board, newest first. Version numbers follow [semantic versioning](https://semver.org/): new features bump the middle number, fixes bump the last.
 
+## 0.8.0 — 2026-07-10
+
+### Added
+- **Teams** — play any game as 2, 3, or 4 sides. Players (and AI) share a team's score and take turns throwing, so a big group can still play a fast, decisive game. Set it up in the Players section: pick a team count, name the teams, and drag players in; your team line-up carries over to the next game.
+
+### Changed
+- Player setup now supports drag-and-drop — drag a player by the handle to reorder, or (in teams) drag them between sides.
+- AI opponents pause a little longer between darts by default — Normal is now 1.5 s (was 1.2 s) and Slow 3 s (was 2.5 s).
+
 ## 0.7.5 — 2026-07-09
 
 ### Fixed
