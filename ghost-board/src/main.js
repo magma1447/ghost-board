@@ -13,7 +13,7 @@ import { createLog } from './ui/log.js';
 import { createPhysicalLeds } from './ble/leds.js';
 import { sweep as ledSweep, registerLedOutput, refreshAttractIfActive } from './led-controller.js';
 import { setTheme, setVoice, getThemeNames, getVoiceOptions, ensureAudio } from './audio/sounds.js';
-import { settings, updateSettings } from './state/settings.js';
+import { settings, updateSettings, AI_SPEED_OPTIONS } from './state/settings.js';
 import { createMenu } from './ui/common/menu.js';
 import { createConnectionControl } from './ui/connection-control.js';
 import { icons } from './ui/common/icons.js';
@@ -130,12 +130,6 @@ function setDebugMode(enabled) {
 
 const savedDebug = settings().debug.mouseInput;
 
-// AI throw pacing presets (ms between an AI's darts).
-const AI_SPEED_OPTIONS = [
-    { label: 'Fast', ms: 500 },
-    { label: 'Normal', ms: 1200 },
-    { label: 'Slow', ms: 2500 },
-];
 if (savedDebug) {
     setDebugMode(true);
 }
@@ -288,7 +282,8 @@ const menu = createMenu(settingsBtn, [
                 label: 'AI speed',
                 type: 'select',
                 options: AI_SPEED_OPTIONS.map((o) => o.label),
-                value: (AI_SPEED_OPTIONS.find((o) => o.ms === settings().ai.throwMs) || AI_SPEED_OPTIONS[1]).label,
+                value: (AI_SPEED_OPTIONS.find((o) => o.ms === settings().ai.throwMs)
+                    || AI_SPEED_OPTIONS.find((o) => o.default)).label,
                 onChange(label) {
                     const opt = AI_SPEED_OPTIONS.find((o) => o.label === label);
                     updateSettings('ai.throwMs', opt.ms);

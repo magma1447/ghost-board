@@ -2,6 +2,16 @@
 
 const STORAGE_KEY = 'ghost-board-settings';
 
+// AI throw pacing presets (ms between an AI's darts) — the single source for
+// both the Debug-menu picker (main.js) and the default below.
+export const AI_SPEED_OPTIONS = [
+    { label: 'Fast', ms: 500 },
+    { label: 'Normal', ms: 1500, default: true },
+    { label: 'Slow', ms: 3000 },
+];
+
+const DEFAULT_THROW_MS = AI_SPEED_OPTIONS.find((o) => o.default).ms;
+
 const DEFAULTS = {
     // Global player registry — array of { uuid, name }, shared across games
     players: [],
@@ -29,7 +39,7 @@ const DEFAULTS = {
     },
     ai: {
         level: 5, // last-used AI difficulty (1–10), remembered by the level picker
-        throwMs: 1200, // pacing between an AI's darts (ms)
+        throwMs: DEFAULT_THROW_MS, // pacing between an AI's darts (ms) — the "Normal" preset
     },
 };
 
