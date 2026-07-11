@@ -2,6 +2,11 @@
 
 Notable changes to Ghost Board, newest first. Version numbers follow [semantic versioning](https://semver.org/): new features bump the middle number, fixes bump the last.
 
+## 0.9.0 — 2026-07-11
+
+### Added
+- Added game: **All Fives** — a classic pub game (also known as 51 by 5s) where each turn's three-dart total must be a multiple of 5. Plays against AI.
+
 ## 0.8.0 — 2026-07-10
 
 ### Added

@@ -30,7 +30,7 @@ Ghost Board is a web-based alternative to the official Granboard app. It connect
 
 <table border="0" cellspacing="0">
   <tr>
-    <td width="50%" valign="top"><a href="screenshots/new-game-picker.png"><img src="screenshots/new-game-picker.png" width="100%" alt="New game picker"></a><br><sub>Choose a game — X01, Around the Clock, Cat &amp; Mouse, Simon Says, Count Up, Score Rush, Cricket, Shanghai, Scram, Half It, Bob's 27, or Killer.</sub></td>
+    <td width="50%" valign="top"><a href="screenshots/new-game-picker.png"><img src="screenshots/new-game-picker.png" width="100%" alt="New game picker"></a><br><sub>Choose a game — X01, Around the Clock, Cat &amp; Mouse, Simon Says, Count Up, Score Rush, All Fives, Cricket, Shanghai, Scram, Half It, Bob's 27, or Killer.</sub></td>
     <td width="50%" valign="top"><a href="screenshots/x01-setup.png"><img src="screenshots/x01-setup.png" width="100%" alt="X01 setup"></a><br><sub>X01 setup — players, match format (legs / sets), and game options.</sub></td>
   </tr>
   <tr>
@@ -153,6 +153,16 @@ Any game can be played as a match rather than a single game:
     - Target — 300 or custom, 100–10000 (default: 300)
     - Bull scoring — 25/50 or 50/50 (default: 25/50)
     - Singles only — count doubles & trebles at face value (default: off)
+- **All Fives**
+  - *Also known as: 51 by 5s, Fives, Fifty-One by Fives*
+  - Each turn's three-dart total must be a **multiple of 5**, scoring the total divided by 5 (65 scores 13); a total that isn't a multiple of 5 scores nothing
+  - Race to a target (51 by default) — you can end a turn early, and landing exactly on the target wins at once
+  - The board lights the numbers that keep or restore a multiple of 5, never one that would overshoot
+  - 1–8 players
+  - Options:
+    - Target — the score to reach (default: 51); by default you must land on it exactly, and overshooting busts the turn
+    - Allow overshoot — reach or pass the target to win, instead of finishing exactly (default: off)
+    - Bull scoring — 25/50 or 50/50 (default: 25/50)
 - **Cricket**
   - Close 15–20 and the bull — hit each three times — then score on your closed numbers
   - Single = 1 mark, double = 2, treble = 3; outer bull = 1 mark, inner bull = 2
@@ -214,6 +224,7 @@ Any game can be played as a match rather than a single game:
 | Simon Says | 1–8 | Yes | Yes | Yes | No | Hit count | No |
 | Count Up | 1–8 | Yes | Yes | Yes | No | Count up | No |
 | Score Rush | 1–8 | No | No | Yes | No | Count up | No |
+| All Fives | 1–8 | No | No | Yes | No | Count up | Yes |
 | Cricket | 1–8 | No | No | Yes | No | Marks | No |
 | Shanghai | 1–8 | Yes | Yes² | Yes | No | Count up | No |
 | Scram | 2 | Yes | No | Yes | Yes | Marks | No |
