@@ -80,6 +80,12 @@ import { createKillerPanel } from '../../games/killer/panel.js';
 import { createKillerSetup } from '../../games/killer/setup.js';
 import { meta as killerMeta } from '../../games/killer/meta.js';
 
+import { createAllFives } from '../../games/all-fives/game.js';
+import { createAllFivesPanel } from '../../games/all-fives/panel.js';
+import { createAllFivesSetup } from '../../games/all-fives/setup.js';
+import { meta as allFivesMeta } from '../../games/all-fives/meta.js';
+import { allFivesAim } from '../../games/all-fives/ai.js';
+
 // Ordered list of every game. Order = recommended play order, gentlest first;
 // it is the order the picker renders games in.
 export const GAMES = [
@@ -153,6 +159,15 @@ export const GAMES = [
         createPanel: createCricketPanel,
         createSetup: createCricketSetup,
         meta: cricketMeta,
+    },
+    {
+        type: 'all-fives',
+        label: 'All Fives',
+        createGame: createAllFives,
+        createPanel: createAllFivesPanel,
+        createSetup: createAllFivesSetup,
+        meta: allFivesMeta,
+        aim: allFivesAim,
     },
     {
         type: 'x01',

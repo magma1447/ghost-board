@@ -94,6 +94,11 @@ export const RING_RADIUS = {
     // "any single": the radial centre of the whole number band — farthest from
     // both the bull and the edge, so most likely to stay on the number.
     any: (RADII.BULL_OUTER + RADII.DOUBLE_OUTER) / 2,
+    // Single (outer) bull band — precise; a pull toward the centre hits the
+    // double bull instead, so only a near-flawless aim should target it.
+    sbull: (RADII.BULL_INNER + RADII.BULL_OUTER) / 2,
+    // Deliberately off the board (scores OUT / nothing) — for giving up a turn.
+    out: RADII.DOUBLE_OUTER + 60,
 };
 
 // Threshold the aggressive (fast-but-hard) line must clear to be taken.

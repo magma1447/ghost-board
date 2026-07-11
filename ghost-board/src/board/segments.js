@@ -3,6 +3,10 @@
 // Standard dartboard order (clockwise from top)
 export const BOARD_ORDER = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
 
+// Every numbered segment (1–20) — e.g. to light the whole board (as a target or,
+// via warnSegments, a red warning that there's no good aim this turn).
+export const ALL_SEGMENTS = Array.from({ length: 20 }, (unused, i) => i + 1);
+
 // Radii (proportional). The double/treble bands follow the soft-tip Granboard,
 // whose scoring rings are wider (~12) than a steel board's regulation 8mm —
 // measured off the product photos. The thick wire borders on the physical board
