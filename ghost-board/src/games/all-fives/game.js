@@ -197,7 +197,8 @@ export function createAllFives({
             callouts.push(totalCall);
         }
 
-        state.turn = { darts: [], locked: false };
+        // advancePlayerBase snapshots this turn into the leaving player's lastDarts
+        // (kept on the board until their next turn), then clears the turn itself.
         const event = advancePlayerBase(state, null); // no round limit — ends on target
         if (event) {
             state.targetSegments = [];
