@@ -6,6 +6,7 @@
 - Never run npm, eslint, or vite directly on the host
 - Lint: `docker compose -f docker/compose.yaml exec -T app npx eslint src/`
 - Build: `docker compose -f docker/compose.yaml exec -T app npx vite build`
+- Test suite (headless game simulations, run in the toolbox): `docker compose -f docker/compose.yaml run --rm toolbox node test/robustness.mjs`
 
 ## Code style
 
@@ -17,7 +18,8 @@
 
 ## Architecture
 
-- The Vite app lives in `ghost-board/` (`src/`, `public/`, `index.html`, config, package files); only `docker/`, `.github/`, `bin/`, `assets/`, and docs stay at the repo root
+- The Vite app lives in `ghost-board/` (`src/`, `public/`, `index.html`, config, package files); only `docker/`, `.github/`, `bin/`, `test/`, `assets/`, and docs stay at the repo root
+- Headless tools (`bin/`, `test/`) import game logic from `src/game-engine/core/games-logic.js` — the UI-free half of the registry (factory, meta, options, AI aim); they can't import `registry.js` itself, which pulls in panels/CSS/DOM
 - The dev container mounts `ghost-board/` read-only at `/app`; deps install at `/node_modules` (one level up) so Node resolves them without writing into the read-only mount
 - Games and the engine that runs them are siblings under `src/`:
   - `src/games/` — one directory per game, nothing else. Each holds `game.js`, `setup.js`, `panel.js` (+ `meta.js`, `options.js`, `rules.md`, and any game-only files, e.g. `x01/checkout.js`)
