@@ -1,0 +1,83 @@
+{
+  "count-up": {
+    "players": 1,
+    "darts": 24,
+    "winner": 0,
+    "scores": [
+      1440
+    ]
+  },
+  "simon-says": {
+    "players": 1,
+    "darts": 30,
+    "winner": 0,
+    "scores": [
+      30
+    ]
+  },
+  "around-the-clock": {
+    "players": 1,
+    "darts": 21,
+    "winner": 0,
+    "scores": [
+      null
+    ]
+  },
+  "score-rush": {
+    "players": 1,
+    "darts": 5,
+    "winner": 0,
+    "scores": [
+      300
+    ]
+  },
+  "half-it": {
+    "players": 1,
+    "darts": 27,
+    "winner": 0,
+    "scores": [
+      1440
+    ]
+  },
+  "shanghai": {
+    "players": 1,
+    "darts": 21,
+    "winner": 0,
+    "scores": [
+      252
+    ]
+  },
+  "cat-and-mouse": {
+    "players": 2,
+    "darts": 38,
+    "winner": 0,
+    "scores": [
+      null,
+      null
+    ]
+  },
+  "all-fives": {
+    "players": 1,
+    "darts": 5,
+    "winner": 0,
+    "scores": [
+      51
+    ]
+  },
+  "x01": {
+    "players": 1,
+    "darts": 9,
+    "winner": 0,
+    "scores": [
+      0
+    ]
+  },
+  "bobs-27": {
+    "players": 1,
+    "darts": 63,
+    "winner": 0,
+    "scores": [
+      1437
+    ]
+  }
+}

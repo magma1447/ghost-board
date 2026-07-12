@@ -46,9 +46,10 @@ export function optionCombos(fields, defaults) {
 }
 
 // Play a game to completion. Returns how it ended plus a `timedOut` flag (a
-// runaway loop). `level` picks the AI profile; ignored for random-dart games.
-export function runGame(gameLogic, options, level, maxDarts = 200000) {
-    const n = playerCount(gameLogic.meta);
+// runaway loop). `level` picks the AI profile (ignored for random-dart games);
+// `players` overrides the seat count (defaults to playerCount(meta)).
+export function runGame(gameLogic, options, level, players, maxDarts = 200000) {
+    const n = players || playerCount(gameLogic.meta);
     const playerUuids = Array.from({ length: n }, (unused, i) => `p${i}`);
     const game = gameLogic.createGame({ numPlayers: n, playerUuids, startingPlayerIndex: 0, ...options });
     const profile = AI_PROFILES[level];
@@ -71,5 +72,11 @@ export function runGame(gameLogic, options, level, maxDarts = 200000) {
     }
 
     const state = game.getState();
-    return { timedOut: iterations >= maxIterations, darts, winner: state.winner, isGameOver: state.isGameOver };
+    return {
+        timedOut: iterations >= maxIterations,
+        darts,
+        winner: state.winner,
+        isGameOver: state.isGameOver,
+        scores: state.players.map((p) => (p.score ?? null)),
+    };
 }
