@@ -66,6 +66,11 @@ export function stepsForRing(ring, multiStep) {
 //     tie ends as a draw unless onDraw keeps play going (sudden death → null).
 // Games with extra turn state (Half It's roundPoints) reset those fields
 // themselves — this clears only darts + locked.
+// Sudden death plays on until someone leads, but perfectly-matched players (two
+// flawless AIs, or a freak human tie) could tie forever — so cap the extra rounds
+// and settle for a draw. Shared with games that run their own sudden death.
+export const SUDDEN_DEATH_CAP = 100;
+
 export function advancePlayerBase(state, maxRounds, { determineWinner, onDraw } = {}) {
     currentPlayer(state).lastDarts = state.turn.darts; // keep this turn visible until their next
     state.turn.darts = [];
@@ -75,11 +80,15 @@ export function advancePlayerBase(state, maxRounds, { determineWinner, onDraw } 
         state.round++;
     }
 
-    if (maxRounds !== null && state.round > maxRounds) {
+    // Decide only at a round boundary (currentPlayerIndex wrapped to 0, so everyone
+    // has thrown the same number of turns) — otherwise sudden death would hand it
+    // to whoever throws first.
+    if (maxRounds !== null && state.currentPlayerIndex === 0 && state.round > maxRounds) {
         const winner = determineWinner ? determineWinner() : null;
+        const capped = state.round > maxRounds + SUDDEN_DEATH_CAP; // give up on an endless tie
         // No winner-finder → a plain draw. With one, a tie ends as a draw unless
-        // the game plays on to break it (sudden death).
-        if (winner !== null || !determineWinner || onDraw === 'draw') {
+        // the game plays on to break it (sudden death), up to the cap.
+        if (winner !== null || !determineWinner || onDraw === 'draw' || capped) {
             state.isGameOver = true;
             state.winner = winner;
             return winner !== null ? 'win' : 'draw';

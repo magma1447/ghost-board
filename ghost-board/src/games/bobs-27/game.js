@@ -7,7 +7,7 @@
 // for the rest of the game and can't win. With elimination off, scores may go
 // negative and everyone plays the whole card. Highest total wins.
 
-import { currentPlayer, createTurnEndCallout } from '../../game-engine/shared/game-helpers.js';
+import { currentPlayer, createTurnEndCallout, SUDDEN_DEATH_CAP } from '../../game-engine/shared/game-helpers.js';
 
 // Each entry is the DOUBLE of that number; 'bull' = the double bull.
 const SEQUENCE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 'bull'];
@@ -199,8 +199,10 @@ export function createBobs27({
             if (state.round > SEQUENCE.length) {
                 const winner = determineWinner();
                 // End after the card unless it's a tie and we play until a winner
-                // (sudden death — a double-bull-off, keep going).
-                if (winner !== null || onDraw === 'draw') {
+                // (sudden death — a double-bull-off, keep going) — up to the cap,
+                // beyond which perfectly-matched players settle for a draw.
+                const capped = state.round > SEQUENCE.length + SUDDEN_DEATH_CAP;
+                if (winner !== null || onDraw === 'draw' || capped) {
                     state.isGameOver = true;
                     state.winner = winner;
                     state.targetSegments = [];

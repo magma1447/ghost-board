@@ -17,7 +17,7 @@
 //   and auto-advances (no Next Player press). Here it fires when the stopper
 //   shuts the last number, ending the half on that dart.
 
-import { currentPlayer, createTurnEndCallout } from '../../game-engine/shared/game-helpers.js';
+import { currentPlayer, createTurnEndCallout, SUDDEN_DEATH_CAP } from '../../game-engine/shared/game-helpers.js';
 import { buildNumbers, dartMarks, numberValue } from '../../game-engine/shared/cricket-marks.js';
 
 export function createScram({
@@ -125,8 +125,9 @@ export function createScram({
             return { state, event: 'win', callouts: [] };
         }
         // Tied. Either call it a draw, or play another pair on a fresh random 3
-        // from the original set (sudden death) with roles swapped again.
-        if (onDraw === 'draw') {
+        // from the original set (sudden death) with roles swapped again — up to
+        // the cap, beyond which perfectly-matched players settle for a draw.
+        if (onDraw === 'draw' || state.phase >= 2 + 2 * SUDDEN_DEATH_CAP) {
             state.isGameOver = true;
             state.winner = null;
             return { state, event: 'draw', callouts: [] };
