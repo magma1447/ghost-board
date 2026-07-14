@@ -17,7 +17,7 @@
 //   and auto-advances (no Next Player press). Here it fires when the stopper
 //   shuts the last number, ending the half on that dart.
 
-import { currentPlayer, createTurnEndCallout, SUDDEN_DEATH_CAP } from '../../game-engine/shared/game-helpers.js';
+import { currentPlayer, createTurnEndCallout, ignoredDart, highestScoreWinner, stashTurn, SUDDEN_DEATH_CAP } from '../../game-engine/shared/game-helpers.js';
 import { buildNumbers, dartMarks, numberValue } from '../../game-engine/shared/cricket-marks.js';
 
 export function createScram({
@@ -90,10 +90,7 @@ export function createScram({
 
     // Higher total wins; null on a tie.
     function determineWinner() {
-        if (state.players[0].score === state.players[1].score) {
-            return null;
-        }
-        return state.players[0].score > state.players[1].score ? 0 : 1;
+        return highestScoreWinner(state.players);
     }
 
     // The half ends the instant the stopper shuts the last number, which only
@@ -102,8 +99,7 @@ export function createScram({
     // hands the controller a 'half' (or a terminal 'win'/'draw') to react to.
     function endHalf() {
         // Stash the turn as nextPlayer would, before rolling into the new phase.
-        currentPlayer(state).lastDarts = state.turn.darts.slice();
-        state.turn = { darts: [], locked: false };
+        stashTurn(state);
 
         // Odd phase = first half of a pair → swap roles and play the second half.
         if (state.phase % 2 === 1) {
@@ -156,13 +152,9 @@ export function createScram({
     }
 
     function onDart(ring, segment) {
-        // Dart didn't count (game over, or turn already complete/locked) —
-        // 'ignored' lets the UI skip audio while LEDs still flash.
-        if (state.isGameOver) {
-            return { state, event: 'ignored', callouts: [] };
-        }
-        if (state.turn.locked || state.turn.darts.length >= dartsPerTurn) {
-            return { state, event: 'ignored', callouts: [] };
+        const ignored = ignoredDart(state, dartsPerTurn);
+        if (ignored) {
+            return ignored;
         }
 
         const idx = state.currentPlayerIndex;
@@ -205,7 +197,7 @@ export function createScram({
     // never via Next Player. Hand the darts to the other player.
     function nextPlayer() {
         const leavingIdx = state.currentPlayerIndex;
-        currentPlayer(state).lastDarts = state.turn.darts.slice(); // keep visible until their next turn
+        stashTurn(state);
         // The scorer's running total was called on their last dart; here it's only
         // the fallback for an undetected last dart. The stopper wasn't scoring, so
         // stays silent either way.
@@ -213,7 +205,6 @@ export function createScram({
             ? null
             : turnEnd.onSwitch(() => ({ type: 'remaining', value: state.players[leavingIdx].score }));
         const callouts = scoreCall ? [scoreCall] : [];
-        state.turn = { darts: [], locked: false };
         state.currentPlayerIndex = otherIndex(state.currentPlayerIndex);
         refreshTargets();
         return { state, event: 'switch', callouts };

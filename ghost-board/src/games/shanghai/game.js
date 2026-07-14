@@ -6,7 +6,7 @@
 // "Shanghai" instant win (optional): hitting a single, a double AND a treble
 // of the round's number within one turn wins outright, whatever the score.
 
-import { currentPlayer, advancePlayerBase } from '../../game-engine/shared/game-helpers.js';
+import { currentPlayer, advancePlayerBase, ignoredDart, highestScoreWinner } from '../../game-engine/shared/game-helpers.js';
 
 export function createShanghai({
     numPlayers = 2,
@@ -43,19 +43,7 @@ export function createShanghai({
     };
 
     function determineWinner() {
-        let best = -1;
-        let bestIdx = null;
-        let tie = false;
-        for (let i = 0; i < state.players.length; i++) {
-            if (state.players[i].score > best) {
-                best = state.players[i].score;
-                bestIdx = i;
-                tie = false;
-            } else if (state.players[i].score === best) {
-                tie = true;
-            }
-        }
-        return tie ? null : bestIdx;
+        return highestScoreWinner(state.players);
     }
 
     // Points for a dart on the target: single x1, double x2, treble x3. A
@@ -86,13 +74,9 @@ export function createShanghai({
     }
 
     function onDart(ring, segment) {
-        // Dart didn't count (game over, or turn already complete/locked) —
-        // 'ignored' lets the UI skip audio while LEDs still flash.
-        if (state.isGameOver) {
-            return { state, event: 'ignored', callouts: [] };
-        }
-        if (state.turn.locked || state.turn.darts.length >= dartsPerTurn) {
-            return { state, event: 'ignored', callouts: [] };
+        const ignored = ignoredDart(state, dartsPerTurn);
+        if (ignored) {
+            return ignored;
         }
 
         const points = pointsFor(ring, segment);

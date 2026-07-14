@@ -10,8 +10,8 @@
 // Callout types: 'turnTotal' (after 3rd dart), 'remaining' (on switch),
 //   'checkout' (per-dart when score is below threshold)
 
-import { calcPoints } from '../../game-engine/shared/board-score.js';
-import { currentPlayer, advancePlayerBase, createTurnEndCallout } from '../../game-engine/shared/game-helpers.js';
+import { pointsWithBullMode } from '../../game-engine/shared/board-score.js';
+import { currentPlayer, advancePlayerBase, createTurnEndCallout, ignoredDart } from '../../game-engine/shared/game-helpers.js';
 import { checkoutFor } from './checkout-sequence.js';
 
 export function createX01({
@@ -93,26 +93,14 @@ export function createX01({
         return { state, event: drawEvent || 'switch', callouts };
     }
 
-    // In 50/50 bull mode, single bull scores 50 instead of the standard 25
-    function getPoints(ring, segment) {
-        if (bullMode === '50/50' && ring === 'SBULL') {
-            return 50;
-        }
-        return calcPoints(ring, segment);
-    }
-
     function isDouble(ring) {
         return ring === 'D' || ring === 'DBULL';
     }
 
     function onDart(ring, segment) {
-        // Dart didn't count (game over, or turn already complete/locked) —
-        // 'ignored' lets the UI skip audio while LEDs still flash.
-        if (state.isGameOver) {
-            return { state, event: 'ignored', callouts: [] };
-        }
-        if (state.turn.locked || state.turn.darts.length >= dartsPerTurn) {
-            return { state, event: 'ignored', callouts: [] };
+        const ignored = ignoredDart(state, dartsPerTurn);
+        if (ignored) {
+            return ignored;
         }
 
         const player = currentPlayer(state);
@@ -128,7 +116,7 @@ export function createX01({
             }
         }
 
-        const points = getPoints(ring, segment);
+        const points = pointsWithBullMode(ring, segment, bullMode);
         const newScore = player.score - points;
 
         // Bust: score went negative, or landed on 1 with double-out (impossible to finish)

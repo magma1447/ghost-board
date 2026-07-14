@@ -1,23 +1,25 @@
 // Simon Says game panel — shows targets, scores, and hit/miss feedback
 
 import './panel.css';
-import { formatRoundLabel, settingsLine } from '../../game-engine/shared/format.js';
-import { createGamePanel, renderScoreboard, winnerName } from '../../game-engine/core/panel-factory.js';
+import { suddenDeathRoundLabel, settingsLine } from '../../game-engine/shared/format.js';
+import { createGamePanel, renderScoreboard, panelApi } from '../../game-engine/core/panel-factory.js';
 import { defaults, fields } from './options.js';
 import rulesMd from './rules.md?raw';
 
 export function createSimonSaysPanel(container, callbacks) {
-    const panel = createGamePanel(container, callbacks, { title: 'Simon Says', rulesMd });
+    const panel = createGamePanel(container, callbacks, { title: 'Simon Says', rulesMd, drawMessage: 'Draw — tied scores' });
 
-    // Target display ("Simon says: 5, 17, 3"), shown between round and scoreboard.
+    // Target display ("Simon says: 5, 17, 3"), shown between round and
+    // scoreboard. Multi-valued with per-number hit colouring, so it renders its
+    // own spans but reuses the shared target-strip container/label styling.
     const sequenceLabel = document.createElement('div');
-    sequenceLabel.className = 'game-sequence';
+    sequenceLabel.className = 'game-target-strip';
     panel.el.insertBefore(sequenceLabel, panel.scoreboard);
 
     function renderSequence(state) {
         sequenceLabel.innerHTML = '';
         const label = document.createElement('span');
-        label.className = 'game-sequence-label';
+        label.className = 'game-target-label';
         label.textContent = 'Simon says: ';
         sequenceLabel.appendChild(label);
 
@@ -36,11 +38,7 @@ export function createSimonSaysPanel(container, callbacks) {
     function update(state, event, match) {
         panel.setRules(settingsLine(fields, state.options, defaults));
 
-        // Past the round limit but still playing → sudden death (play-until-winner)
-        const roundText = (!state.isGameOver && state.options.maxRounds !== null && state.round > state.options.maxRounds)
-            ? `Sudden death · round ${state.round}`
-            : formatRoundLabel(state.round, state.options.maxRounds);
-        panel.setRound(roundText, match);
+        panel.setRound(suddenDeathRoundLabel(state.round, state.options.maxRounds, state.isGameOver), match);
 
         renderSequence(state);
 
@@ -49,14 +47,8 @@ export function createSimonSaysPanel(container, callbacks) {
             match,
         });
 
-        panel.nextBtn.disabled = state.isGameOver;
-
-        if (event === 'win') {
-            panel.showBanner(`${winnerName(state)} wins!`, 'win');
-        } else if (event === 'draw') {
-            panel.showBanner('Draw — tied scores', 'draw');
-        }
+        panel.finishUpdate(state, event);
     }
 
-    return { update, destroy: panel.destroy, nextBtn: panel.nextBtn, rematchBtn: panel.rematchBtn, undoBtn: panel.undoBtn, showBanner: panel.showBanner };
+    return panelApi(panel, update);
 }

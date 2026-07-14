@@ -141,7 +141,7 @@ const IDLE_LED_OPTIONS = [
     { value: 'none', label: 'None' },
 ];
 
-const menu = createMenu(settingsBtn, [
+createMenu(settingsBtn, [
     {
         label: 'Audio',
         children: [
@@ -300,11 +300,6 @@ const menu = createMenu(settingsBtn, [
         ],
     },
 ]);
-
-settingsBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    menu.toggle();
-});
 
 app.appendChild(panelSidebar);
 

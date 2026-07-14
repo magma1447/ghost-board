@@ -1,7 +1,7 @@
 // Score Rush game panel — running totals racing to a target score.
 
 import { formatRoundLabel, settingsLine, averageLabel } from '../../game-engine/shared/format.js';
-import { createGamePanel, renderScoreboard, winnerName } from '../../game-engine/core/panel-factory.js';
+import { createGamePanel, renderScoreboard, panelApi } from '../../game-engine/core/panel-factory.js';
 import { defaults, fields } from './options.js';
 import rulesMd from './rules.md?raw';
 
@@ -20,12 +20,8 @@ export function createScoreRushPanel(container, callbacks) {
             match,
         });
 
-        panel.nextBtn.disabled = state.isGameOver;
-
-        if (event === 'win') {
-            panel.showBanner(`${winnerName(state)} wins!`, 'win');
-        }
+        panel.finishUpdate(state, event);
     }
 
-    return { update, destroy: panel.destroy, nextBtn: panel.nextBtn, rematchBtn: panel.rematchBtn, undoBtn: panel.undoBtn, showBanner: panel.showBanner };
+    return panelApi(panel, update);
 }

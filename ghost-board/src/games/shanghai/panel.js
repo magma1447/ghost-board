@@ -1,36 +1,18 @@
-import './panel.css';
-import { formatRoundLabel, settingsLine } from '../../game-engine/shared/format.js';
-import { createGamePanel, renderScoreboard, winnerName } from '../../game-engine/core/panel-factory.js';
+import { suddenDeathRoundLabel, settingsLine } from '../../game-engine/shared/format.js';
+import { createGamePanel, renderScoreboard, panelApi, createTargetStrip } from '../../game-engine/core/panel-factory.js';
 import { defaults, fields } from './options.js';
 import rulesMd from './rules.md?raw';
 
 export function createShanghaiPanel(container, callbacks) {
-    const panel = createGamePanel(container, callbacks, { title: 'Shanghai', rulesMd });
+    const panel = createGamePanel(container, callbacks, { title: 'Shanghai', rulesMd, drawMessage: 'Draw — tied scores' });
 
-    const targetLabel = document.createElement('div');
-    targetLabel.className = 'game-shanghai-target';
-    panel.el.insertBefore(targetLabel, panel.scoreboard);
-
-    function renderTarget(state) {
-        targetLabel.innerHTML = '';
-        const label = document.createElement('span');
-        label.className = 'game-shanghai-target-label';
-        label.textContent = 'Target: ';
-        const value = document.createElement('span');
-        value.className = 'game-shanghai-target-value';
-        value.textContent = String(state.target);
-        targetLabel.append(label, value);
-    }
+    const target = createTargetStrip(panel, 'Target: ');
 
     function update(state, event, match) {
         panel.setRules(settingsLine(fields, state.options, defaults));
+        panel.setRound(suddenDeathRoundLabel(state.round, state.options.maxRounds, state.isGameOver), match);
 
-        const roundText = (!state.isGameOver && state.options.maxRounds !== null && state.round > state.options.maxRounds)
-            ? `Sudden death · round ${state.round}`
-            : formatRoundLabel(state.round, state.options.maxRounds);
-        panel.setRound(roundText, match);
-
-        renderTarget(state);
+        target.set(String(state.target));
 
         renderScoreboard(panel.scoreboard, state, {
             valueFor: (p) => String(p.score),
@@ -38,14 +20,8 @@ export function createShanghaiPanel(container, callbacks) {
             match,
         });
 
-        panel.nextBtn.disabled = state.isGameOver;
-
-        if (event === 'win') {
-            panel.showBanner(`${winnerName(state)} wins!`, 'win');
-        } else if (event === 'draw') {
-            panel.showBanner('Draw — tied scores', 'draw');
-        }
+        panel.finishUpdate(state, event);
     }
 
-    return { update, destroy: panel.destroy, nextBtn: panel.nextBtn, rematchBtn: panel.rematchBtn, undoBtn: panel.undoBtn, showBanner: panel.showBanner };
+    return panelApi(panel, update);
 }

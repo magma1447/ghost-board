@@ -8,8 +8,8 @@
 // Scoring is per TURN (the whole 3-dart total is what must divide by 5), so —
 // like X01 — this can't use the shared per-dart score engine; it's its own module.
 
-import { currentPlayer, advancePlayerBase, createTurnEndCallout } from '../../game-engine/shared/game-helpers.js';
-import { calcPoints } from '../../game-engine/shared/board-score.js';
+import { currentPlayer, advancePlayerBase, createTurnEndCallout, ignoredDart } from '../../game-engine/shared/game-helpers.js';
+import { pointsWithBullMode } from '../../game-engine/shared/board-score.js';
 import { ALL_SEGMENTS } from '../../board/segments.js';
 import { roomLeft, neededSingle, saveNumbers, bestFive } from './strategy.js';
 
@@ -44,14 +44,6 @@ export function createAllFives({
     // The fives scored belong to the turn that just ended — spoken on the last
     // dart, or as a switch fallback if that dart went undetected.
     const turnEnd = createTurnEndCallout();
-
-    function pointsFor(ring, segment) {
-        // 50/50 bull mode: the single (outer) bull scores 50 instead of 25.
-        if (bullMode === '50/50' && ring === 'SBULL') {
-            return 50;
-        }
-        return calcPoints(ring, segment);
-    }
 
     function turnRaw() {
         return state.turn.darts.reduce((sum, d) => sum + d.points, 0);
@@ -135,15 +127,12 @@ export function createAllFives({
     }
 
     function onDart(ring, segment) {
-        // Dart didn't count (game over, or turn already complete/locked).
-        if (state.isGameOver) {
-            return { state, event: 'ignored', callouts: [] };
-        }
-        if (state.turn.locked || state.turn.darts.length >= dartsPerTurn) {
-            return { state, event: 'ignored', callouts: [] };
+        const ignored = ignoredDart(state, dartsPerTurn);
+        if (ignored) {
+            return ignored;
         }
 
-        const points = pointsFor(ring, segment);
+        const points = pointsWithBullMode(ring, segment, bullMode);
         state.turn.darts.push({ ring, segment, points });
 
         // Not the last dart yet.

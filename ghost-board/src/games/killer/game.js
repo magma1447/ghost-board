@@ -21,7 +21,7 @@
 // Events: null (mark / arm / life change), 'miss', 'switch', 'half' (the
 //   assign→play handoff), 'win', 'draw', 'ignored'. No voice callouts (no score).
 
-import { currentPlayer } from '../../game-engine/shared/game-helpers.js';
+import { currentPlayer, ignoredDart, stashTurn } from '../../game-engine/shared/game-helpers.js';
 
 // Ring → life multiplier. Numbers are 1–20, so bull rings never apply.
 function ringMultiplier(ring) {
@@ -223,13 +223,9 @@ export function createKiller({
             return onDartAssign(ring, segment);
         }
 
-        // Dart didn't count (game over, or turn already complete/locked) —
-        // 'ignored' lets the UI skip audio while LEDs still flash.
-        if (state.isGameOver) {
-            return { state, event: 'ignored', callouts: [] };
-        }
-        if (state.turn.locked || state.turn.darts.length >= dartsPerTurn) {
-            return { state, event: 'ignored', callouts: [] };
+        const ignored = ignoredDart(state, dartsPerTurn);
+        if (ignored) {
+            return ignored;
         }
 
         const me = currentPlayer(state);
@@ -293,9 +289,7 @@ export function createKiller({
 
     // Play phase only — the assign phase advances players inside onDart.
     function nextPlayer() {
-        const leaving = currentPlayer(state);
-        leaving.lastDarts = state.turn.darts.slice(); // keep visible until their next turn
-        state.turn = { darts: [], locked: false };
+        stashTurn(state);
 
         // Last player standing wins (a kill on the final dart of a turn would
         // already have ended it, but re-check defensively).

@@ -1,13 +1,14 @@
 // Cricket option schema — the defaults and field definitions, shared by the
 // setup panel (createGameSetup) and the in-game settings line (describeSettings).
 
+import { numberSetField } from '../../game-engine/shared/option-fields.js';
+
 export const defaults = {
     variant: 'standard',
     numberSet: 'standard',
 };
 
 const VARIANT_LABELS = { standard: 'standard', cutthroat: 'cut-throat', simple: 'simple' };
-const NUMBER_LABELS = { standard: '15–20 + bull', fixed14: '14–20 (no bull)', randomBull: 'random w/ bull', randomNoBull: 'random w/o bull' };
 
 export const fields = [
     {
@@ -19,14 +20,5 @@ export const fields = [
             { value: 'simple', label: 'Simple (no score)' },
         ],
     },
-    {
-        name: 'numberSet', label: 'Numbers', type: 'select',
-        defaultHint: NUMBER_LABELS[defaults.numberSet],
-        options: [
-            { value: 'standard', label: '15–20 + bull' },
-            { value: 'fixed14', label: '14–20 (no bull)' },
-            { value: 'randomBull', label: 'Random w/ bull' },
-            { value: 'randomNoBull', label: 'Random w/o bull' },
-        ],
-    },
+    numberSetField(defaults.numberSet),
 ];

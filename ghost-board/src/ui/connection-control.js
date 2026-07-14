@@ -7,6 +7,7 @@
 import './connection-control.css';
 import { showToast } from './common/toast.js';
 import { icons } from './common/icons.js';
+import { attachDropdown } from './common/dropdown.js';
 
 export function createConnectionControl({ onConnect, onDisconnect }) {
     const wrap = document.createElement('div');
@@ -56,36 +57,7 @@ export function createConnectionControl({ onConnect, onDisconnect }) {
         }
     }
 
-    // -- Dropdown open/close (mirrors the settings menu) --
-    function open() {
-        dropdown.hidden = false;
-        document.addEventListener('click', onDocClick, true);
-        document.addEventListener('keydown', onKeyDown);
-    }
-    function close() {
-        dropdown.hidden = true;
-        document.removeEventListener('click', onDocClick, true);
-        document.removeEventListener('keydown', onKeyDown);
-    }
-    function onDocClick(e) {
-        if (!wrap.contains(e.target)) {
-            close();
-        }
-    }
-    function onKeyDown(e) {
-        if (e.key === 'Escape') {
-            close();
-        }
-    }
-
-    btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (dropdown.hidden) {
-            open();
-        } else {
-            close();
-        }
-    });
+    const menu = attachDropdown(wrap, btn, dropdown);
 
     actionBtn.addEventListener('click', () => {
         if (current === 'connected') {
@@ -93,7 +65,7 @@ export function createConnectionControl({ onConnect, onDisconnect }) {
         } else if (current !== 'connecting' && current !== 'scanning') {
             onConnect();
         }
-        close();
+        menu.close();
     });
 
     setStatus('disconnected', 'Disconnected');

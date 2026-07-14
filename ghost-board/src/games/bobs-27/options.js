@@ -2,6 +2,7 @@
 // panel (createGameSetup) and the in-game settings line (describeSettings).
 
 import { formatBool } from '../../game-engine/shared/format.js';
+import { onDrawField } from '../../game-engine/shared/option-fields.js';
 
 export const defaults = {
     elimination: true,
@@ -9,7 +10,6 @@ export const defaults = {
     onDraw: 'draw',
 };
 
-const ON_DRAW_LABELS = { draw: 'draw', continue: 'play until a winner' };
 const BULL_LABELS = { double: 'double bull (50)', any: 'any bull' };
 
 export const fields = [
@@ -25,12 +25,5 @@ export const fields = [
             { value: 'any', label: 'Any bull (25 or 50)' },
         ],
     },
-    {
-        name: 'onDraw', label: 'On a tie', type: 'select',
-        defaultHint: ON_DRAW_LABELS[defaults.onDraw],
-        options: [
-            { value: 'draw', label: 'Draw' },
-            { value: 'continue', label: 'Play until a winner' },
-        ],
-    },
+    onDrawField(defaults.onDraw),
 ];

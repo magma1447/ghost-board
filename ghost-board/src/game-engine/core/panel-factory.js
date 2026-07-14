@@ -17,8 +17,9 @@ import { createPlayer, teamMembersOf } from '../../state/players.js';
 import { isMatchPlay, matchPositionLabel, playerMatchLabel, matchRanks } from './match.js';
 import { openMatchHistory } from '../../ui/match-history.js';
 import { openRules } from '../../ui/common/rules-dialog.js';
+import { attachDropdown } from '../../ui/common/dropdown.js';
 
-export function createGamePanel(container, { onNextPlayer, onEndGame, onRematch, onUndo }, { title = '', rulesMd = '' } = {}) {
+export function createGamePanel(container, { onNextPlayer, onEndGame, onRematch, onUndo }, { title = '', rulesMd = '', drawMessage = 'Draw' } = {}) {
     const el = document.createElement('div');
     el.className = 'game-panel';
 
@@ -102,28 +103,8 @@ export function createGamePanel(container, { onNextPlayer, onEndGame, onRematch,
     // Player count from the latest update(), used to pick the order options.
     let playerCount = 0;
 
-    // -- Dropdown open/close (mirrors the connection control) --
-    function openRematchMenu() {
-        buildRematchMenu(); // lazy: reflect the current player count
-        rematchMenu.hidden = false;
-        document.addEventListener('click', onRematchDocClick, true);
-        document.addEventListener('keydown', onRematchKeyDown);
-    }
-    function closeRematchMenu() {
-        rematchMenu.hidden = true;
-        document.removeEventListener('click', onRematchDocClick, true);
-        document.removeEventListener('keydown', onRematchKeyDown);
-    }
-    function onRematchDocClick(e) {
-        if (!rematchWrap.contains(e.target)) {
-            closeRematchMenu();
-        }
-    }
-    function onRematchKeyDown(e) {
-        if (e.key === 'Escape') {
-            closeRematchMenu();
-        }
-    }
+    // Lazy build on open: the menu reflects the current player count.
+    const rematchDropdown = attachDropdown(rematchWrap, rematchBtn, rematchMenu, { onOpen: buildRematchMenu });
 
     // Build the order options for the current player count. Two players can only
     // Keep or Swap; three or more can Rotate or Reverse. Randomize applies to
@@ -144,7 +125,7 @@ export function createGamePanel(container, { onNextPlayer, onEndGame, onRematch,
             item.className = 'game-rematch-item';
             item.textContent = text;
             item.addEventListener('click', () => {
-                closeRematchMenu();
+                rematchDropdown.close();
                 if (onRematch) {
                     onRematch(op);
                 }
@@ -152,15 +133,6 @@ export function createGamePanel(container, { onNextPlayer, onEndGame, onRematch,
             rematchMenu.appendChild(item);
         }
     }
-
-    rematchBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (rematchMenu.hidden) {
-            openRematchMenu();
-        } else {
-            closeRematchMenu();
-        }
-    });
 
     rematchWrap.append(rematchBtn, rematchMenu);
 
@@ -219,7 +191,47 @@ export function createGamePanel(container, { onNextPlayer, onEndGame, onRematch,
         el.remove();
     }
 
-    return { el, rulesLabel, roundLabel, scoreboard, banner, nextBtn, endBtn, rematchBtn, undoBtn, showBanner, setRules, setRound, destroy };
+    // Standard tail of every panel's update(): gate the Next button and show
+    // the win/draw banner. Panels with extra events (X01's bust) handle those
+    // before calling this; per-game button quirks (Killer's assign phase)
+    // adjust the buttons after.
+    function finishUpdate(state, event) {
+        nextBtn.disabled = state.isGameOver;
+        if (event === 'win') {
+            showBanner(`${winnerName(state)} wins!`, 'win');
+        } else if (event === 'draw') {
+            showBanner(drawMessage, 'draw');
+        }
+    }
+
+    return { el, rulesLabel, roundLabel, scoreboard, banner, nextBtn, endBtn, rematchBtn, undoBtn, showBanner, setRules, setRound, finishUpdate, destroy };
+}
+
+// The standard object a game panel returns to the manager — every panel wraps
+// its own update() with the same factory-provided pieces.
+export function panelApi(panel, update) {
+    return { update, destroy: panel.destroy, nextBtn: panel.nextBtn, rematchBtn: panel.rematchBtn, undoBtn: panel.undoBtn, showBanner: panel.showBanner };
+}
+
+// A highlighted "Target: 5" / "Aim at: D16" strip above the scoreboard, shared
+// by the games that call one target per round. Returns a setter for the value
+// text (the label part stays fixed).
+export function createTargetStrip(panel, labelText) {
+    const strip = document.createElement('div');
+    strip.className = 'game-target-strip';
+    const label = document.createElement('span');
+    label.className = 'game-target-label';
+    label.textContent = labelText;
+    const value = document.createElement('span');
+    value.className = 'game-target-value';
+    strip.append(label, value);
+    panel.el.insertBefore(strip, panel.scoreboard);
+    return {
+        el: strip,
+        set(text) {
+            value.textContent = text;
+        },
+    };
 }
 
 function defaultName(p) {
@@ -349,14 +361,19 @@ export function renderScoreboard(scoreboard, state, options = {}) {
         scoreboard.appendChild(block);
     }
 
-    // Centre the active player's card in the scrollable scoreboard, but only
-    // when the active player changes (re-centering on every dart would jitter).
-    const activeKey = String(state.currentPlayerIndex);
-    if (scoreboard.dataset.activeKey !== activeKey) {
-        scoreboard.dataset.activeKey = activeKey;
-        const activeBlock = scoreboard.querySelector('.game-player-block.active');
-        if (activeBlock) {
-            activeBlock.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    centerActiveRow(scoreboard, state.currentPlayerIndex);
+}
+
+// Centre the active player's row in a scrollable list, but only when the
+// active player changes (re-centering on every dart would jitter). Also used
+// by panels that build their own scoreboard (Cricket's marks table).
+export function centerActiveRow(container, currentPlayerIndex, selector = '.game-player-block.active') {
+    const activeKey = String(currentPlayerIndex);
+    if (container.dataset.activeKey !== activeKey) {
+        container.dataset.activeKey = activeKey;
+        const activeRow = container.querySelector(selector);
+        if (activeRow) {
+            activeRow.scrollIntoView({ block: 'center', behavior: 'smooth' });
         }
     }
 }

@@ -641,3 +641,21 @@
     color: #c8a44c;
     font-size: 0.78rem;
 }
+
+/* Target strip ("Target: 3" / "Aim at: D16") above the scoreboard, shared by
+   the games that call one target per round (createTargetStrip). */
+.game-target-strip {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 0.4rem 0.75rem;
+    background: #1e1e1e;
+    border-radius: 4px;
+}
+
+.game-target-label {
+    color: #888;
+}
+
+.game-target-value {
+    color: #ffb74d;
+}

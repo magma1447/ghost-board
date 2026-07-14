@@ -11,7 +11,7 @@
 // turn. targetSegments lists the remaining unhit segment numbers for LED
 // display (main.js reads this to light up multiple segments).
 
-import { currentPlayer, ringMatchesMode, advancePlayerBase } from '../../game-engine/shared/game-helpers.js';
+import { currentPlayer, ringMatchesMode, advancePlayerBase, ignoredDart, highestScoreWinner } from '../../game-engine/shared/game-helpers.js';
 
 export function createSimonSays({
     numPlayers = 2,
@@ -72,29 +72,13 @@ export function createSimonSays({
     }
 
     function determineWinner() {
-        let best = -1;
-        let bestIdx = null;
-        let tie = false;
-        for (let i = 0; i < state.players.length; i++) {
-            if (state.players[i].score > best) {
-                best = state.players[i].score;
-                bestIdx = i;
-                tie = false;
-            } else if (state.players[i].score === best) {
-                tie = true;
-            }
-        }
-        return tie ? null : bestIdx;
+        return highestScoreWinner(state.players);
     }
 
     function onDart(ring, segment) {
-        // Dart didn't count (game over, or turn already complete/locked) —
-        // 'ignored' lets the UI skip audio while LEDs still flash.
-        if (state.isGameOver) {
-            return { state, event: 'ignored', callouts: [] };
-        }
-        if (state.turn.locked || state.turn.darts.length >= dartsPerTurn) {
-            return { state, event: 'ignored', callouts: [] };
+        const ignored = ignoredDart(state, dartsPerTurn);
+        if (ignored) {
+            return ignored;
         }
 
         // Check if dart hits any remaining (unhit) target

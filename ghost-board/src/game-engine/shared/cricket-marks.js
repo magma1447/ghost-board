@@ -51,3 +51,8 @@ export function dartMarks(ring, segment, numbers) {
 export function numberValue(number) {
     return number === 'bull' ? 25 : number;
 }
+
+// The scoreboard glyph for a mark count: / (1), ✕ (2), ○ (closed).
+export function markGlyph(marks) {
+    return marks >= 3 ? '○' : marks === 2 ? '✕' : marks === 1 ? '/' : '';
+}

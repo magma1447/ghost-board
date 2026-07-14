@@ -14,8 +14,8 @@
 // Callout types: 'turnTotal' (after the 3rd dart), 'remaining' (running total
 //   on switch).
 
-import { calcPoints } from './board-score.js';
-import { currentPlayer, advancePlayerBase, createTurnEndCallout } from './game-helpers.js';
+import { pointsWithBullMode } from './board-score.js';
+import { currentPlayer, advancePlayerBase, createTurnEndCallout, ignoredDart, highestScoreWinner } from './game-helpers.js';
 
 export function createScoreGame({
     type,
@@ -53,16 +53,12 @@ export function createScoreGame({
     const turnEnd = createTurnEndCallout();
 
     function getPoints(ring, segment) {
-        // In 50/50 bull mode, single bull scores 50 instead of the standard 25
-        if (bullMode === '50/50' && ring === 'SBULL') {
-            return 50;
-        }
         // Beginner-friendly: doubles and trebles score their face (single)
         // value; bull is untouched (governed by bull scoring).
         if (singlesOnly && (ring === 'D' || ring === 'T')) {
             return segment;
         }
-        return calcPoints(ring, segment);
+        return pointsWithBullMode(ring, segment, bullMode);
     }
 
     function turnTotal() {
@@ -77,29 +73,13 @@ export function createScoreGame({
 
     // Highest total wins; a tie for the lead returns null (draw / sudden death).
     function determineWinner() {
-        let best = -1;
-        let bestIdx = null;
-        let tie = false;
-        for (let i = 0; i < state.players.length; i++) {
-            if (state.players[i].score > best) {
-                best = state.players[i].score;
-                bestIdx = i;
-                tie = false;
-            } else if (state.players[i].score === best) {
-                tie = true;
-            }
-        }
-        return tie ? null : bestIdx;
+        return highestScoreWinner(state.players);
     }
 
     function onDart(ring, segment) {
-        // Dart didn't count (game over, or turn already complete/locked) —
-        // 'ignored' lets the UI skip audio while LEDs still flash.
-        if (state.isGameOver) {
-            return { state, event: 'ignored', callouts: [] };
-        }
-        if (state.turn.locked || state.turn.darts.length >= dartsPerTurn) {
-            return { state, event: 'ignored', callouts: [] };
+        const ignored = ignoredDart(state, dartsPerTurn);
+        if (ignored) {
+            return ignored;
         }
 
         const player = currentPlayer(state);

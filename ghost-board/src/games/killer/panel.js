@@ -6,14 +6,14 @@
 
 import './panel.css';
 import { settingsLine } from '../../game-engine/shared/format.js';
-import { createGamePanel, renderScoreboard, winnerName } from '../../game-engine/core/panel-factory.js';
+import { createGamePanel, renderScoreboard, panelApi } from '../../game-engine/core/panel-factory.js';
 import { createPlayer } from '../../state/players.js';
 import { icons } from '../../ui/common/icons.js';
 import { defaults, fields } from './options.js';
 import rulesMd from './rules.md?raw';
 
 export function createKillerPanel(container, callbacks) {
-    const panel = createGamePanel(container, callbacks, { title: 'Killer', rulesMd });
+    const panel = createGamePanel(container, callbacks, { title: 'Killer', rulesMd, drawMessage: 'Draw — no one left standing' });
 
     // Assign-phase UI sits above the scoreboard and is hidden during play.
     const assignBox = document.createElement('div');
@@ -102,15 +102,14 @@ export function createKillerPanel(container, callbacks) {
             });
         }
 
-        panel.nextBtn.hidden = state.phase === 'assign';
-        panel.nextBtn.disabled = state.phase === 'assign' || state.isGameOver;
+        panel.finishUpdate(state, event);
 
-        if (event === 'win') {
-            panel.showBanner(`${winnerName(state)} wins!`, 'win');
-        } else if (event === 'draw') {
-            panel.showBanner('Draw — no one left standing', 'draw');
+        // The Next button stays out of play until numbers are assigned.
+        panel.nextBtn.hidden = state.phase === 'assign';
+        if (state.phase === 'assign') {
+            panel.nextBtn.disabled = true;
         }
     }
 
-    return { update, destroy: panel.destroy, nextBtn: panel.nextBtn, rematchBtn: panel.rematchBtn, undoBtn: panel.undoBtn, showBanner: panel.showBanner };
+    return panelApi(panel, update);
 }

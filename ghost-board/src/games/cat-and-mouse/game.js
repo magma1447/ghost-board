@@ -11,7 +11,7 @@
 // This avoids circular comparison complexity — win conditions are simple
 // integer comparisons on progress values.
 
-import { currentPlayer, ringMatchesMode, stepsForRing } from '../../game-engine/shared/game-helpers.js';
+import { currentPlayer, ringMatchesMode, stepsForRing, ignoredDart } from '../../game-engine/shared/game-helpers.js';
 import { BOARD_ORDER } from '../../board/segments.js';
 
 export function createCatAndMouse({
@@ -114,13 +114,9 @@ export function createCatAndMouse({
     }
 
     function onDart(ring, segment) {
-        // Dart didn't count (game over, or turn already complete/locked) —
-        // 'ignored' lets the UI skip audio while LEDs still flash.
-        if (state.isGameOver) {
-            return { state, event: 'ignored', callouts: [] };
-        }
-        if (state.turn.locked || state.turn.darts.length >= dartsPerTurn) {
-            return { state, event: 'ignored', callouts: [] };
+        const ignored = ignoredDart(state, dartsPerTurn);
+        if (ignored) {
+            return ignored;
         }
 
         const player = currentPlayer(state);

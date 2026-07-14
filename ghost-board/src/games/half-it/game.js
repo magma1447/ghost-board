@@ -7,21 +7,10 @@
 // on that segment", 'double' = any double, 'treble' = any treble, 'bull' = the
 // bull. Rounds past the sequence (sudden death) are a bull-off.
 
-import { currentPlayer, advancePlayerBase, createTurnEndCallout } from '../../game-engine/shared/game-helpers.js';
+import { currentPlayer, advancePlayerBase, createTurnEndCallout, ignoredDart, highestScoreWinner } from '../../game-engine/shared/game-helpers.js';
+import { calcPoints } from '../../game-engine/shared/board-score.js';
 
 const SEQUENCE = [20, 16, 'double', 17, 18, 'treble', 19, 20, 'bull'];
-
-// A dart's face value (used only when it hits the target).
-function dartPoints(ring, segment) {
-    if (ring === 'SBULL') {
-        return 25;
-    }
-    if (ring === 'DBULL') {
-        return 50;
-    }
-    const mult = ring === 'T' ? 3 : ring === 'D' ? 2 : 1;
-    return segment * mult;
-}
 
 // Does this dart hit the round's target?
 function qualifies(ring, segment, target) {
@@ -78,19 +67,7 @@ export function createHalfIt({
     }
 
     function determineWinner() {
-        let best = -1;
-        let bestIdx = null;
-        let tie = false;
-        for (let i = 0; i < state.players.length; i++) {
-            if (state.players[i].score > best) {
-                best = state.players[i].score;
-                bestIdx = i;
-                tie = false;
-            } else if (state.players[i].score === best) {
-                tie = true;
-            }
-        }
-        return tie ? null : bestIdx;
+        return highestScoreWinner(state.players);
     }
 
     // The halve + running total belong to the turn that just ended.
@@ -108,17 +85,13 @@ export function createHalfIt({
     }
 
     function onDart(ring, segment) {
-        // Dart didn't count (game over, or turn already complete/locked) —
-        // 'ignored' lets the UI skip audio while LEDs still flash.
-        if (state.isGameOver) {
-            return { state, event: 'ignored', callouts: [] };
-        }
-        if (state.turn.locked || state.turn.darts.length >= dartsPerTurn) {
-            return { state, event: 'ignored', callouts: [] };
+        const ignored = ignoredDart(state, dartsPerTurn);
+        if (ignored) {
+            return ignored;
         }
 
         const hit = qualifies(ring, segment, state.target);
-        const points = hit ? dartPoints(ring, segment) : 0;
+        const points = hit ? calcPoints(ring, segment) : 0;
         if (hit) {
             state.turn.roundPoints += points;
             currentPlayer(state).score += points;

@@ -1,6 +1,7 @@
 // Floating tree menu component
 
 import './menu.css';
+import { attachDropdown } from './dropdown.js';
 
 export function createMenu(anchorEl, tree) {
     const el = document.createElement('div');
@@ -40,48 +41,18 @@ export function createMenu(anchorEl, tree) {
     wrap.appendChild(anchorEl);
     wrap.appendChild(el);
 
-    // Close on click outside
-    function onDocClick(e) {
-        if (!el.contains(e.target) && !wrap.contains(e.target)) {
-            close();
-        }
-    }
-
-    // Close on Escape
-    function onKeyDown(e) {
-        if (e.key === 'Escape') {
-            close();
-        }
-    }
-
-    function open() {
-        el.hidden = false;
-        document.addEventListener('click', onDocClick, true);
-        document.addEventListener('keydown', onKeyDown);
-    }
-
-    function close() {
-        el.hidden = true;
-        // Collapse all groups on close
+    // Collapse all groups on close
+    function collapseGroups() {
         el.querySelectorAll('.menu-group-body').forEach((b) => {
             b.hidden = true;
         });
         el.querySelectorAll('.menu-group-header').forEach((h) => {
             h.classList.remove('expanded');
         });
-        document.removeEventListener('click', onDocClick, true);
-        document.removeEventListener('keydown', onKeyDown);
     }
 
-    function toggle() {
-        if (el.hidden) {
-            open();
-        } else {
-            close();
-        }
-    }
-
-    return { open, close, toggle };
+    // The anchor click toggles; outside click / Escape close (attachDropdown).
+    return attachDropdown(wrap, anchorEl, el, { onClose: collapseGroups });
 }
 
 function renderItem(item) {

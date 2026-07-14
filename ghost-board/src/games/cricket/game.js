@@ -12,7 +12,7 @@
 // Returns { state, event, callouts } from onDart() and nextPlayer().
 // Events: null (mark / score), 'miss', 'win', 'switch', 'ignored'
 
-import { currentPlayer, createTurnEndCallout, advancePlayerBase } from '../../game-engine/shared/game-helpers.js';
+import { currentPlayer, createTurnEndCallout, advancePlayerBase, ignoredDart } from '../../game-engine/shared/game-helpers.js';
 import { buildNumbers, dartMarks, numberValue } from '../../game-engine/shared/cricket-marks.js';
 
 export function createCricket({
@@ -99,13 +99,9 @@ export function createCricket({
     }
 
     function onDart(ring, segment) {
-        // Dart didn't count (game over, or turn already complete/locked) —
-        // 'ignored' lets the UI skip audio while LEDs still flash.
-        if (state.isGameOver) {
-            return { state, event: 'ignored', callouts: [] };
-        }
-        if (state.turn.locked || state.turn.darts.length >= dartsPerTurn) {
-            return { state, event: 'ignored', callouts: [] };
+        const ignored = ignoredDart(state, dartsPerTurn);
+        if (ignored) {
+            return ignored;
         }
 
         const idx = state.currentPlayerIndex;

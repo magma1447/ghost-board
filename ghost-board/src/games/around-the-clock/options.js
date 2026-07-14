@@ -2,7 +2,8 @@
 // by the setup panel (createGameSetup) and the in-game settings line
 // (describeSettings).
 
-import { formatBool, formatRounds } from '../../game-engine/shared/format.js';
+import { formatBool } from '../../game-engine/shared/format.js';
+import { hitModeField, maxRoundsField } from '../../game-engine/shared/option-fields.js';
 
 export const defaults = {
     bullFinish: 'single',
@@ -12,12 +13,6 @@ export const defaults = {
 };
 
 const BULL_LABELS = { off: 'off', single: 'single bull', double: 'double bull' };
-
-const HIT_MODE_OPTIONS = [
-    { value: 'any', label: 'Any' },
-    { value: 'doubles', label: 'Doubles only' },
-    { value: 'trebles', label: 'Trebles only' },
-];
 
 export const fields = [
     {
@@ -29,19 +24,10 @@ export const fields = [
             { value: 'double', label: 'Double bull' },
         ],
     },
-    {
-        name: 'hitMode', label: 'Hit mode', type: 'select',
-        defaultHint: defaults.hitMode,
-        options: HIT_MODE_OPTIONS,
-    },
+    hitModeField(defaults.hitMode),
     {
         name: 'multiStep', label: 'Multi-step', type: 'checkbox',
         defaultHint: formatBool(defaults.multiStep),
     },
-    {
-        name: 'maxRounds', label: 'Max rounds', type: 'number',
-        defaultHint: formatRounds(defaults.maxRounds),
-        presets: [{ value: null, label: 'No limit' }, 15, 20, 25, 30],
-        min: 1, max: 100, format: formatRounds,
-    },
+    maxRoundsField(defaults.maxRounds, { label: 'Max rounds', presets: [15, 20, 25, 30], max: 100, noLimit: true }),
 ];

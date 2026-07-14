@@ -1,6 +1,5 @@
-import './panel.css';
-import { formatRoundLabel, settingsLine } from '../../game-engine/shared/format.js';
-import { createGamePanel, renderScoreboard, winnerName } from '../../game-engine/core/panel-factory.js';
+import { suddenDeathRoundLabel, settingsLine } from '../../game-engine/shared/format.js';
+import { createGamePanel, renderScoreboard, panelApi, createTargetStrip } from '../../game-engine/core/panel-factory.js';
 import { defaults, fields } from './options.js';
 import rulesMd from './rules.md?raw';
 
@@ -19,32 +18,15 @@ function aimText(target) {
 }
 
 export function createHalfItPanel(container, callbacks) {
-    const panel = createGamePanel(container, callbacks, { title: 'Half It', rulesMd });
+    const panel = createGamePanel(container, callbacks, { title: 'Half It', rulesMd, drawMessage: 'Draw — tied scores' });
 
-    const targetLabel = document.createElement('div');
-    targetLabel.className = 'game-half-it-target';
-    panel.el.insertBefore(targetLabel, panel.scoreboard);
-
-    function renderTarget(state) {
-        targetLabel.innerHTML = '';
-        const label = document.createElement('span');
-        label.className = 'game-half-it-target-label';
-        label.textContent = 'Aim at: ';
-        const value = document.createElement('span');
-        value.className = 'game-half-it-target-value';
-        value.textContent = aimText(state.target);
-        targetLabel.append(label, value);
-    }
+    const target = createTargetStrip(panel, 'Aim at: ');
 
     function update(state, event, match) {
         panel.setRules(settingsLine(fields, state.options, defaults));
+        panel.setRound(suddenDeathRoundLabel(state.round, state.sequence.length, state.isGameOver), match);
 
-        const roundText = (!state.isGameOver && state.round > state.sequence.length)
-            ? `Sudden death · round ${state.round}`
-            : formatRoundLabel(state.round, state.sequence.length);
-        panel.setRound(roundText, match);
-
-        renderTarget(state);
+        target.set(aimText(state.target));
 
         renderScoreboard(panel.scoreboard, state, {
             valueFor: (p) => String(p.score),
@@ -52,14 +34,8 @@ export function createHalfItPanel(container, callbacks) {
             match,
         });
 
-        panel.nextBtn.disabled = state.isGameOver;
-
-        if (event === 'win') {
-            panel.showBanner(`${winnerName(state)} wins!`, 'win');
-        } else if (event === 'draw') {
-            panel.showBanner('Draw — tied scores', 'draw');
-        }
+        panel.finishUpdate(state, event);
     }
 
-    return { update, destroy: panel.destroy, nextBtn: panel.nextBtn, rematchBtn: panel.rematchBtn, undoBtn: panel.undoBtn, showBanner: panel.showBanner };
+    return panelApi(panel, update);
 }

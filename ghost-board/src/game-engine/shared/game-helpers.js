@@ -28,6 +28,46 @@ export function currentPlayer(state) {
     return state.players[state.currentPlayerIndex];
 }
 
+// Dart didn't count (game over, or turn already complete/locked) — 'ignored'
+// lets the UI skip audio while LEDs still flash. Returns the result to hand
+// back from onDart(), or null when the dart counts and play proceeds.
+export function ignoredDart(state, dartsPerTurn) {
+    if (state.isGameOver || state.turn.locked || state.turn.darts.length >= dartsPerTurn) {
+        return { state, event: 'ignored', callouts: [] };
+    }
+    return null;
+}
+
+// Highest score wins; a tie for the lead returns null (draw / sudden death).
+// skip() excludes players from contention (e.g. eliminated in Bob's 27).
+export function highestScoreWinner(players, { skip } = {}) {
+    let best = -Infinity;
+    let bestIdx = null;
+    let tie = false;
+    for (let i = 0; i < players.length; i++) {
+        if (skip && skip(players[i])) {
+            continue;
+        }
+        if (players[i].score > best) {
+            best = players[i].score;
+            bestIdx = i;
+            tie = false;
+        } else if (players[i].score === best) {
+            tie = true;
+        }
+    }
+    return tie ? null : bestIdx;
+}
+
+// End-of-turn stash: keep the leaving player's darts visible until their next
+// turn, and reset the turn for whoever throws next. Games with their own
+// player rotation call this instead of advancePlayerBase.
+export function stashTurn(state) {
+    currentPlayer(state).lastDarts = state.turn.darts;
+    state.turn.darts = [];
+    state.turn.locked = false;
+}
+
 // Does the dart's ring qualify as a hit under the given hit mode?
 //   'doubles' — only the double ring
 //   'trebles' — only the treble ring
@@ -72,9 +112,7 @@ export function stepsForRing(ring, multiStep) {
 export const SUDDEN_DEATH_CAP = 100;
 
 export function advancePlayerBase(state, maxRounds, { determineWinner, onDraw } = {}) {
-    currentPlayer(state).lastDarts = state.turn.darts; // keep this turn visible until their next
-    state.turn.darts = [];
-    state.turn.locked = false;
+    stashTurn(state);
     state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
     if (state.currentPlayerIndex === 0) {
         state.round++;

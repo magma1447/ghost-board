@@ -13,7 +13,7 @@
 //   multiStep: doubles advance 2 targets, trebles advance 3
 //   bullFinish: 'off' (end at 20) | 'single' | 'double' (must finish on bull)
 
-import { currentPlayer, ringMatchesMode, stepsForRing, advancePlayerBase } from '../../game-engine/shared/game-helpers.js';
+import { currentPlayer, ringMatchesMode, stepsForRing, advancePlayerBase, ignoredDart } from '../../game-engine/shared/game-helpers.js';
 
 export function createAroundTheClock({
     numPlayers = 2,
@@ -89,13 +89,9 @@ export function createAroundTheClock({
     }
 
     function onDart(ring, segment) {
-        // Dart didn't count (game over, or turn already complete/locked) —
-        // 'ignored' lets the UI skip audio while LEDs still flash.
-        if (state.isGameOver) {
-            return { state, event: 'ignored', callouts: [] };
-        }
-        if (state.turn.locked || state.turn.darts.length >= dartsPerTurn) {
-            return { state, event: 'ignored', callouts: [] };
+        const ignored = ignoredDart(state, dartsPerTurn);
+        if (ignored) {
+            return ignored;
         }
 
         const player = currentPlayer(state);

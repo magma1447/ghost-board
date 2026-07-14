@@ -13,7 +13,9 @@
 // Custom profiles later — see #68.
 //
 // The per-game aim strategies live with their game (src/games/<game>/ai.js) and
-// import RING_RADIUS / takesRisk from here; ai.js applies the scatter.
+// import RING_RADIUS / takesRisk from here; ai.js applies the scatter. The
+// common strategies shared by several games (hitModeAim, treble20Aim) live at
+// the bottom of this file.
 
 import { BOARD_ORDER, RADII } from '../board/segments.js';
 
@@ -125,4 +127,26 @@ export function applyScatter(aim, profile) {
         y: aimXY.y + gaussian() * profile.scatterVertical * spread,
     };
     return { ...pointToHit(land.x, land.y), aim: aimXY, land, aimTarget: pointToHit(aimXY.x, aimXY.y) };
+}
+
+// Aim a target segment at the ring its hit-mode needs. In 'any' mode with
+// multi-step, a treble jumps 3 targets (risky) vs a single's 1 (safe) —
+// confident AIs go for the treble; otherwise the fat single.
+export function hitModeAim(segment, hitMode, { multiStep = false, profile = null } = {}) {
+    if (hitMode === 'doubles') {
+        return { segment, radius: RING_RADIUS.double };
+    }
+    if (hitMode === 'trebles') {
+        return { segment, radius: RING_RADIUS.treble };
+    }
+    if (multiStep && profile && takesRisk(profile)) {
+        return { segment, radius: RING_RADIUS.treble };
+    }
+    return { segment, radius: RING_RADIUS.any };
+}
+
+// The workhorse aim for pure point-scoring games: treble 20, the highest-value
+// dart on the board.
+export function treble20Aim() {
+    return { segment: 20, radius: RING_RADIUS.treble };
 }

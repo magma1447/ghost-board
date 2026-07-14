@@ -1,7 +1,8 @@
 // X01 option schema — the defaults and field definitions, shared by the setup
 // panel (createGameSetup) and the in-game settings line (describeSettings).
 
-import { formatBool, formatRounds } from '../../game-engine/shared/format.js';
+import { formatBool } from '../../game-engine/shared/format.js';
+import { bullModeField, maxRoundsField } from '../../game-engine/shared/option-fields.js';
 
 export const defaults = {
     startingScore: 501,
@@ -30,20 +31,8 @@ export const fields = [
         name: 'doubleOut', label: 'Double out', type: 'checkbox',
         defaultHint: formatBool(defaults.doubleOut),
     },
-    {
-        name: 'bullMode', label: 'Bull scoring', type: 'select',
-        defaultHint: defaults.bullMode,
-        options: [
-            { value: '25/50', label: '25 / 50 (standard)' },
-            { value: '50/50', label: '50 / 50' },
-        ],
-    },
-    {
-        name: 'maxRounds', label: 'Max rounds', type: 'number',
-        defaultHint: formatRounds(defaults.maxRounds),
-        presets: [{ value: null, label: 'No limit' }, 15, 20, 25, 30],
-        min: 1, max: 100, format: formatRounds,
-    },
+    bullModeField(defaults.bullMode),
+    maxRoundsField(defaults.maxRounds, { label: 'Max rounds', presets: [15, 20, 25, 30], max: 100, noLimit: true }),
     {
         name: 'checkoutThreshold', label: 'Checkout calls below', type: 'number',
         defaultHint: formatCheckout(defaults.checkoutThreshold),

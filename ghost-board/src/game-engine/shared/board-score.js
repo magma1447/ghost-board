@@ -13,6 +13,15 @@ export const RING = {
     OUT: 'OUT',
 };
 
+// calcPoints with the bull-scoring option applied: in '50/50' mode the single
+// bull scores 50 (like the double bull) instead of the standard 25.
+export function pointsWithBullMode(ring, segment, bullMode) {
+    if (bullMode === '50/50' && ring === RING.SINGLE_BULL) {
+        return 50;
+    }
+    return calcPoints(ring, segment);
+}
+
 // Points calculation
 export function calcPoints(ring, segment) {
     if (ring === RING.DOUBLE_BULL) {

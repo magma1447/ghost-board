@@ -7,7 +7,7 @@
 // for the rest of the game and can't win. With elimination off, scores may go
 // negative and everyone plays the whole card. Highest total wins.
 
-import { currentPlayer, createTurnEndCallout, SUDDEN_DEATH_CAP } from '../../game-engine/shared/game-helpers.js';
+import { currentPlayer, createTurnEndCallout, ignoredDart, highestScoreWinner, stashTurn, SUDDEN_DEATH_CAP } from '../../game-engine/shared/game-helpers.js';
 
 // Each entry is the DOUBLE of that number; 'bull' = the double bull.
 const SEQUENCE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 'bull'];
@@ -93,22 +93,7 @@ export function createBobs27({
 
     // Highest score among still-active players; null on a tie (or if none active).
     function determineWinner() {
-        let best = -Infinity;
-        let bestIdx = null;
-        let tie = false;
-        for (let i = 0; i < state.players.length; i++) {
-            if (state.players[i].out) {
-                continue;
-            }
-            if (state.players[i].score > best) {
-                best = state.players[i].score;
-                bestIdx = i;
-                tie = false;
-            } else if (state.players[i].score === best) {
-                tie = true;
-            }
-        }
-        return tie ? null : bestIdx;
+        return highestScoreWinner(state.players, { skip: (p) => p.out });
     }
 
     // The turn's result belongs to the turn that just ended.
@@ -134,13 +119,9 @@ export function createBobs27({
     }
 
     function onDart(ring, segment) {
-        // Dart didn't count (game over, or turn already complete/locked) —
-        // 'ignored' lets the UI skip audio while LEDs still flash.
-        if (state.isGameOver) {
-            return { state, event: 'ignored', callouts: [] };
-        }
-        if (state.turn.locked || state.turn.darts.length >= dartsPerTurn) {
-            return { state, event: 'ignored', callouts: [] };
+        const ignored = ignoredDart(state, dartsPerTurn);
+        if (ignored) {
+            return ignored;
         }
 
         const hit = qualifies(ring, segment, state.target, bullMode);
@@ -161,15 +142,13 @@ export function createBobs27({
     }
 
     function nextPlayer() {
-        const leaving = currentPlayer(state);
-
         // The turn was resolved on the last dart; here it's the fallback for an
         // undetected last dart. resolveTurn applies the penalty/elimination, so it
         // must run (for its side effects) before the win checks read the score.
         const endCall = turnEnd.onSwitch(resolveTurn);
 
-        leaving.lastDarts = state.turn.darts.slice(); // keep visible until their next turn
-        state.turn = { darts: [], locked: false, roundHits: 0 };
+        stashTurn(state);
+        state.turn.roundHits = 0;
 
         const callouts = endCall ? [endCall] : [];
 

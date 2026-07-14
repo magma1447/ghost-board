@@ -1,21 +1,17 @@
 // Count Up game panel — running totals and each turn's darts with its sum.
 
-import { formatRoundLabel, settingsLine, averageLabel } from '../../game-engine/shared/format.js';
-import { createGamePanel, renderScoreboard, winnerName } from '../../game-engine/core/panel-factory.js';
+import { suddenDeathRoundLabel, settingsLine, averageLabel } from '../../game-engine/shared/format.js';
+import { createGamePanel, renderScoreboard, panelApi } from '../../game-engine/core/panel-factory.js';
 import { defaults, fields } from './options.js';
 import rulesMd from './rules.md?raw';
 
 export function createCountUpPanel(container, callbacks) {
-    const panel = createGamePanel(container, callbacks, { title: 'Count Up', rulesMd });
+    const panel = createGamePanel(container, callbacks, { title: 'Count Up', rulesMd, drawMessage: 'Draw — tied scores' });
 
     function update(state, event, match) {
         panel.setRules(settingsLine(fields, state.options, defaults));
 
-        // Past the round limit but still playing → sudden death (play-until-winner)
-        const roundText = (!state.isGameOver && state.options.maxRounds !== null && state.round > state.options.maxRounds)
-            ? `Sudden death · round ${state.round}`
-            : formatRoundLabel(state.round, state.options.maxRounds);
-        panel.setRound(roundText, match);
+        panel.setRound(suddenDeathRoundLabel(state.round, state.options.maxRounds, state.isGameOver), match);
 
         renderScoreboard(panel.scoreboard, state, {
             infoFor: averageLabel,
@@ -24,14 +20,8 @@ export function createCountUpPanel(container, callbacks) {
             match,
         });
 
-        panel.nextBtn.disabled = state.isGameOver;
-
-        if (event === 'win') {
-            panel.showBanner(`${winnerName(state)} wins!`, 'win');
-        } else if (event === 'draw') {
-            panel.showBanner('Draw — tied scores', 'draw');
-        }
+        panel.finishUpdate(state, event);
     }
 
-    return { update, destroy: panel.destroy, nextBtn: panel.nextBtn, rematchBtn: panel.rematchBtn, undoBtn: panel.undoBtn, showBanner: panel.showBanner };
+    return panelApi(panel, update);
 }

@@ -27,6 +27,14 @@ export function formatRoundLabel(round, maxRounds) {
     return maxRounds !== null ? `Round ${round} / ${maxRounds}` : `Round ${round}`;
 }
 
+// Round indicator that flags overtime: past the round limit but still playing
+// means sudden death (the play-until-a-winner tie-breaker).
+export function suddenDeathRoundLabel(round, maxRounds, isGameOver) {
+    return (!isGameOver && maxRounds !== null && round > maxRounds)
+        ? `Sudden death · round ${round}`
+        : formatRoundLabel(round, maxRounds);
+}
+
 // Per-player 3-dart average sub-line (points scored per completed turn).
 export function averageLabel(player) {
     return player.visits > 0 ? `Avg ${(player.scored / player.visits).toFixed(2)}` : 'Avg —';

@@ -3,12 +3,12 @@
 import './panel.css';
 import { formatRoundLabel, settingsLine } from '../../game-engine/shared/format.js';
 import { createPlayer } from '../../state/players.js';
-import { createGamePanel, renderScoreboard, winnerName } from '../../game-engine/core/panel-factory.js';
+import { createGamePanel, renderScoreboard, panelApi } from '../../game-engine/core/panel-factory.js';
 import { defaults, fields } from './options.js';
 import rulesMd from './rules.md?raw';
 
 export function createCatAndMousePanel(container, callbacks) {
-    const panel = createGamePanel(container, callbacks, { title: 'Cat and Mouse', rulesMd });
+    const panel = createGamePanel(container, callbacks, { title: 'Cat and Mouse', rulesMd, drawMessage: 'Draw — round limit reached' });
 
     // Chase summary (single line — the gap is the same for both players),
     // shown between the scoreboard and the banner.
@@ -38,14 +38,8 @@ export function createCatAndMousePanel(container, callbacks) {
         gapLine.textContent = `Mouse is ${ahead} ahead`;
         gapLine.hidden = state.isGameOver;
 
-        panel.nextBtn.disabled = state.isGameOver;
-
-        if (event === 'win') {
-            panel.showBanner(`${winnerName(state)} wins!`, 'win');
-        } else if (event === 'draw') {
-            panel.showBanner('Draw — round limit reached', 'draw');
-        }
+        panel.finishUpdate(state, event);
     }
 
-    return { update, destroy: panel.destroy, nextBtn: panel.nextBtn, rematchBtn: panel.rematchBtn, undoBtn: panel.undoBtn, showBanner: panel.showBanner };
+    return panelApi(panel, update);
 }

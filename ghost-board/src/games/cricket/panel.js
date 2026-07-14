@@ -4,17 +4,12 @@
 
 import './panel.css';
 import { formatDart, settingsLine } from '../../game-engine/shared/format.js';
-import { createGamePanel, winnerName } from '../../game-engine/core/panel-factory.js';
+import { createGamePanel, panelApi, centerActiveRow } from '../../game-engine/core/panel-factory.js';
+import { markGlyph } from '../../game-engine/shared/cricket-marks.js';
 import { createPlayer } from '../../state/players.js';
 import { isMatchPlay, playerMatchLabel } from '../../game-engine/core/match.js';
 import { defaults, fields } from './options.js';
 import rulesMd from './rules.md?raw';
-
-// Mark state → glyph, mirroring pen-and-paper Cricket: a slash, then a cross,
-// then a circle (round the cross) once the number is closed.
-function markGlyph(m) {
-    return m >= 3 ? '○' : m === 2 ? '✕' : m === 1 ? '/' : '';
-}
 
 export function createCricketPanel(container, callbacks) {
     const panel = createGamePanel(container, callbacks, { title: 'Cricket', rulesMd });
@@ -99,27 +94,15 @@ export function createCricketPanel(container, callbacks) {
         table.appendChild(tbody);
         board.appendChild(table);
 
-        // Centre the active row when the active player changes
-        const activeKey = String(state.currentPlayerIndex);
-        if (board.dataset.activeKey !== activeKey) {
-            board.dataset.activeKey = activeKey;
-            const active = board.querySelector('tr.active');
-            if (active) {
-                active.scrollIntoView({ block: 'center', behavior: 'smooth' });
-            }
-        }
+        centerActiveRow(board, state.currentPlayerIndex, 'tr.active');
     }
 
     function update(state, event, match) {
         panel.setRules(settingsLine(fields, state.options, defaults));
         panel.setRound(`Round ${state.round}`, match);
         renderBoard(state, match);
-        panel.nextBtn.disabled = state.isGameOver;
-
-        if (event === 'win') {
-            panel.showBanner(`${winnerName(state)} wins!`, 'win');
-        }
+        panel.finishUpdate(state, event);
     }
 
-    return { update, destroy: panel.destroy, nextBtn: panel.nextBtn, rematchBtn: panel.rematchBtn, undoBtn: panel.undoBtn, showBanner: panel.showBanner };
+    return panelApi(panel, update);
 }

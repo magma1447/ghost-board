@@ -1,12 +1,12 @@
 // Half It option schema — defaults and field definitions, shared by the setup
 // panel (createGameSetup) and the in-game settings line (describeSettings).
 
+import { onDrawField } from '../../game-engine/shared/option-fields.js';
+
 export const defaults = {
     startScore: 0,
     onDraw: 'draw',
 };
-
-const ON_DRAW_LABELS = { draw: 'draw', continue: 'play until a winner' };
 
 export const fields = [
     {
@@ -14,12 +14,5 @@ export const fields = [
         defaultHint: '0',
         presets: [0], min: 0, max: 100,
     },
-    {
-        name: 'onDraw', label: 'On a tie', type: 'select',
-        defaultHint: ON_DRAW_LABELS[defaults.onDraw],
-        options: [
-            { value: 'draw', label: 'Draw' },
-            { value: 'continue', label: 'Play until a winner' },
-        ],
-    },
+    onDrawField(defaults.onDraw),
 ];

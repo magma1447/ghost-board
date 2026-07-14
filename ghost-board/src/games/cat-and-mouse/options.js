@@ -2,7 +2,8 @@
 // the setup panel (createGameSetup) and the in-game settings line
 // (describeSettings).
 
-import { formatBool, formatRounds } from '../../game-engine/shared/format.js';
+import { formatBool } from '../../game-engine/shared/format.js';
+import { hitModeField, maxRoundsField } from '../../game-engine/shared/option-fields.js';
 
 export const defaults = {
     gap: 1,
@@ -21,15 +22,7 @@ export const fields = [
         defaultHint: String(defaults.gap),
         presets: [1, 2, 3, 4, 5], min: 1, max: 19,
     },
-    {
-        name: 'hitMode', label: 'Hit mode', type: 'select',
-        defaultHint: defaults.hitMode,
-        options: [
-            { value: 'any', label: 'Any' },
-            { value: 'doubles', label: 'Doubles only' },
-            { value: 'trebles', label: 'Trebles only' },
-        ],
-    },
+    hitModeField(defaults.hitMode),
     {
         name: 'multiStep', label: 'Multi-step', type: 'checkbox',
         defaultHint: formatBool(defaults.multiStep),
@@ -38,12 +31,7 @@ export const fields = [
         name: 'sprint', label: 'Sprint', type: 'checkbox',
         defaultHint: formatBool(defaults.sprint),
     },
-    {
-        name: 'maxRounds', label: 'Max rounds', type: 'number',
-        defaultHint: formatRounds(defaults.maxRounds),
-        presets: [{ value: null, label: 'No limit' }, 10, 15, 20, 30],
-        min: 1, max: 100, format: formatRounds,
-    },
+    maxRoundsField(defaults.maxRounds, { label: 'Max rounds', presets: [10, 15, 20, 30], max: 100, noLimit: true }),
     {
         name: 'roundLimitResult', label: 'Round limit result', type: 'select',
         defaultHint: ROUND_LIMIT_LABELS[defaults.roundLimitResult],

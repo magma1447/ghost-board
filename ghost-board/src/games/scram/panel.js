@@ -4,18 +4,13 @@
 
 import './panel.css';
 import { settingsLine } from '../../game-engine/shared/format.js';
-import { createGamePanel, renderScoreboard, winnerName } from '../../game-engine/core/panel-factory.js';
+import { createGamePanel, renderScoreboard, panelApi } from '../../game-engine/core/panel-factory.js';
+import { markGlyph } from '../../game-engine/shared/cricket-marks.js';
 import { defaults, fields } from './options.js';
 import rulesMd from './rules.md?raw';
 
-// Mark state → glyph, mirroring pen-and-paper Cricket: a slash, then a cross,
-// then a circle (round the cross) once the number is closed.
-function markGlyph(m) {
-    return m >= 3 ? '○' : m === 2 ? '✕' : m === 1 ? '/' : '';
-}
-
 export function createScramPanel(container, callbacks) {
-    const panel = createGamePanel(container, callbacks, { title: 'Scram', rulesMd });
+    const panel = createGamePanel(container, callbacks, { title: 'Scram', rulesMd, drawMessage: 'Draw — tied scores' });
 
     const closeStrip = document.createElement('div');
     closeStrip.className = 'game-scram-close';
@@ -63,14 +58,8 @@ export function createScramPanel(container, callbacks) {
             match,
         });
 
-        panel.nextBtn.disabled = state.isGameOver;
-
-        if (event === 'win') {
-            panel.showBanner(`${winnerName(state)} wins!`, 'win');
-        } else if (event === 'draw') {
-            panel.showBanner('Draw — tied scores', 'draw');
-        }
+        panel.finishUpdate(state, event);
     }
 
-    return { update, destroy: panel.destroy, nextBtn: panel.nextBtn, rematchBtn: panel.rematchBtn, undoBtn: panel.undoBtn, showBanner: panel.showBanner };
+    return panelApi(panel, update);
 }
