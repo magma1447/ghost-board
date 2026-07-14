@@ -2,6 +2,12 @@
 
 Notable changes to Ghost Board, newest first. Version numbers follow [semantic versioning](https://semver.org/): new features bump the middle number, fixes bump the last.
 
+## 0.9.1 — 2026-07-14
+
+### Fixed
+- Games that go to sudden death now decide the winner only once every player has had the same number of turns, so throwing first is no longer an advantage — and two perfectly matched players end in a draw instead of playing on indefinitely.
+- All Fives now keeps your three darts on show until it's your turn again.
+
 ## 0.9.0 — 2026-07-11
 
 ### Added
