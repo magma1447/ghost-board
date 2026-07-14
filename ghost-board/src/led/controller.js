@@ -7,9 +7,9 @@
 // `colors` is a 20-entry array of palette indices (LED_COLOR), one per number
 // (1–20). This layer owns the colour-array building and animation timing.
 
-import { LED_COLOR } from './ble/protocol.js';
-import { BOARD_ORDER } from './board/segments.js';
-import { settings } from './state/settings.js';
+import { LED_COLOR } from '../ble/protocol.js';
+import { BOARD_ORDER } from '../board/segments.js';
+import { settings } from '../state/settings.js';
 
 // Each output is { output, physical } — `physical` marks the real board (over
 // BLE) so idle attract mode can target it separately from the SVG mirror.

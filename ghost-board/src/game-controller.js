@@ -5,18 +5,19 @@
 // hardware, then hands the main-owned pieces (game area, board, headline HUD,
 // log, win overlay, menu enable/disable) to createGameController() and wires
 // the BLE/debug event stream to handleEvent(). The AI turn pacing lives in
-// ai/ai-driver.js and the undo history in undo-stack.js; this coordinates
-// them with the lifecycle and routes each game event to panel/audio/LEDs/log.
+// ai/ai-driver.js and the undo history in game-engine/core/undo-stack.js;
+// this coordinates them with the lifecycle and routes each game event to
+// panel/audio/LEDs/log.
 
 import { startGame, stopGame, getGame, getPanel } from './game-engine/core/manager.js';
 import { saveGame, loadGame, clearGame } from './state/game-store.js';
 import { settings } from './state/settings.js';
 import { createPlayer, teamMembersOf, currentMemberUuid, reorderUuids } from './state/players.js';
 import { createAiDriver } from './ai/ai-driver.js';
-import { createUndoStack } from './undo-stack.js';
+import { createUndoStack } from './game-engine/core/undo-stack.js';
 import { calcPoints } from './game-engine/shared/board-score.js';
-import { onHit as ledHit, onSwitch as ledSwitch, allOff as ledsOff, attract as ledsAttract } from './led-controller.js';
-import { showTargetLed } from './ble/target-led.js';
+import { onHit as ledHit, onSwitch as ledSwitch, allOff as ledsOff, attract as ledsAttract } from './led/controller.js';
+import { showTargetLed } from './led/targets.js';
 import { playHit, playSwitch, playBust, playWin, playSprint, playCorrect } from './audio/sounds.js';
 import { processCallouts } from './audio/callouts.js';
 import { confirmDialog } from './ui/common/confirm.js';

@@ -3,7 +3,7 @@
 // game/leg). The controller owns *when* to snapshot/restore; this owns the
 // stack and the Undo button's enabled state.
 
-import { getGame, getPanel } from './game-engine/core/manager.js';
+import { getGame, getPanel } from './manager.js';
 
 export function createUndoStack() {
     const stack = [];

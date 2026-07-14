@@ -1,5 +1,5 @@
 // Physical LED output — encodes LED state into Granboard BLE commands and writes
-// them. One of the outputs the LED controller fans out to (see led-controller.js);
+// them. One of the outputs the LED controller fans out to (see led/controller.js);
 // it knows nothing about the SVG board.
 
 import { buildRingCommand, buildHitCommand, buildEffectCommand } from './protocol.js';

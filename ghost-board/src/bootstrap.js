@@ -20,5 +20,5 @@ function enterApp() {
 if (location.hash === '#/app') {
     import('./main.js');
 } else {
-    import('./landing.js').then(({ renderLanding }) => renderLanding(enterApp));
+    import('./landing/landing.js').then(({ renderLanding }) => renderLanding(enterApp));
 }

@@ -5,9 +5,9 @@
 // proper logo.
 
 import './landing.css';
-import { GAME_LOGIC } from './game-engine/core/games-logic.js';
-import { createVersionTag } from './ui/version-tag.js';
-import { requestImmersiveFullscreen } from './ui/fullscreen.js';
+import { GAME_LOGIC } from '../game-engine/core/games-logic.js';
+import { createVersionTag } from '../ui/version-tag.js';
+import { requestImmersiveFullscreen } from '../ui/fullscreen.js';
 
 const TAGLINE = 'Play darts on your Granboard — scored, lit, and called out.';
 

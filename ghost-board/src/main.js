@@ -11,7 +11,7 @@ import { BOARD_THEMES, DEFAULT_BOARD_THEME } from './board/segments.js';
 import { createConnection } from './ble/connection.js';
 import { createLog } from './ui/log.js';
 import { createPhysicalLeds } from './ble/leds.js';
-import { sweep as ledSweep, registerLedOutput, refreshAttractIfActive } from './led-controller.js';
+import { sweep as ledSweep, registerLedOutput, refreshAttractIfActive } from './led/controller.js';
 import { setTheme, setVoice, getThemeNames, getVoiceOptions, ensureAudio } from './audio/sounds.js';
 import { settings, updateSettings, AI_SPEED_OPTIONS } from './state/settings.js';
 import { createMenu } from './ui/common/menu.js';
