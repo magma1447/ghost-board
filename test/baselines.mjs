@@ -13,7 +13,7 @@
 // Re-baseline: … node test/baselines.mjs --update
 
 import fs from 'node:fs';
-import { GAME_LOGIC } from '../ghost-board/src/game-engine/core/games-logic.js';
+import { GAME_LOGIC } from '../app/src/game-engine/core/games-logic.js';
 import { installSeededRandom } from './seeded-random.mjs';
 import { runGame } from './harness.mjs';
 

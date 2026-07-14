@@ -13,8 +13,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { GAME_LOGIC } from '../ghost-board/src/game-engine/core/games-logic.js';
-import { applyScatter, AI_PROFILES } from '../ghost-board/src/ai/scatter.js';
+import { GAME_LOGIC } from '../app/src/game-engine/core/games-logic.js';
+import { applyScatter, AI_PROFILES } from '../app/src/ai/scatter.js';
 import { installSeededRandom } from '../test/seeded-random.mjs';
 
 const SHOTS_DIR = fileURLToPath(new URL('.', import.meta.url));

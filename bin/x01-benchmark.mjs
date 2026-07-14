@@ -20,9 +20,9 @@
 
 import { isMainThread, Worker, parentPort } from 'node:worker_threads';
 import os from 'node:os';
-import { createX01 } from '../ghost-board/src/games/x01/game.js';
-import { x01Aim } from '../ghost-board/src/games/x01/ai.js';
-import { AI_PROFILES, applyScatter } from '../ghost-board/src/ai/scatter.js';
+import { createX01 } from '../app/src/games/x01/game.js';
+import { x01Aim } from '../app/src/games/x01/ai.js';
+import { AI_PROFILES, applyScatter } from '../app/src/ai/scatter.js';
 
 // Standard competition 501.
 const OPTIONS = { numPlayers: 1, startingScore: 501, doubleOut: true, doubleIn: false, bullMode: '25/50' };

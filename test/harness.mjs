@@ -1,7 +1,7 @@
 // Shared test harness: play a full game headless, all seats driven by the AI
 // (or random darts when a game has no AI), plus a setting-combination generator.
 
-import { applyScatter, AI_PROFILES } from '../ghost-board/src/ai/scatter.js';
+import { applyScatter, AI_PROFILES } from '../app/src/ai/scatter.js';
 
 const RINGS = ['SO', 'SI', 'D', 'T'];
 

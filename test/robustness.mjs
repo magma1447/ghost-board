@@ -2,7 +2,7 @@
 // a couple of seeds. Asserts each game runs to completion with no exception and
 // no runaway loop. Run: docker compose -f docker/compose.yaml run --rm toolbox node test/robustness.mjs
 
-import { GAME_LOGIC } from '../ghost-board/src/game-engine/core/games-logic.js';
+import { GAME_LOGIC } from '../app/src/game-engine/core/games-logic.js';
 import { installSeededRandom } from './seeded-random.mjs';
 import { runGame, optionCombos } from './harness.mjs';
 

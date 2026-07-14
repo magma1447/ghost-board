@@ -8,7 +8,7 @@ services:
     ports:
       - "3501:3501"
     volumes:
-      - ../ghost-board:/app:ro
+      - ../app:/app:ro
 
   # Headless Chrome for the screenshot tooling (screenshots/capture.mjs).
   # Dev-only: profile `development`, activated by docker/.env's COMPOSE_PROFILES

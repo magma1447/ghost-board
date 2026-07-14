@@ -21,9 +21,9 @@
 
 ## Architecture
 
-- The Vite app lives in `ghost-board/` (`src/`, `public/`, `index.html`, config, package files); only `docker/`, `.github/`, `bin/`, `test/`, `assets/`, and docs stay at the repo root
+- The Vite app lives in `app/` (`src/`, `public/`, `index.html`, config, package files); only `docker/`, `.github/`, `bin/`, `test/`, `assets/`, and docs stay at the repo root
 - Headless tools (`bin/`, `test/`) import game logic from `src/game-engine/core/games-logic.js` — the UI-free half of the registry (factory, meta, options, AI aim); they can't import `registry.js` itself, which pulls in panels/CSS/DOM
-- The dev container mounts `ghost-board/` read-only at `/app`; deps install at `/node_modules` (one level up) so Node resolves them without writing into the read-only mount
+- The dev container mounts `app/` read-only at `/app`; deps install at `/node_modules` (one level up) so Node resolves them without writing into the read-only mount
 - Games and the engine that runs them are siblings under `src/`:
   - `src/games/` — one directory per game, nothing else. Each holds `game.js`, `setup.js`, `panel.js` (+ `meta.js`, `options.js`, `rules.md`, and any game-only files, e.g. `x01/checkout.js`)
   - `src/game-engine/shared/` — helpers a game's own logic imports (`game-helpers.js`, `score-engine.js`, `format.js`, `cricket-marks.js`, `board-score.js`)
@@ -36,7 +36,7 @@
 
 ## Versioning & changelog
 
-- Version lives in `ghost-board/package.json` (shown in-app; keep `package-lock.json`'s root `version` field in sync — not the dependency versions). Bump before each push: a notable feature → minor, a fix → patch.
+- Version lives in `app/package.json` (shown in-app; keep `package-lock.json`'s root `version` field in sync — not the dependency versions). Bump before each push: a notable feature → minor, a fix → patch.
 - Maintain `CHANGELOG.md` (repo root, [Keep a Changelog](https://keepachangelog.com) style, newest version first) with a matching entry, grouped under Added / Changed / Fixed.
 - Write it for a dart player, not a developer: state *what changed*, not the mechanics or game rules — "Added game: Shanghai", not how it plays (that belongs in the README / rules). Keep items short; use a bullet list for multi-item entries (e.g. several new games).
 - Only give an option or fix its own line if it shipped in a *different* release than the game/feature it belongs to; otherwise it folds into that feature. A first release has no "Fixed" section.
