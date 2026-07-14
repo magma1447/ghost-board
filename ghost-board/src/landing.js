@@ -1,10 +1,11 @@
 // Landing / welcome screen — the "front door" shown at / before the app boots.
-// Deliberately standalone (no app imports) so the heavy app (main.js: DOM, BLE,
-// audio, restore) only loads when the visitor continues. Content here is a
-// placeholder to iterate on — the wordmark will become a proper logo.
+// Deliberately lean (only UI-free app imports, no panels/BLE/audio) so the heavy
+// app (main.js: DOM, BLE, audio, restore) only loads when the visitor continues.
+// Content here is a placeholder to iterate on — the wordmark will become a
+// proper logo.
 
 import './landing.css';
-import { GAMES } from './game-engine/core/registry.js';
+import { GAME_LOGIC } from './game-engine/core/games-logic.js';
 import { createVersionTag } from './ui/version-tag.js';
 import { requestImmersiveFullscreen } from './ui/fullscreen.js';
 
@@ -76,10 +77,10 @@ export function renderLanding(onContinue) {
     tagline.textContent = TAGLINE;
     copy.appendChild(tagline);
 
-    // Game count read from the registry so it stays correct as games are added.
+    // Game count read from the game list so it stays correct as games are added.
     const subline = document.createElement('p');
     subline.className = 'landing-subline';
-    subline.textContent = `${GAMES.length} unique game modes with various game-changing options.`;
+    subline.textContent = `${GAME_LOGIC.length} unique game modes with various game-changing options.`;
     copy.appendChild(subline);
 
     inner.appendChild(copy);

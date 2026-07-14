@@ -64,12 +64,6 @@ body {
     padding: 1rem;
 }
 
-.dartboard {
-    width: 100%;
-    height: 100%;
-    max-width: 90vh; /* keep it from stretching too wide */
-}
-
 /* Sidebar: status + game card + hit log — the primary content, so ordered
    first (left on desktop, top on mobile). */
 .panel-sidebar {
@@ -177,17 +171,6 @@ body {
 }
 
 /* Stack vertically on narrow screens */
-/* Discreet build version, bottom-right corner */
-.version-tag {
-    position: fixed;
-    right: 8px;
-    bottom: 6px;
-    font-size: 0.7rem;
-    color: #777;
-    pointer-events: none;
-    z-index: 1;
-}
-
 @media (max-width: 700px) {
     #app {
       flex-direction: column;

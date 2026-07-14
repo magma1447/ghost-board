@@ -1,0 +1,5 @@
+.dartboard {
+    width: 100%;
+    height: 100%;
+    max-width: 90vh; /* keep it from stretching too wide */
+}

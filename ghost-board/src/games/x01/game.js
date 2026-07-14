@@ -10,7 +10,7 @@
 // Callout types: 'turnTotal' (after 3rd dart), 'remaining' (on switch),
 //   'checkout' (per-dart when score is below threshold)
 
-import { calcPoints } from '../../ble/protocol.js';
+import { calcPoints } from '../../game-engine/shared/board-score.js';
 import { currentPlayer, advancePlayerBase, createTurnEndCallout } from '../../game-engine/shared/game-helpers.js';
 import { checkoutFor } from './checkout-sequence.js';
 

@@ -11,7 +11,8 @@
 // send a "GB8;102" prefix before the actual code. We buffer incoming
 // data and split on '@' to handle both cases.
 
-import { SEGMENT_MAP, RING } from './protocol.js';
+import { SEGMENT_MAP } from './protocol.js';
+import { RING } from '../game-engine/shared/board-score.js';
 
 export function createParser() {
     let buffer = '';

@@ -1,0 +1,10 @@
+/* Discreet build version, bottom-right corner */
+.version-tag {
+    position: fixed;
+    right: 8px;
+    bottom: 6px;
+    font-size: 0.7rem;
+    color: #777;
+    pointer-events: none;
+    z-index: 1;
+}

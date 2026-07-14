@@ -25,7 +25,7 @@
 - The dev container mounts `ghost-board/` read-only at `/app`; deps install at `/node_modules` (one level up) so Node resolves them without writing into the read-only mount
 - Games and the engine that runs them are siblings under `src/`:
   - `src/games/` — one directory per game, nothing else. Each holds `game.js`, `setup.js`, `panel.js` (+ `meta.js`, `options.js`, `rules.md`, and any game-only files, e.g. `x01/checkout.js`)
-  - `src/game-engine/shared/` — helpers a game's own logic imports (`game-helpers.js`, `score-engine.js`, `format.js`, `cricket-marks.js`)
+  - `src/game-engine/shared/` — helpers a game's own logic imports (`game-helpers.js`, `score-engine.js`, `format.js`, `cricket-marks.js`, `board-score.js`)
   - `src/game-engine/core/` — the framework that picks, launches, and frames games (`registry.js`, `manager.js`, `match.js`, `roster.js`, `game-selector.js`, `setup-factory.js`, `panel-factory.js` + their CSS)
 - Component CSS colocates with its component: each module side-effect imports its own stylesheet (`import './x.css'`). Only global / app-shell base styles remain in `src/style.css`. Shared panel/setup CSS lives in `src/game-engine/core/game-panel.css` (`game-` class prefix)
 - Shared formatting helpers live in `src/game-engine/shared/format.js`

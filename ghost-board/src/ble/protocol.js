@@ -9,21 +9,12 @@
 //
 // Reference: https://github.com/Lennart-Jerome/GranBoard-with-Autodarts
 
+import { RING } from '../game-engine/shared/board-score.js';
+
 export const SERVICE_UUID = '442f1570-8a00-9a28-cbe1-e1d4212d53eb';
 export const NOTIFY_UUID = '442f1571-8a00-9a28-cbe1-e1d4212d53eb';
 export const WRITE_UUID = '442f1572-8a00-9a28-cbe1-e1d4212d53eb';
 export const DEVICE_NAME = 'GRANBOARD';
-
-// Ring types
-export const RING = {
-    SINGLE_OUTER: 'SO',
-    SINGLE_INNER: 'SI',
-    DOUBLE: 'D',
-    TREBLE: 'T',
-    SINGLE_BULL: 'SBULL',
-    DOUBLE_BULL: 'DBULL',
-    OUT: 'OUT',
-};
 
 // Raw BLE code -> { ring, segment }
 // Keys are "group.bit" strings received from the board's NOTIFY characteristic.
@@ -206,24 +197,4 @@ export function buildEffectCommand(opcode, colorA, speed, mode) {
     u8[13] = mode ?? 0x00;
     u8[15] = 0x01;
     return u8;
-}
-
-// Points calculation
-export function calcPoints(ring, segment) {
-    if (ring === RING.DOUBLE_BULL) {
-        return 50;
-    }
-    if (ring === RING.SINGLE_BULL) {
-        return 25;
-    }
-    if (ring === RING.OUT) {
-        return 0;
-    }
-    if (ring === RING.DOUBLE) {
-        return segment * 2;
-    }
-    if (ring === RING.TREBLE) {
-        return segment * 3;
-    }
-    return segment; // SO and SI
 }

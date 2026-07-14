@@ -11,7 +11,7 @@ import { saveGame, loadGame, clearGame } from './state/game-store.js';
 import { settings } from './state/settings.js';
 import { createPlayer, aiLevelOf, teamMembersOf } from './state/players.js';
 import { aiThrow } from './ai/ai.js';
-import { calcPoints } from './ble/protocol.js';
+import { calcPoints } from './game-engine/shared/board-score.js';
 import { onHit as ledHit, onSwitch as ledSwitch, allOff as ledsOff, attract as ledsAttract } from './led-controller.js';
 import { showTargetLed } from './ble/target-led.js';
 import { playHit, playSwitch, playBust, playWin, playSprint, playCorrect } from './audio/sounds.js';

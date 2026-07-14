@@ -1,5 +1,6 @@
 // SVG dartboard renderer
 
+import './dartboard.css';
 import { generateSegments, generateLabels, generateLedArcs, LED_RING, BOARD_THEMES, DEFAULT_BOARD_THEME, RADII } from './segments.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';

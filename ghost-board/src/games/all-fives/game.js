@@ -9,7 +9,7 @@
 // like X01 — this can't use the shared per-dart score engine; it's its own module.
 
 import { currentPlayer, advancePlayerBase, createTurnEndCallout } from '../../game-engine/shared/game-helpers.js';
-import { calcPoints } from '../../ble/protocol.js';
+import { calcPoints } from '../../game-engine/shared/board-score.js';
 import { ALL_SEGMENTS } from '../../board/segments.js';
 import { roomLeft, neededSingle, saveNumbers, bestFive } from './strategy.js';
 
