@@ -1,0 +1,153 @@
+{
+  "ghost-board-settings": {
+    "players": [
+      {
+        "uuid": "demo-a",
+        "name": "Ghost"
+      },
+      {
+        "uuid": "demo-b",
+        "name": "Pac"
+      }
+    ],
+    "lastPlayers": [
+      "demo-a",
+      "demo-b"
+    ],
+    "debug": {
+      "mouseInput": true
+    }
+  },
+  "ghost-board-game": {
+    "type": "cricket",
+    "options": {
+      "numPlayers": 2,
+      "playerUuids": [
+        "demo-a",
+        "demo-b"
+      ],
+      "startingPlayerIndex": 0
+    },
+    "state": {
+      "type": "cricket",
+      "dartsPerTurn": 3,
+      "options": {
+        "variant": "standard",
+        "numberSet": "standard"
+      },
+      "numbers": [
+        20,
+        19,
+        18,
+        17,
+        16,
+        15,
+        "bull"
+      ],
+      "players": [
+        {
+          "uuid": "demo-a",
+          "marks": {
+            "15": 1,
+            "16": 0,
+            "17": 0,
+            "18": 1,
+            "19": 0,
+            "20": 0,
+            "bull": 0
+          },
+          "score": 0,
+          "lastDarts": [
+            {
+              "ring": "T",
+              "segment": 8,
+              "hit": false,
+              "points": 0
+            },
+            {
+              "ring": "D",
+              "segment": 3,
+              "hit": false,
+              "points": 0
+            },
+            {
+              "ring": "T",
+              "segment": 11,
+              "hit": false,
+              "points": 0
+            }
+          ]
+        },
+        {
+          "uuid": "demo-b",
+          "marks": {
+            "15": 0,
+            "16": 0,
+            "17": 3,
+            "18": 1,
+            "19": 1,
+            "20": 1,
+            "bull": 0
+          },
+          "score": 0,
+          "lastDarts": [
+            {
+              "ring": "SI",
+              "segment": 18,
+              "hit": true,
+              "number": 18,
+              "marks": 1,
+              "points": 0
+            },
+            {
+              "ring": "SO",
+              "segment": 19,
+              "hit": true,
+              "number": 19,
+              "marks": 1,
+              "points": 0
+            },
+            {
+              "ring": "SI",
+              "segment": 5,
+              "hit": false,
+              "points": 0
+            }
+          ]
+        }
+      ],
+      "currentPlayerIndex": 0,
+      "turn": {
+        "darts": [
+          {
+            "ring": "SO",
+            "segment": 14,
+            "hit": false,
+            "points": 0
+          },
+          {
+            "ring": "SO",
+            "segment": 15,
+            "hit": true,
+            "number": 15,
+            "marks": 1,
+            "points": 0
+          }
+        ],
+        "locked": false
+      },
+      "round": 4,
+      "isGameOver": false,
+      "winner": null,
+      "targetSegments": [
+        20,
+        19,
+        18,
+        17,
+        16,
+        15
+      ]
+    },
+    "match": null
+  }
+}

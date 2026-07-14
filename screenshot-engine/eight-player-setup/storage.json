@@ -1,0 +1,16 @@
+{
+  "ghost-board-settings": {
+    "players": [
+      { "uuid": "demo-a", "name": "Ghost" },
+      { "uuid": "demo-b", "name": "Pac" },
+      { "uuid": "demo-c", "name": "Blinky" },
+      { "uuid": "demo-d", "name": "Inky" },
+      { "uuid": "demo-e", "name": "Clyde" },
+      { "uuid": "ai-3", "name": "AI #1 (level 3)", "isAi": true, "aiLevel": 3 },
+      { "uuid": "ai-7", "name": "AI #2 (level 7)", "isAi": true, "aiLevel": 7 },
+      { "uuid": "ai-10", "name": "AI #3 (level 10)", "isAi": true, "aiLevel": 10 }
+    ],
+    "lastPlayers": ["demo-a", "demo-b", "demo-c", "demo-d", "demo-e", "ai-3", "ai-7", "ai-10"],
+    "debug": { "mouseInput": true }
+  }
+}

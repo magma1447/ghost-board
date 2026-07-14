@@ -1,0 +1,106 @@
+{
+  "ghost-board-settings": {
+    "players": [
+      {
+        "uuid": "demo-a",
+        "name": "Ghost"
+      },
+      {
+        "uuid": "demo-b",
+        "name": "Pac"
+      }
+    ],
+    "lastPlayers": [
+      "demo-a",
+      "demo-b"
+    ],
+    "debug": {
+      "mouseInput": true
+    }
+  },
+  "ghost-board-game": {
+    "type": "x01",
+    "options": {
+      "numPlayers": 2,
+      "playerUuids": [
+        "demo-a",
+        "demo-b"
+      ],
+      "startingPlayerIndex": 0
+    },
+    "state": {
+      "type": "x01",
+      "dartsPerTurn": 3,
+      "options": {
+        "startingScore": 501,
+        "doubleIn": false,
+        "doubleOut": false,
+        "bullMode": "25/50",
+        "maxRounds": null,
+        "checkoutThreshold": 170
+      },
+      "players": [
+        {
+          "uuid": "demo-a",
+          "score": 40,
+          "visits": 2,
+          "scored": 90,
+          "lastDarts": [
+            {
+              "ring": "SO",
+              "segment": 20,
+              "points": 20
+            },
+            {
+              "ring": "SO",
+              "segment": 20,
+              "points": 20
+            },
+            {
+              "ring": "SI",
+              "segment": 5,
+              "points": 5
+            }
+          ]
+        },
+        {
+          "uuid": "demo-b",
+          "score": 415,
+          "visits": 1,
+          "scored": 45,
+          "lastDarts": [
+            {
+              "ring": "SI",
+              "segment": 5,
+              "points": 5
+            },
+            {
+              "ring": "SO",
+              "segment": 20,
+              "points": 20
+            },
+            {
+              "ring": "SO",
+              "segment": 20,
+              "points": 20
+            }
+          ]
+        }
+      ],
+      "currentPlayerIndex": 0,
+      "turn": {
+        "darts": [],
+        "locked": false
+      },
+      "round": 2,
+      "isGameOver": false,
+      "winner": null,
+      "opened": [
+        true,
+        true
+      ],
+      "targetSegments": []
+    },
+    "match": null
+  }
+}

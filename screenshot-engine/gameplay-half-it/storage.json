@@ -1,0 +1,126 @@
+{
+  "ghost-board-settings": {
+    "players": [
+      {
+        "uuid": "demo-a",
+        "name": "Ghost"
+      },
+      {
+        "uuid": "demo-b",
+        "name": "Pac"
+      }
+    ],
+    "lastPlayers": [
+      "demo-a",
+      "demo-b"
+    ],
+    "debug": {
+      "mouseInput": true
+    }
+  },
+  "ghost-board-game": {
+    "type": "half-it",
+    "options": {
+      "numPlayers": 2,
+      "playerUuids": [
+        "demo-a",
+        "demo-b"
+      ],
+      "startingPlayerIndex": 0
+    },
+    "state": {
+      "type": "half-it",
+      "dartsPerTurn": 3,
+      "options": {
+        "startScore": 0,
+        "onDraw": "draw"
+      },
+      "sequence": [
+        20,
+        16,
+        "double",
+        17,
+        18,
+        "treble",
+        19,
+        20,
+        "bull"
+      ],
+      "target": "double",
+      "players": [
+        {
+          "uuid": "demo-a",
+          "score": 76,
+          "lastDarts": [
+            {
+              "ring": "SI",
+              "segment": 16,
+              "hit": true,
+              "points": 16
+            },
+            {
+              "ring": "SI",
+              "segment": 7,
+              "hit": false,
+              "points": 0
+            },
+            {
+              "ring": "T",
+              "segment": 7,
+              "hit": false,
+              "points": 0
+            }
+          ]
+        },
+        {
+          "uuid": "demo-b",
+          "score": 36,
+          "lastDarts": [
+            {
+              "ring": "SO",
+              "segment": 16,
+              "hit": true,
+              "points": 16
+            },
+            {
+              "ring": "T",
+              "segment": 8,
+              "hit": false,
+              "points": 0
+            },
+            {
+              "ring": "SI",
+              "segment": 7,
+              "hit": false,
+              "points": 0
+            }
+          ]
+        }
+      ],
+      "currentPlayerIndex": 0,
+      "turn": {
+        "darts": [
+          {
+            "ring": "OUT",
+            "segment": 0,
+            "hit": false,
+            "points": 0
+          },
+          {
+            "ring": "D",
+            "segment": 20,
+            "hit": true,
+            "points": 40
+          }
+        ],
+        "locked": false,
+        "roundPoints": 40
+      },
+      "round": 3,
+      "isGameOver": false,
+      "winner": null,
+      "targetSegments": []
+    },
+    "match": null
+  }
+}

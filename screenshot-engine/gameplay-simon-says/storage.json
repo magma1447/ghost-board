@@ -1,0 +1,124 @@
+{
+  "ghost-board-settings": {
+    "players": [
+      {
+        "uuid": "demo-a",
+        "name": "Ghost"
+      },
+      {
+        "uuid": "demo-b",
+        "name": "Pac"
+      }
+    ],
+    "lastPlayers": [
+      "demo-a",
+      "demo-b"
+    ],
+    "debug": {
+      "mouseInput": true
+    }
+  },
+  "ghost-board-game": {
+    "type": "simon-says",
+    "options": {
+      "numPlayers": 2,
+      "playerUuids": [
+        "demo-a",
+        "demo-b"
+      ],
+      "startingPlayerIndex": 0
+    },
+    "state": {
+      "type": "simon-says",
+      "dartsPerTurn": 3,
+      "options": {
+        "hitMode": "any",
+        "scoring": "flat",
+        "maxRounds": 10,
+        "onDraw": "draw"
+      },
+      "sequence": [
+        6,
+        11,
+        13
+      ],
+      "targetsHit": [
+        true,
+        true,
+        false
+      ],
+      "targetSegments": [
+        13
+      ],
+      "players": [
+        {
+          "uuid": "demo-a",
+          "score": 2,
+          "lastDarts": [
+            {
+              "ring": "SI",
+              "segment": 6,
+              "hit": true
+            },
+            {
+              "ring": "D",
+              "segment": 16,
+              "hit": false
+            },
+            {
+              "ring": "SI",
+              "segment": 14,
+              "hit": false
+            }
+          ]
+        },
+        {
+          "uuid": "demo-b",
+          "score": 4,
+          "lastDarts": [
+            {
+              "ring": "SI",
+              "segment": 2,
+              "hit": true
+            },
+            {
+              "ring": "SO",
+              "segment": 10,
+              "hit": false
+            },
+            {
+              "ring": "SI",
+              "segment": 13,
+              "hit": true
+            }
+          ]
+        }
+      ],
+      "currentPlayerIndex": 1,
+      "turn": {
+        "darts": [
+          {
+            "ring": "SI",
+            "segment": 6,
+            "hit": true
+          },
+          {
+            "ring": "SO",
+            "segment": 16,
+            "hit": false
+          },
+          {
+            "ring": "SO",
+            "segment": 11,
+            "hit": true
+          }
+        ],
+        "locked": false
+      },
+      "round": 2,
+      "isGameOver": false,
+      "winner": null
+    },
+    "match": null
+  }
+}

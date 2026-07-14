@@ -1,0 +1,8 @@
+{
+  "name": "ghost-board-toolbox",
+  "private": true,
+  "description": "Dev-only toolbox deps. puppeteer-core drives a remote Browserless Chrome for the screenshot tooling (screenshots/capture.mjs) — no bundled browser.",
+  "dependencies": {
+    "puppeteer-core": "23.11.1"
+  }
+}

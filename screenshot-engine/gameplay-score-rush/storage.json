@@ -1,0 +1,86 @@
+{
+  "ghost-board-settings": {
+    "players": [
+      {
+        "uuid": "demo-a",
+        "name": "Ghost"
+      },
+      {
+        "uuid": "demo-b",
+        "name": "Pac"
+      }
+    ],
+    "lastPlayers": [
+      "demo-a",
+      "demo-b"
+    ],
+    "debug": {
+      "mouseInput": true
+    }
+  },
+  "ghost-board-game": {
+    "type": "score-rush",
+    "options": {
+      "numPlayers": 2,
+      "playerUuids": [
+        "demo-a",
+        "demo-b"
+      ],
+      "startingPlayerIndex": 0
+    },
+    "state": {
+      "type": "score-rush",
+      "dartsPerTurn": 3,
+      "options": {
+        "endMode": "target",
+        "maxRounds": 8,
+        "targetScore": 300,
+        "bullMode": "25/50",
+        "singlesOnly": false,
+        "onDraw": "draw"
+      },
+      "players": [
+        {
+          "uuid": "demo-a",
+          "score": 28,
+          "visits": 0,
+          "scored": 0,
+          "lastDarts": []
+        },
+        {
+          "uuid": "demo-b",
+          "score": 0,
+          "visits": 0,
+          "scored": 0,
+          "lastDarts": []
+        }
+      ],
+      "currentPlayerIndex": 0,
+      "turn": {
+        "darts": [
+          {
+            "ring": "SI",
+            "segment": 5,
+            "points": 5
+          },
+          {
+            "ring": "T",
+            "segment": 1,
+            "points": 3
+          },
+          {
+            "ring": "SI",
+            "segment": 20,
+            "points": 20
+          }
+        ],
+        "locked": false
+      },
+      "round": 1,
+      "isGameOver": false,
+      "winner": null,
+      "targetSegments": []
+    },
+    "match": null
+  }
+}

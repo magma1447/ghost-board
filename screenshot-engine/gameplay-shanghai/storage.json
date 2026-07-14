@@ -1,0 +1,123 @@
+{
+  "ghost-board-settings": {
+    "players": [
+      {
+        "uuid": "demo-a",
+        "name": "Ghost"
+      },
+      {
+        "uuid": "demo-b",
+        "name": "Pac"
+      }
+    ],
+    "lastPlayers": [
+      "demo-a",
+      "demo-b"
+    ],
+    "debug": {
+      "mouseInput": true
+    }
+  },
+  "ghost-board-game": {
+    "type": "shanghai",
+    "options": {
+      "numPlayers": 2,
+      "playerUuids": [
+        "demo-a",
+        "demo-b"
+      ],
+      "startingPlayerIndex": 0
+    },
+    "state": {
+      "type": "shanghai",
+      "dartsPerTurn": 3,
+      "options": {
+        "maxRounds": 7,
+        "shanghaiWin": true,
+        "onDraw": "draw"
+      },
+      "target": 2,
+      "targetSegments": [
+        2
+      ],
+      "players": [
+        {
+          "uuid": "demo-a",
+          "score": 5,
+          "lastDarts": [
+            {
+              "ring": "SO",
+              "segment": 15,
+              "hit": false,
+              "points": 0
+            },
+            {
+              "ring": "SI",
+              "segment": 2,
+              "hit": true,
+              "points": 2
+            },
+            {
+              "ring": "SO",
+              "segment": 2,
+              "hit": true,
+              "points": 2
+            }
+          ]
+        },
+        {
+          "uuid": "demo-b",
+          "score": 0,
+          "lastDarts": [
+            {
+              "ring": "SI",
+              "segment": 20,
+              "hit": false,
+              "points": 0
+            },
+            {
+              "ring": "SO",
+              "segment": 20,
+              "hit": false,
+              "points": 0
+            },
+            {
+              "ring": "SI",
+              "segment": 18,
+              "hit": false,
+              "points": 0
+            }
+          ]
+        }
+      ],
+      "currentPlayerIndex": 1,
+      "turn": {
+        "darts": [
+          {
+            "ring": "T",
+            "segment": 15,
+            "hit": false,
+            "points": 0
+          },
+          {
+            "ring": "SI",
+            "segment": 15,
+            "hit": false,
+            "points": 0
+          },
+          {
+            "ring": "SI",
+            "segment": 17,
+            "hit": false,
+            "points": 0
+          }
+        ],
+        "locked": false
+      },
+      "round": 2,
+      "isGameOver": false,
+      "winner": null
+    },
+    "match": null
+  }
+}

@@ -1,3 +1,6 @@
 node_modules
 dist
 .claude
+
+# Local compose env — copy docker/.env-example to docker/.env (not committed)
+docker/.env

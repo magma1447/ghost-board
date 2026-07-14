@@ -10,6 +10,19 @@ services:
     volumes:
       - ../ghost-board:/app:ro
 
+  # Headless Chrome for the screenshot tooling (screenshots/capture.mjs).
+  # Dev-only: profile `development`, activated by docker/.env's COMPOSE_PROFILES
+  # so `up` includes it. Reachable in-network as `browserless:3000`; it in turn
+  # loads the dev server at `app:3501`.
+  browserless:
+    image: ghcr.io/browserless/chromium:latest
+    profiles: ["development"]
+    environment:
+      - TOKEN=ghostboard
+      - TIMEOUT=120000
+    depends_on:
+      - app
+
   # Dev-only general toolbox for on-demand tasks (e.g. regenerating icons).
   # Not started by `up` (profiled).
   # Run: docker compose -f docker/compose.yaml run --rm toolbox python3 bin/generate-icons.py
@@ -19,5 +32,12 @@ services:
       dockerfile: docker/images/toolbox/Dockerfile
     profiles: ["tools"]
     working_dir: /app
+    # Run as the host user so files written into the mounted repo aren't
+    # root-owned. Pass the ids in, e.g. `HOST_UID=$(id -u) HOST_GID=$(id -g)`;
+    # defaults to root when unset (fine for read-only tasks / chowning). HOME is
+    # set to a writable dir so tools like puppeteer-core have somewhere to write.
+    user: "${HOST_UID:-0}:${HOST_GID:-0}"
+    environment:
+      - HOME=/tmp
     volumes:
       - ..:/app

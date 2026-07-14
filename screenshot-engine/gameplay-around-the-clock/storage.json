@@ -1,0 +1,107 @@
+{
+  "ghost-board-settings": {
+    "players": [
+      {
+        "uuid": "demo-a",
+        "name": "Ghost"
+      },
+      {
+        "uuid": "demo-b",
+        "name": "Pac"
+      }
+    ],
+    "lastPlayers": [
+      "demo-a",
+      "demo-b"
+    ],
+    "debug": {
+      "mouseInput": true
+    }
+  },
+  "ghost-board-game": {
+    "type": "around-the-clock",
+    "options": {
+      "numPlayers": 2,
+      "playerUuids": [
+        "demo-a",
+        "demo-b"
+      ],
+      "startingPlayerIndex": 0
+    },
+    "state": {
+      "type": "around-the-clock",
+      "dartsPerTurn": 3,
+      "options": {
+        "bullFinish": "single",
+        "hitMode": "any",
+        "multiStep": false,
+        "maxRounds": null
+      },
+      "finalTarget": 21,
+      "players": [
+        {
+          "uuid": "demo-a",
+          "currentTarget": 5,
+          "lastDarts": [
+            {
+              "ring": "SO",
+              "segment": 17,
+              "hit": false
+            },
+            {
+              "ring": "SO",
+              "segment": 19,
+              "hit": false
+            },
+            {
+              "ring": "SI",
+              "segment": 3,
+              "hit": true
+            }
+          ]
+        },
+        {
+          "uuid": "demo-b",
+          "currentTarget": 6,
+          "lastDarts": [
+            {
+              "ring": "SO",
+              "segment": 4,
+              "hit": true
+            },
+            {
+              "ring": "SI",
+              "segment": 12,
+              "hit": false
+            },
+            {
+              "ring": "SI",
+              "segment": 5,
+              "hit": true
+            }
+          ]
+        }
+      ],
+      "currentPlayerIndex": 0,
+      "turn": {
+        "darts": [
+          {
+            "ring": "SO",
+            "segment": 4,
+            "hit": true
+          },
+          {
+            "ring": "SI",
+            "segment": 12,
+            "hit": false
+          }
+        ],
+        "locked": false
+      },
+      "round": 4,
+      "isGameOver": false,
+      "winner": null
+    },
+    "match": null
+  }
+}

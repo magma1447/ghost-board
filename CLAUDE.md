@@ -7,6 +7,8 @@
 - Lint: `docker compose -f docker/compose.yaml exec -T app npx eslint src/`
 - Build: `docker compose -f docker/compose.yaml exec -T app npx vite build`
 - Test suite (headless game simulations, run in the toolbox): `docker compose -f docker/compose.yaml run --rm toolbox node test/robustness.mjs`
+- Screenshots (README images): `screenshot-engine/` — see its `README.md`. Needs the stack up (`up -d`, `development` profile starts app + Browserless).
+- Toolbox commands that WRITE files (screenshots, test baselines, icon generation) must run as the host user so output isn't root-owned: prefix with `HOST_UID=$(id -u) HOST_GID=$(id -g)` (the toolbox's `user:` reads these; defaults to root when unset).
 
 ## Code style
 

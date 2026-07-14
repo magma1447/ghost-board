@@ -1,0 +1,11 @@
+{
+  "__route": "/",
+  "ghost-board-settings": {
+    "players": [
+      { "uuid": "demo-a", "name": "Ghost" },
+      { "uuid": "demo-b", "name": "Pac" }
+    ],
+    "lastPlayers": ["demo-a", "demo-b"],
+    "debug": { "mouseInput": true }
+  }
+}

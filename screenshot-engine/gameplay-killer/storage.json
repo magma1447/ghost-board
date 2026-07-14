@@ -1,0 +1,178 @@
+{
+  "ghost-board-settings": {
+    "players": [
+      {
+        "uuid": "demo-a",
+        "name": "Ghost"
+      },
+      {
+        "uuid": "demo-b",
+        "name": "Pac"
+      },
+      {
+        "uuid": "demo-c",
+        "name": "Blinky"
+      }
+    ],
+    "lastPlayers": [
+      "demo-a",
+      "demo-b",
+      "demo-c"
+    ],
+    "debug": {
+      "mouseInput": true
+    }
+  },
+  "ghost-board-game": {
+    "type": "killer",
+    "options": {
+      "numPlayers": 3,
+      "playerUuids": [
+        "demo-a",
+        "demo-b",
+        "demo-c"
+      ],
+      "startingPlayerIndex": 0
+    },
+    "state": {
+      "type": "killer",
+      "dartsPerTurn": 3,
+      "options": {
+        "mode": "standard",
+        "numberAssignment": "throw",
+        "lives": 3,
+        "selfKill": true,
+        "straightOff": false
+      },
+      "mode": "standard",
+      "cap": 3,
+      "phase": "play",
+      "players": [
+        {
+          "uuid": "demo-a",
+          "number": 15,
+          "lives": 1,
+          "killer": false,
+          "out": false,
+          "lastDarts": [
+            {
+              "ring": "SO",
+              "segment": 7,
+              "hit": false,
+              "points": 0
+            },
+            {
+              "ring": "T",
+              "segment": 20,
+              "hit": false,
+              "points": 0
+            },
+            {
+              "ring": "D",
+              "segment": 7,
+              "hit": false,
+              "points": 0
+            }
+          ]
+        },
+        {
+          "uuid": "demo-b",
+          "number": 7,
+          "lives": 0,
+          "killer": false,
+          "out": false,
+          "lastDarts": [
+            {
+              "ring": "D",
+              "segment": 20,
+              "hit": false,
+              "points": 0
+            },
+            {
+              "ring": "T",
+              "segment": 5,
+              "hit": false,
+              "points": 0
+            },
+            {
+              "ring": "T",
+              "segment": 4,
+              "hit": false,
+              "points": 0
+            }
+          ]
+        },
+        {
+          "uuid": "demo-c",
+          "number": 20,
+          "lives": 0,
+          "killer": false,
+          "out": false,
+          "lastDarts": [
+            {
+              "ring": "SI",
+              "segment": 11,
+              "hit": false,
+              "points": 0
+            },
+            {
+              "ring": "T",
+              "segment": 18,
+              "hit": false,
+              "points": 0
+            },
+            {
+              "ring": "D",
+              "segment": 17,
+              "hit": false,
+              "points": 0
+            }
+          ]
+        }
+      ],
+      "assignOrder": [
+        1,
+        2,
+        0
+      ],
+      "assignPos": 3,
+      "assignIndex": 0,
+      "currentPlayerIndex": 1,
+      "turn": {
+        "darts": [
+          {
+            "ring": "SO",
+            "segment": 8,
+            "hit": false,
+            "points": 0
+          },
+          {
+            "ring": "SO",
+            "segment": 14,
+            "hit": false,
+            "points": 0
+          },
+          {
+            "ring": "T",
+            "segment": 1,
+            "hit": false,
+            "points": 0
+          }
+        ],
+        "locked": false
+      },
+      "round": 2,
+      "isGameOver": false,
+      "winner": null,
+      "targetSegments": [
+        7
+      ],
+      "warnSegments": [],
+      "transition": {
+        "title": "Numbers set",
+        "subtitle": "The game begins"
+      }
+    },
+    "match": null
+  }
+}

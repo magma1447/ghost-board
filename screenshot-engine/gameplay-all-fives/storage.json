@@ -1,0 +1,114 @@
+{
+  "ghost-board-settings": {
+    "players": [
+      {
+        "uuid": "demo-a",
+        "name": "Ghost"
+      },
+      {
+        "uuid": "demo-b",
+        "name": "Pac"
+      }
+    ],
+    "lastPlayers": [
+      "demo-a",
+      "demo-b"
+    ],
+    "debug": {
+      "mouseInput": true
+    }
+  },
+  "ghost-board-game": {
+    "type": "all-fives",
+    "options": {
+      "numPlayers": 2,
+      "playerUuids": [
+        "demo-a",
+        "demo-b"
+      ],
+      "startingPlayerIndex": 0
+    },
+    "state": {
+      "type": "all-fives",
+      "dartsPerTurn": 3,
+      "options": {
+        "target": 51,
+        "allowOvershoot": false,
+        "bullMode": "25/50"
+      },
+      "players": [
+        {
+          "uuid": "demo-a",
+          "score": 0,
+          "visits": 2,
+          "lastDarts": [
+            {
+              "ring": "SO",
+              "segment": 5,
+              "points": 5
+            },
+            {
+              "ring": "T",
+              "segment": 5,
+              "points": 15
+            },
+            {
+              "ring": "SI",
+              "segment": 1,
+              "points": 1
+            }
+          ]
+        },
+        {
+          "uuid": "demo-b",
+          "score": 5,
+          "visits": 2,
+          "lastDarts": [
+            {
+              "ring": "SI",
+              "segment": 12,
+              "points": 12
+            },
+            {
+              "ring": "SI",
+              "segment": 5,
+              "points": 5
+            },
+            {
+              "ring": "SI",
+              "segment": 8,
+              "points": 8
+            }
+          ]
+        }
+      ],
+      "currentPlayerIndex": 1,
+      "turn": {
+        "darts": [
+          {
+            "ring": "SI",
+            "segment": 12,
+            "points": 12
+          },
+          {
+            "ring": "SI",
+            "segment": 5,
+            "points": 5
+          },
+          {
+            "ring": "SI",
+            "segment": 8,
+            "points": 8
+          }
+        ],
+        "locked": true
+      },
+      "round": 2,
+      "isGameOver": false,
+      "winner": null,
+      "targetSegments": [],
+      "warnSegments": []
+    },
+    "match": null
+  }
+}

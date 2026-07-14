@@ -1,0 +1,17 @@
+{
+  "ghost-board-settings": {
+    "players": [
+      { "uuid": "demo-a", "name": "Ghost" },
+      { "uuid": "demo-b", "name": "Pac" },
+      { "uuid": "demo-c", "name": "Blinky" },
+      { "uuid": "demo-d", "name": "Inky" },
+      { "uuid": "ai-3", "name": "AI #1 (level 3)", "isAi": true, "aiLevel": 3 },
+      { "uuid": "ai-8", "name": "AI #2 (level 8)", "isAi": true, "aiLevel": 8 }
+    ],
+    "lastTeams": [
+      { "name": "Spooks", "members": ["demo-a", "demo-c", "ai-3"] },
+      { "name": "Chasers", "members": ["demo-b", "ai-8"] }
+    ],
+    "debug": { "mouseInput": true }
+  }
+}
