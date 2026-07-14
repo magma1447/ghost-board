@@ -2,6 +2,10 @@
 
 Web interface for [Granboard](https://granboards.com/product-category/gran-board-3/) electronic dartboards. Connects via WebBluetooth and displays dart hits on an interactive board.
 
+<p align="center">
+  <a href="screenshots/landing.png"><img src="screenshots/landing.png" width="720" alt="Ghost Board"></a>
+</p>
+
 ## Contents
 
 - [How it works](#how-it-works)
@@ -28,22 +32,65 @@ Ghost Board is a web-based alternative to the official Granboard app. It connect
 
 <em>Click any image for full size.</em>
 
+### The app
+
 <table border="0" cellspacing="0">
   <tr>
-    <td width="50%" valign="top"><a href="screenshots/new-game-picker.png"><img src="screenshots/new-game-picker.png" width="100%" alt="New game picker"></a><br><sub>Choose a game — X01, Around the Clock, Cat &amp; Mouse, Simon Says, Count Up, Score Rush, All Fives, Cricket, Shanghai, Scram, Half It, Bob's 27, or Killer.</sub></td>
-    <td width="50%" valign="top"><a href="screenshots/x01-setup.png"><img src="screenshots/x01-setup.png" width="100%" alt="X01 setup"></a><br><sub>X01 setup — players, match format (legs / sets), and game options.</sub></td>
+    <td width="50%" valign="top"><a href="screenshots/new-game-picker.png"><img src="screenshots/new-game-picker.png" width="100%" alt="New game picker"></a><br><sub>Pick a game — 13 modes, filter by player count or scoring style.</sub></td>
+    <td width="50%" valign="top"><a href="screenshots/x01-setup.png"><img src="screenshots/x01-setup.png" width="100%" alt="X01 setup"></a><br><sub>Setup — players, match format (legs / sets), and game options.</sub></td>
   </tr>
   <tr>
-    <td width="50%" valign="top"><a href="screenshots/gameplay-cat-and-mouse.png"><img src="screenshots/gameplay-cat-and-mouse.png" width="100%" alt="Cat and Mouse gameplay"></a><br><sub>Cat &amp; Mouse in play — scoreboard, big on-board number, undo / end game.</sub></td>
-    <td width="50%" valign="top"><a href="screenshots/game-options-help.png"><img src="screenshots/game-options-help.png" width="100%" alt="Game options with help tooltip"></a><br><sub>Collapsible game options with per-option help tooltips.</sub></td>
+    <td width="50%" valign="top"><a href="screenshots/game-options-help.png"><img src="screenshots/game-options-help.png" width="100%" alt="Game options with help"></a><br><sub>Collapsible options, each with a "?" that explains what it does.</sub></td>
+    <td width="50%" valign="top"><a href="screenshots/game-rules.png"><img src="screenshots/game-rules.png" width="100%" alt="Game rules"></a><br><sub>Built-in rules and how-to-play for every game.</sub></td>
   </tr>
   <tr>
-    <td width="50%" valign="top"><a href="screenshots/game-rules.png"><img src="screenshots/game-rules.png" width="100%" alt="Game rules"></a><br><sub>Built-in rules and how-to-play for each game.</sub></td>
-    <td width="50%" valign="top"><a href="screenshots/player-config.png"><img src="screenshots/player-config.png" width="100%" alt="Player configuration"></a><br><sub>Manage named players, reused across games.</sub></td>
+    <td width="50%" valign="top"><a href="screenshots/player-config.png"><img src="screenshots/player-config.png" width="100%" alt="Player management"></a><br><sub>Named players, reused across games.</sub></td>
+    <td width="50%" valign="top"><a href="screenshots/settings-menu.png"><img src="screenshots/settings-menu.png" width="100%" alt="Settings"></a><br><sub>Settings — sound theme, voice callouts, board theme, and more.</sub></td>
   </tr>
   <tr>
-    <td width="50%" valign="top"><a href="screenshots/settings-menu.png"><img src="screenshots/settings-menu.png" width="100%" alt="Settings menu"></a><br><sub>Settings — sound theme, voice callouts, board theme, and more.</sub></td>
     <td width="50%" valign="top"><a href="screenshots/bluetooth-connection.png"><img src="screenshots/bluetooth-connection.png" width="100%" alt="Bluetooth connection"></a><br><sub>Bluetooth connection to the Granboard, with live status.</sub></td>
+    <td width="50%" valign="top"></td>
+  </tr>
+</table>
+
+### Game modes
+
+<em>A selection — see <a href="#games">Games</a> for all 13.</em>
+
+<table border="0" cellspacing="0">
+  <tr>
+    <td width="50%" valign="top"><a href="screenshots/gameplay-x01.png"><img src="screenshots/gameplay-x01.png" width="100%" alt="X01"></a><br><sub><b>X01</b> — count down to zero, with 3-dart averages and checkout suggestions.</sub></td>
+    <td width="50%" valign="top"><a href="screenshots/gameplay-cricket.png"><img src="screenshots/gameplay-cricket.png" width="100%" alt="Cricket"></a><br><sub><b>Cricket</b> — close 15–20 and the bull on a marks grid; targets lit on the board.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top"><a href="screenshots/gameplay-all-fives.png"><img src="screenshots/gameplay-all-fives.png" width="100%" alt="All Fives"></a><br><sub><b>All Fives</b> — three-dart totals in multiples of five; the board lights numbers that keep you on 5.</sub></td>
+    <td width="50%" valign="top"><a href="screenshots/gameplay-around-the-clock.png"><img src="screenshots/gameplay-around-the-clock.png" width="100%" alt="Around the Clock"></a><br><sub><b>Around the Clock</b> — race 1 → 20 in order, with the target number lit.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top"><a href="screenshots/gameplay-cat-and-mouse.png"><img src="screenshots/gameplay-cat-and-mouse.png" width="100%" alt="Cat and Mouse"></a><br><sub><b>Cat &amp; Mouse</b> — a chase around the board: the mouse laps, the cat catches.</sub></td>
+    <td width="50%" valign="top"><a href="screenshots/gameplay-scram.png"><img src="screenshots/gameplay-scram.png" width="100%" alt="Scram"></a><br><sub><b>Scram</b> — one player closes the numbers while the other piles on points, then swap.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top"><a href="screenshots/gameplay-simon-says.png"><img src="screenshots/gameplay-simon-says.png" width="100%" alt="Simon Says"></a><br><sub><b>Simon Says</b> — three fresh targets each round; everyone throws at the same numbers.</sub></td>
+    <td width="50%" valign="top"><a href="screenshots/gameplay-killer.png"><img src="screenshots/gameplay-killer.png" width="100%" alt="Killer"></a><br><sub><b>Killer</b> — arm up, then knock the lives off your opponents; last one standing wins.</sub></td>
+  </tr>
+</table>
+
+### Players &amp; teams
+
+<table border="0" cellspacing="0">
+  <tr>
+    <td width="50%" valign="top"><a href="screenshots/eight-player-setup.png"><img src="screenshots/eight-player-setup.png" width="100%" alt="Eight-player setup"></a><br><sub>Up to 8 players — humans and AI at mixed levels.</sub></td>
+    <td width="50%" valign="top"><a href="screenshots/team-setup.png"><img src="screenshots/team-setup.png" width="100%" alt="Team setup"></a><br><sub>Play as teams — uneven sides, humans and AI, sharing a score.</sub></td>
+  </tr>
+</table>
+
+### Match play &amp; celebrations
+
+<table border="0" cellspacing="0">
+  <tr>
+    <td width="50%" valign="top"><a href="screenshots/match-play.png"><img src="screenshots/match-play.png" width="100%" alt="Match play"></a><br><sub>Legs and sets — each side's legs won, rank, and a leg-by-leg history.</sub></td>
+    <td width="50%" valign="top"><a href="screenshots/win-overlay.png"><img src="screenshots/win-overlay.png" width="100%" alt="Win celebration"></a><br><sub>Full-screen win / draw / leg / set celebration.</sub></td>
   </tr>
 </table>
 
