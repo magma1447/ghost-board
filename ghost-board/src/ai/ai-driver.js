@@ -51,21 +51,17 @@ export function createAiDriver({ getGameType, isPendingNextLeg, injectEvent, boa
     function refreshNextButton() {
         const panel = getPanel();
         const game = getGame();
-        if (!panel || !panel.nextBtn) {
+        if (!panel) {
             return;
         }
-        const btn = panel.nextBtn;
         const over = !game || game.getState().isGameOver;
         if (aiResumeTimer && !over) {
             const s = aiResumeSecondsLeft;
-            btn.textContent = `AI Resuming in ${s} second${s === 1 ? '' : 's'}`;
-            btn.disabled = false;
+            panel.setAdvance(`AI Resuming in ${s} second${s === 1 ? '' : 's'}`, true);
         } else if (aiThrowing && !over) {
-            btn.textContent = 'AI Playing';
-            btn.disabled = true;
+            panel.setAdvance('AI Playing', false);
         } else if (!isPendingNextLeg()) {
-            btn.textContent = 'Next Player';
-            btn.disabled = over;
+            panel.setAdvance('Next Player', !over);
         }
     }
 

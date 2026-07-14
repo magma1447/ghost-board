@@ -158,10 +158,6 @@ export function buildRingCommand(segments) {
     return new Uint8Array(segments);
 }
 
-// Pre-built ring commands
-export const LED_ALL_OFF = new Uint8Array(20); // all 0x00
-export const LED_ALL_WHITE = new Uint8Array(20).fill(LED_COLOR.WHITE);
-
 // Build a 16-byte hit animation frame.
 // hitType: 0x01=single, 0x02=double, 0x03=treble
 // Layout: [hitType, R1,G1,B1, R2,G2,B2, _, _, _, tidLo, tidHi, speed, _, _, 0x01]

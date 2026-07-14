@@ -24,7 +24,8 @@ export function startGame(type, options, container, callbacks) {
 
     activeGame = entry.createGame(options);
     activePanel = entry.createPanel(container, callbacks);
-    activePanel.update(activeGame.getState(), null);
+    // No initial update here — the controller renders right after startGame()
+    // with the match state layered in (refreshPanel), so one render, not two.
     return activeGame;
 }
 
@@ -42,8 +43,4 @@ export function getGame() {
 
 export function getPanel() {
     return activePanel;
-}
-
-export function getGameTypes() {
-    return Object.keys(GAME_TYPES);
 }

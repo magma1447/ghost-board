@@ -35,8 +35,8 @@ export function createUndoStack() {
     function updateButton() {
         const panel = getPanel();
         const game = getGame();
-        if (panel && panel.undoBtn) {
-            panel.undoBtn.disabled = !(stack.length > 0 && game && !game.getState().isGameOver);
+        if (panel) {
+            panel.setUndoEnabled(Boolean(stack.length > 0 && game && !game.getState().isGameOver));
         }
     }
 

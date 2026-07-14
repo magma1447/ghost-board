@@ -178,6 +178,28 @@ export function pruneSyntheticPlayers(keepUuids) {
     updateSettings('players', players);
 }
 
+// Pure reorder of a player-UUID list, returning a NEW array (the input is left
+// untouched). Shared by the setup roster's Order controls and the in-game
+// Rematch menu so both apply the same ordering.
+//   'keep'      — unchanged
+//   'rotate'    — last becomes first: A,B,C -> C,A,B
+//   'reverse' / 'swap' — reversed order
+//   'randomize' — Fisher–Yates shuffle
+export function reorderUuids(uuids, op) {
+    const result = [...uuids];
+    if (op === 'swap' || op === 'reverse') {
+        result.reverse();
+    } else if (op === 'rotate' && result.length > 0) {
+        result.unshift(result.pop());
+    } else if (op === 'randomize') {
+        for (let i = result.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [result[i], result[j]] = [result[j], result[i]];
+        }
+    }
+    return result;
+}
+
 // Last-used selection (array of UUIDs), for pre-filling the setup roster.
 export function getLastPlayers() {
     const stored = settings().lastPlayers;

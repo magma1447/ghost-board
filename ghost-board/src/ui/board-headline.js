@@ -1,11 +1,11 @@
 // Big current-player number overlaid on the board (heads-up display).
 //
-// Reads the active game's headline (points remaining, current target, score…)
-// and the Display "Big number" setting. The element is pointer-events:none (in
-// CSS) so board clicks (debug input) pass straight through.
+// Shows the game's headline (points remaining, current target, score…) for
+// the game the controller pushes into update(), respecting the Display "Big
+// number" setting. The element is pointer-events:none (in CSS) so board
+// clicks (debug input) pass straight through.
 
 import './board-headline.css';
-import { getGame } from '../game-engine/core/manager.js';
 import { settings } from '../state/settings.js';
 
 export function createBoardHeadline(parent) {
@@ -31,9 +31,13 @@ export function createBoardHeadline(parent) {
         el.hidden = false;
     }
 
-    // Refresh the overlay from the active game, respecting the Display setting.
-    function update() {
-        const game = getGame();
+    // Refresh the overlay from the given game (the controller pushes the
+    // active game on every state change; null clears). Calling with no
+    // argument re-renders the last pushed game — used by the flash revert and
+    // the Display-setting toggle.
+    let lastGame = null;
+    function update(game = lastGame) {
+        lastGame = game;
         // Clear the number once the game is over (won/drawn) — a target or score
         // shouldn't linger as if still live.
         if (game && settings().display.bigNumber && !game.getState().isGameOver) {

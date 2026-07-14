@@ -11,7 +11,7 @@
 import { startGame, stopGame, getGame, getPanel } from './game-engine/core/manager.js';
 import { saveGame, loadGame, clearGame } from './state/game-store.js';
 import { settings } from './state/settings.js';
-import { createPlayer, teamMembersOf, currentMemberUuid } from './state/players.js';
+import { createPlayer, teamMembersOf, currentMemberUuid, reorderUuids } from './state/players.js';
 import { createAiDriver } from './ai/ai-driver.js';
 import { createUndoStack } from './undo-stack.js';
 import { calcPoints } from './game-engine/shared/board-score.js';
@@ -26,7 +26,6 @@ import {
     createMatchState, isMatchPlay, startingPlayerIndex, recordLegWin,
     advanceLeg, currentSetNumber, currentLegNumber, firstToWin,
 } from './game-engine/core/match.js';
-import { reorderUuids } from './game-engine/core/roster.js';
 import { formatDart } from './game-engine/shared/format.js';
 
 // type → label / setup-factory maps derived from the ordered registry, so the
@@ -94,7 +93,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         board.clearHighlight(); // drop the reverted (false) hit's highlight
         getPanel().update(state, null, match);
         showTargetLed(state, 0); // restore the target LED for the reverted position
-        headline.update();
+        headline.update(game);
         persistState();
         undoHistory.updateButton();
         log.logEvent('Undo', 'game');
@@ -135,8 +134,8 @@ export function createGameController({ gameArea, board, headline, log, winDispla
     // Reveal the panel's Rematch button (shown once a game/match is over)
     function showRematch() {
         const panel = getPanel();
-        if (panel && panel.rematchBtn) {
-            panel.rematchBtn.hidden = false;
+        if (panel) {
+            panel.showRematch();
         }
     }
 
@@ -186,10 +185,8 @@ export function createGameController({ gameArea, board, headline, log, winDispla
     // Arm the (now-disabled) Next Player button to start the next leg, labeled
     // for whether a leg or a set was just won.
     function armNextLeg(level) {
-        const panel = getPanel();
         pendingNextLeg = true;
-        panel.nextBtn.disabled = false;
-        panel.nextBtn.textContent = level === 'set' ? 'Next set · leg 1' : 'Next leg →';
+        getPanel().setAdvance(level === 'set' ? 'Next set · leg 1' : 'Next leg →', true);
     }
 
     // A leg was won during match play. Record it against the winning player
@@ -279,7 +276,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         } else {
             handleGameOutcome(state, event);
         }
-        headline.update();
+        headline.update(game);
         undoHistory.updateButton();
         aiDriver.refreshNextButton();
         aiDriver.maybeRunTurn();
@@ -298,7 +295,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         pendingNextLeg = false;
         undoHistory.clear();
         log.logEvent('Game ended', 'game');
-        headline.update();
+        headline.update(null);
         winDisplay.hide();
         setMenuDisabled(false);
     }
@@ -347,7 +344,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
             }
         }
         refreshPanel();
-        headline.update();
+        headline.update(getGame());
         winDisplay.hide();
         aiDriver.maybeRunTurn(); // if the opening player is an AI, let it throw
     }
@@ -464,7 +461,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                 panel.update(state, null, match);
                 showTargetLed(state, 500);
                 logRound(state);
-                headline.update();
+                headline.update(game);
                 // If a leg ended mid-match before "Next leg" was pressed, re-arm
                 // the advance button (and re-show the result banner) so play can
                 // continue after a reload. If the game/match is fully over,
@@ -579,7 +576,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                 if (gameEvent === 'sprint') {
                     headline.flash('SPRINT', 1500);
                 } else {
-                    headline.update();
+                    headline.update(game);
                 }
                 undoHistory.updateButton();
             } else {

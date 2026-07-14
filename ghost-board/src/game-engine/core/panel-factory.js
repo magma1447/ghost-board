@@ -208,9 +208,27 @@ export function createGamePanel(container, { onNextPlayer, onEndGame, onRematch,
 }
 
 // The standard object a game panel returns to the manager — every panel wraps
-// its own update() with the same factory-provided pieces.
+// its own update() with the same factory-provided pieces. The buttons are
+// exposed as methods rather than raw elements, so the controller/driver layers
+// can't depend on panel DOM internals.
 export function panelApi(panel, update) {
-    return { update, destroy: panel.destroy, nextBtn: panel.nextBtn, rematchBtn: panel.rematchBtn, undoBtn: panel.undoBtn, showBanner: panel.showBanner };
+    return {
+        update,
+        destroy: panel.destroy,
+        showBanner: panel.showBanner,
+        // Advance button (Next Player / AI Playing / Next leg →): label + enabled.
+        setAdvance(label, enabled) {
+            panel.nextBtn.textContent = label;
+            panel.nextBtn.disabled = !enabled;
+        },
+        setUndoEnabled(enabled) {
+            panel.undoBtn.disabled = !enabled;
+        },
+        // Reveal the Rematch button (shown once a game/match is over).
+        showRematch() {
+            panel.rematchBtn.hidden = false;
+        },
+    };
 }
 
 // A highlighted "Target: 5" / "Aim at: D16" strip above the scoreboard, shared
