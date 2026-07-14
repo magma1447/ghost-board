@@ -4,13 +4,16 @@
 // the dart/button event handling that drives it. main.js builds the DOM and
 // hardware, then hands the main-owned pieces (game area, board, headline HUD,
 // log, win overlay, menu enable/disable) to createGameController() and wires
-// the BLE/debug event stream to handleEvent().
+// the BLE/debug event stream to handleEvent(). The AI turn pacing lives in
+// ai/ai-driver.js and the undo history in undo-stack.js; this coordinates
+// them with the lifecycle and routes each game event to panel/audio/LEDs/log.
 
 import { startGame, stopGame, getGame, getPanel } from './game-engine/core/manager.js';
 import { saveGame, loadGame, clearGame } from './state/game-store.js';
 import { settings } from './state/settings.js';
-import { createPlayer, aiLevelOf, teamMembersOf } from './state/players.js';
-import { aiThrow } from './ai/ai.js';
+import { createPlayer, teamMembersOf, currentMemberUuid } from './state/players.js';
+import { createAiDriver } from './ai/ai-driver.js';
+import { createUndoStack } from './undo-stack.js';
 import { calcPoints } from './game-engine/shared/board-score.js';
 import { onHit as ledHit, onSwitch as ledSwitch, allOff as ledsOff, attract as ledsAttract } from './led-controller.js';
 import { showTargetLed } from './ble/target-led.js';
@@ -31,7 +34,6 @@ import { formatDart } from './game-engine/shared/format.js';
 // registry order (its entries drive the picker), so games render gentlest-first.
 const GAME_LABELS = Object.fromEntries(GAMES.map(({ type, label }) => [type, label]));
 const GAME_SETUPS = Object.fromEntries(GAMES.map(({ type, createSetup }) => [type, createSetup]));
-const GAME_META = Object.fromEntries(GAMES.map(({ type, meta }) => [type, meta]));
 
 // Format a dart hit for the log (e.g. "T20 (60)", "D-Bull (50)", "Out")
 function formatHit(hit) {
@@ -68,47 +70,40 @@ export function createGameController({ gameArea, board, headline, log, winDispla
     // ended and the advance button starts the next leg.
     let match = null;
     let pendingNextLeg = false;
-    // Undo: deep-cloned game-state snapshots taken before each counting dart and
-    // each player switch. Scoped to the current leg (cleared on new game/leg).
-    const undoStack = [];
 
-    function snapshotForUndo() {
-        return JSON.parse(JSON.stringify(getGame().getState()));
-    }
+    const undoHistory = createUndoStack();
 
-    // Undo is offered only for the simple cases: something on the stack and the
-    // game/leg not yet over (the leg/game-ending dart and cross-leg undo are out
-    // of scope and stay disabled).
-    function updateUndoButton() {
-        const panel = getPanel();
-        const game = getGame();
-        if (panel && panel.undoBtn) {
-            panel.undoBtn.disabled = !(undoStack.length > 0 && game && !game.getState().isGameOver);
-        }
-    }
+    // AI turn pacing + the Next Player button's AI states (ai/ai-driver.js).
+    // Its darts come back through handleEvent, flagged _ai.
+    const aiDriver = createAiDriver({
+        getGameType: () => currentGameType,
+        isPendingNextLeg: () => pendingNextLeg,
+        injectEvent: (event) => handleEvent(event),
+        board,
+    });
 
     function undo() {
         const game = getGame();
-        if (!game || undoStack.length === 0) {
+        if (!game || undoHistory.isEmpty()) {
             return;
         }
-        stopAiThrowing(); // cancel any AI turn we're reverting through
-        clearAiResumeCountdown();
-        game.loadState(undoStack.pop());
+        aiDriver.stopThrowing(); // cancel any AI turn we're reverting through
+        aiDriver.clearResumeCountdown();
+        game.loadState(undoHistory.pop());
         const state = game.getState();
         board.clearHighlight(); // drop the reverted (false) hit's highlight
         getPanel().update(state, null, match);
         showTargetLed(state, 0); // restore the target LED for the reverted position
         headline.update();
         persistState();
-        updateUndoButton();
+        undoHistory.updateButton();
         log.logEvent('Undo', 'game');
         // Reverted onto an AI's turn? Arm the resume countdown so it isn't left
         // frozen; otherwise a human is up, so just reset the button.
-        if (!state.isGameOver && currentAiLevel() !== null) {
-            startAiResumeCountdown();
+        if (!state.isGameOver && aiDriver.currentAiLevel() !== null) {
+            aiDriver.startResumeCountdown();
         } else {
-            refreshNextButton();
+            aiDriver.refreshNextButton();
         }
     }
 
@@ -223,7 +218,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
     }
 
     function handleNextPlayer() {
-        if (aiThrowing) {
+        if (aiDriver.isThrowing()) {
             return; // ignore a manual advance while the AI is mid-turn
         }
         // Paused into an *unfinished* AI turn (an undo landed here, or a human
@@ -236,10 +231,10 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         // A locked turn is finished, not unfinished — a bust locks the turn with
         // fewer than dartsPerTurn darts, and without this it would look resumable
         // and the AI would loop (resume → hit the locked turn → resume → …).
-        const aiTurnUnfinished = gs && !gs.isGameOver && currentAiLevel() !== null
+        const aiTurnUnfinished = gs && !gs.isGameOver && aiDriver.currentAiLevel() !== null
             && !gs.turn.locked && gs.turn.darts.length < gs.dartsPerTurn;
         if (aiTurnUnfinished) {
-            maybeRunAiTurn();
+            aiDriver.maybeRunTurn();
             return;
         }
         // During match play, after a leg ends the advance button starts the next leg.
@@ -251,7 +246,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         if (!game) {
             return;
         }
-        undoStack.push(snapshotForUndo()); // allow undoing the switch (rolls back the turn)
+        undoHistory.push(); // allow undoing the switch (rolls back the turn)
         playSwitch();
         ledSwitch();
         board.clearHighlight(); // don't carry the previous player's last hit over
@@ -285,14 +280,14 @@ export function createGameController({ gameArea, board, headline, log, winDispla
             handleGameOutcome(state, event);
         }
         headline.update();
-        updateUndoButton();
-        refreshNextButton();
-        maybeRunAiTurn();
+        undoHistory.updateButton();
+        aiDriver.refreshNextButton();
+        aiDriver.maybeRunTurn();
     }
 
     function handleEndGame() {
-        stopAiThrowing(); // cancel any in-flight AI turn
-        clearAiResumeCountdown();
+        aiDriver.stopThrowing(); // cancel any in-flight AI turn
+        aiDriver.clearResumeCountdown();
         stopGame();
         clearGame();
         ledsAttract();
@@ -301,7 +296,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         currentGameOpts = null;
         match = null;
         pendingNextLeg = false;
-        undoStack.length = 0;
+        undoHistory.clear();
         log.logEvent('Game ended', 'game');
         headline.update();
         winDisplay.hide();
@@ -333,7 +328,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
     function startGameInstance(startIndex) {
         ledsOff();
         board.clearHighlight(); // start each game/leg with no stale highlight
-        undoStack.length = 0; // undo is scoped to the current leg
+        undoHistory.clear(); // undo is scoped to the current leg
         // opts carries numPlayers + playerUuids from the setup panel's roster
         startGame(currentGameType, { ...currentGameOpts, startingPlayerIndex: startIndex }, gameArea, {
             onNextPlayer: handleNextPlayer,
@@ -354,7 +349,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         refreshPanel();
         headline.update();
         winDisplay.hide();
-        maybeRunAiTurn(); // if the opening player is an AI, let it throw
+        aiDriver.maybeRunTurn(); // if the opening player is an AI, let it throw
     }
 
     function launchGame(type, opts, resumed = false) {
@@ -496,149 +491,10 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         }
     }
 
-    // ── AI opponents ─────────────────────────────────────────────────────────
-    // When the turn lands on an AI player, throw its darts automatically (paced
-    // so you can watch), routed through handleEvent so audio/LEDs/log/undo/win
-    // behave exactly as for a human. Real input is ignored while it throws.
-    let aiThrowing = false;
-    let aiThrowTimer = null; // pending runAiDart timeout, so an AI turn can be cancelled
-    let aiResumeTimer = null; // 1s-tick countdown armed when an undo lands on an AI turn
-    let aiResumeSecondsLeft = 0;
-    const AI_RESUME_SECONDS = 5;
-
-    // Cancel any in-flight AI turn (stops the throw chain).
-    function stopAiThrowing() {
-        if (aiThrowTimer) {
-            clearTimeout(aiThrowTimer);
-            aiThrowTimer = null;
-        }
-        aiThrowing = false;
-    }
-
-    function clearAiResumeCountdown() {
-        if (aiResumeTimer) {
-            clearInterval(aiResumeTimer);
-            aiResumeTimer = null;
-        }
-    }
-
-    // The Next Player button is a three-state label: "Next Player" (a human is
-    // up), "AI Playing" (the AI is throwing — disabled), or "AI Resuming in N
-    // seconds" (an undo landed on an AI's turn — clickable to resume now, and it
-    // auto-resumes at zero). Advancing only ever happens on a human's turn, so a
-    // mistimed press can never skip a turn.
-    function refreshNextButton() {
-        const panel = getPanel();
-        const game = getGame();
-        if (!panel || !panel.nextBtn) {
-            return;
-        }
-        const btn = panel.nextBtn;
-        const over = !game || game.getState().isGameOver;
-        if (aiResumeTimer && !over) {
-            const s = aiResumeSecondsLeft;
-            btn.textContent = `AI Resuming in ${s} second${s === 1 ? '' : 's'}`;
-            btn.disabled = false;
-        } else if (aiThrowing && !over) {
-            btn.textContent = 'AI Playing';
-            btn.disabled = true;
-        } else if (!pendingNextLeg) {
-            btn.textContent = 'Next Player';
-            btn.disabled = over;
-        }
-    }
-
-    // After an undo lands on an AI's turn, count down and then resume the AI. A
-    // further undo restarts it; pressing Next Player resumes immediately.
-    function startAiResumeCountdown() {
-        clearAiResumeCountdown();
-        aiResumeSecondsLeft = AI_RESUME_SECONDS;
-        refreshNextButton();
-        aiResumeTimer = setInterval(() => {
-            aiResumeSecondsLeft -= 1;
-            if (aiResumeSecondsLeft <= 0) {
-                clearAiResumeCountdown();
-                maybeRunAiTurn();
-            } else {
-                refreshNextButton();
-            }
-        }, 1000);
-    }
-
-    // The UUID actually throwing for a player slot: a team's current member
-    // (rotates each team-turn), or the player itself for an individual.
-    function currentMemberUuid(state, index) {
-        const player = state.players[index];
-        if (!player) {
-            return null;
-        }
-        const members = teamMembersOf(player.uuid);
-        if (members && members.length) {
-            const turns = (state.teamTurns && state.teamTurns[player.uuid]) || 0;
-            return members[turns % members.length];
-        }
-        return player.uuid;
-    }
-
-    function currentAiLevel() {
-        const game = getGame();
-        if (!game) {
-            return null;
-        }
-        const state = game.getState();
-        const uuid = currentMemberUuid(state, state.currentPlayerIndex);
-        return uuid ? aiLevelOf(uuid) : null;
-    }
-
-    function maybeRunAiTurn() {
-        if (aiThrowing || pendingNextLeg) {
-            return;
-        }
-        const meta = GAME_META[currentGameType];
-        const game = getGame();
-        if (!meta || !meta.supportsAi || !game || game.getState().isGameOver) {
-            return;
-        }
-        if (currentAiLevel() === null) {
-            return; // a human is up
-        }
-        clearAiResumeCountdown();
-        aiThrowing = true;
-        refreshNextButton();
-        aiThrowTimer = setTimeout(runAiDart, settings().ai.throwMs);
-    }
-
-    function runAiDart() {
-        const game = getGame();
-        if (!game) {
-            stopAiThrowing();
-            return;
-        }
-        const state = game.getState();
-        if (state.isGameOver) {
-            stopAiThrowing(); // the winning dart was already handled
-            return;
-        }
-        // Turn's over — all darts thrown, or the turn locked early (an X01 bust
-        // leaves fewer darts but no more may be thrown). Advance the same way a
-        // human would with the Next Player button.
-        if (state.turn.locked || state.turn.darts.length >= state.dartsPerTurn) {
-            stopAiThrowing(); // release before advancing (may chain to the next AI)
-            handleEvent({ type: 'button', _ai: true });
-            return;
-        }
-        const dart = aiThrow(currentGameType, state, currentAiLevel());
-        handleEvent({ type: 'hit', ring: dart.ring, segment: dart.segment, _ai: true, _aimTarget: dart.aimTarget });
-        if (settings().debug.aiMarks && board.showAiThrow) {
-            board.showAiThrow(dart.aim, dart.land);
-        }
-        aiThrowTimer = setTimeout(runAiDart, settings().ai.throwMs);
-    }
-
     // BLE / debug event sink: a board hit or the physical button.
     function handleEvent(event) {
         // Ignore real input while the AI is mid-turn (its own darts carry _ai).
-        if (aiThrowing && !event._ai) {
+        if (aiDriver.isThrowing() && !event._ai) {
             return;
         }
         if (event.type === 'hit') {
@@ -649,13 +505,13 @@ export function createGameController({ gameArea, board, headline, log, winDispla
             const game = getGame();
             const panel = getPanel();
             if (game && panel) {
-                const undoSnap = snapshotForUndo(); // capture state before the dart mutates it
+                const undoSnap = undoHistory.snapshot(); // capture state before the dart mutates it
                 const { state, event: gameEvent, callouts, hitLevel } = game.onDart(event.ring, event.segment);
                 // In match play a win ends a leg, not the match — suppress the
                 // generic "wins!" banner so handleMatchWin can show leg/set text.
                 const matchWin = gameEvent === 'win' && isMatchPlay(match);
                 panel.update(state, matchWin ? null : gameEvent, match);
-                refreshNextButton(); // keep the AI/human button label + state in step
+                aiDriver.refreshNextButton(); // keep the AI/human button label + state in step
                 // 'ignored' = dart didn't count (turn complete/locked or game over):
                 // stay silent so it doesn't sound like progress, and mark it in the
                 // log. LEDs + board highlight still fire; audio follows game logic.
@@ -711,9 +567,9 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                 // roles) — a clean boundary, so undo doesn't reach back across
                 // it: clear the stack rather than record the closing dart.
                 if (half) {
-                    undoStack.length = 0;
+                    undoHistory.clear();
                 } else if (!ignored) {
-                    undoStack.push(undoSnap); // the dart counted — it can be undone
+                    undoHistory.push(undoSnap); // the dart counted — it can be undone
                 }
                 if (matchWin) {
                     handleMatchWin(state);
@@ -725,7 +581,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                 } else {
                     headline.update();
                 }
-                updateUndoButton();
+                undoHistory.updateButton();
             } else {
                 log.logEvent(formatHit(event), 'hit');
                 playHit(event.ring);

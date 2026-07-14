@@ -140,6 +140,22 @@ export function teamMembersOf(uuid) {
     return player && player.isTeam ? player.members : null;
 }
 
+// The UUID actually throwing for a player slot: a team's current member
+// (rotates each team-turn via the state's teamTurns counters), or the player
+// itself for an individual.
+export function currentMemberUuid(state, index) {
+    const player = state.players[index];
+    if (!player) {
+        return null;
+    }
+    const members = teamMembersOf(player.uuid);
+    if (members && members.length) {
+        const turns = (state.teamTurns && state.teamTurns[player.uuid]) || 0;
+        return members[turns % members.length];
+    }
+    return player.uuid;
+}
+
 export function createTeamPlayer(name, members) {
     const players = getPlayers();
     const player = {
