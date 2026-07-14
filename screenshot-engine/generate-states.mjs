@@ -77,7 +77,7 @@ function writeShot(name, playerCount, blob) {
     };
     const dir = path.join(SHOTS_DIR, name);
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, 'storage.json'), JSON.stringify(storage, null, 2) + '\n');
+    fs.writeFileSync(path.join(dir, 'storage.json'), `${JSON.stringify(storage, null, 2)}\n`);
 }
 
 // A game built with the standard seat options, ready to play.

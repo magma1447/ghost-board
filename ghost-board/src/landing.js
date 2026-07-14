@@ -103,9 +103,9 @@ export function renderLanding(onContinue) {
     const reveal = () => el.classList.add('is-ready');
     const assets = [...el.querySelectorAll('img')].map((img) => (img.complete
         ? Promise.resolve()
-        : new Promise((res) => {
-            img.addEventListener('load', res);
-            img.addEventListener('error', res);
+        : new Promise((resolve) => {
+            img.addEventListener('load', resolve);
+            img.addEventListener('error', resolve);
         })));
     assets.push(document.fonts.load('1em "Luckiest Guy"').catch(() => {}));
     Promise.all(assets).then(reveal);

@@ -223,8 +223,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         // advancing. A finished AI turn — its own end-of-turn advance — falls
         // through to the switch, so a turn only ever advances on a human's turn or
         // when the AI is genuinely done, and a mistimed press can't skip anyone.
-        const g = getGame();
-        const gs = g && g.getState();
+        const gs = getGame()?.getState();
         // A locked turn is finished, not unfinished — a bust locks the turn with
         // fewer than dartsPerTurn darts, and without this it would look resumable
         // and the AI would loop (resume → hit the locked turn → resume → …).

@@ -293,7 +293,7 @@ export function renderScoreboard(scoreboard, state, options = {}) {
         let label = nameFor(p);
         const members = teamMembersOf(p.uuid);
         if (members && members.length) {
-            const turns = (state.teamTurns && state.teamTurns[p.uuid]) || 0;
+            const turns = state.teamTurns?.[p.uuid] || 0;
             label += ` — ${createPlayer(members[turns % members.length]).getName()}`;
         }
         name.textContent = label; // textContent — names are user-entered

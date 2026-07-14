@@ -41,7 +41,7 @@ console.log('');
 if (failures.length > 0) {
     console.log(`FAILURES (${failures.length} of ${total} runs):`);
     for (const f of failures) {
-        console.log('  ' + f);
+        console.log(`  ${f}`);
     }
     process.exit(1);
 }

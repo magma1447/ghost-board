@@ -20,7 +20,7 @@ function close() {
 
 function onDocClick(e) {
     // Ignore clicks on the anchor itself — its own handler toggles the popover.
-    if (current && !current.contains(e.target) && !(currentAnchor && currentAnchor.contains(e.target))) {
+    if (current && !current.contains(e.target) && !currentAnchor?.contains(e.target)) {
         close();
     }
 }

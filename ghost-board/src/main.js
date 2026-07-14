@@ -245,7 +245,7 @@ createMenu(settingsBtn, [
             {
                 label: 'Board theme',
                 type: 'select',
-                options: Object.keys(BOARD_THEMES).map((key) => BOARD_THEMES[key].label),
+                options: Object.values(BOARD_THEMES).map((theme) => theme.label),
                 value: (BOARD_THEMES[settings().display.boardTheme] || BOARD_THEMES[DEFAULT_BOARD_THEME]).label,
                 onChange(label) {
                     const key = Object.keys(BOARD_THEMES).find((k) => BOARD_THEMES[k].label === label);

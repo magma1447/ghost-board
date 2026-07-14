@@ -57,7 +57,7 @@ const ZERO_TO_NULL = [
 
 function migrate(settings) {
     for (const [key, field] of ZERO_TO_NULL) {
-        if (settings[key] && settings[key][field] === 0) {
+        if (settings[key]?.[field] === 0) {
             settings[key][field] = null;
         }
     }
@@ -91,7 +91,12 @@ function merge(defaults, overrides) {
 }
 
 function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+    } catch {
+        // Storage full or unavailable — non-critical, the change just won't
+        // survive a reload (mirrors game-store.js's guard)
+    }
 }
 
 export function settings() {

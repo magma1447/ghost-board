@@ -29,7 +29,7 @@ const MAX_TEAM_MEMBERS = 8; // a generous UI guard, not a fun-police rule
 // A row is a player UUID string, '' (unchosen), NEW_PLAYER (adding a name), or
 // an AI descriptor { ai: true, level }.
 function isAiRow(sel) {
-    return Boolean(sel && sel.ai);
+    return Boolean(sel?.ai);
 }
 
 function isPicked(sel) {

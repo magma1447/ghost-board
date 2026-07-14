@@ -10,7 +10,7 @@ export function createUndoStack() {
 
     // Capture the current game state (call before a dart/switch mutates it).
     function snapshot() {
-        return JSON.parse(JSON.stringify(getGame().getState()));
+        return structuredClone(getGame().getState());
     }
 
     function push(snap = snapshot()) {

@@ -127,7 +127,7 @@ async function chooseGame(page, label) {
     const handle = await page.evaluateHandle((wanted) => {
         const row = [...document.querySelectorAll('.game-selector-row')].find((r) => {
             const n = r.querySelector('.game-selector-name');
-            return n && n.textContent.trim() === wanted;
+            return n?.textContent.trim() === wanted;
         });
         return row ? row.querySelector('.game-selector-play') : null;
     }, label);

@@ -1,8 +1,10 @@
 {
   "name": "ghost-board-toolbox",
   "private": true,
-  "description": "Dev-only toolbox deps. puppeteer-core drives a remote Browserless Chrome for the screenshot tooling (screenshots/capture.mjs) — no bundled browser.",
+  "description": "Dev-only toolbox deps. puppeteer-core drives a remote Browserless Chrome for the screenshot tooling (screenshots/capture.mjs) — no bundled browser. eslint lints the headless dirs (test/, bin/, screenshot-engine/) via the repo-root eslint.config.mjs.",
   "dependencies": {
+    "eslint": "^9.28.0",
+    "globals": "^16.2.0",
     "puppeteer-core": "23.11.1"
   }
 }

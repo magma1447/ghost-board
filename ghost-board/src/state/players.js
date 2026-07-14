@@ -100,12 +100,12 @@ export function getHumanPlayers() {
 
 export function isAiPlayer(uuid) {
     const player = getPlayers().find((p) => p.uuid === uuid);
-    return Boolean(player && player.isAi);
+    return Boolean(player?.isAi);
 }
 
 export function aiLevelOf(uuid) {
     const player = getPlayers().find((p) => p.uuid === uuid);
-    return player && player.isAi ? player.aiLevel : null;
+    return player?.isAi ? player.aiLevel : null;
 }
 
 // Create a fresh AI opponent, numbered per game (AI #1, #2, …) — never reused,
@@ -131,13 +131,13 @@ export function createAiPlayer(index, level) {
 
 export function isTeamPlayer(uuid) {
     const player = getPlayers().find((p) => p.uuid === uuid);
-    return Boolean(player && player.isTeam);
+    return Boolean(player?.isTeam);
 }
 
 // The ordered member UUIDs of a team entity (or null if not a team).
 export function teamMembersOf(uuid) {
     const player = getPlayers().find((p) => p.uuid === uuid);
-    return player && player.isTeam ? player.members : null;
+    return player?.isTeam ? player.members : null;
 }
 
 // The UUID actually throwing for a player slot: a team's current member
@@ -150,7 +150,7 @@ export function currentMemberUuid(state, index) {
     }
     const members = teamMembersOf(player.uuid);
     if (members && members.length) {
-        const turns = (state.teamTurns && state.teamTurns[player.uuid]) || 0;
+        const turns = state.teamTurns?.[player.uuid] || 0;
         return members[turns % members.length];
     }
     return player.uuid;

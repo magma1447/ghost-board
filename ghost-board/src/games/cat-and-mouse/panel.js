@@ -26,7 +26,7 @@ export function createCatAndMousePanel(container, callbacks) {
                 const playerName = createPlayer(p.uuid).getName();
                 return p.role ? `${playerName} (${p.role})` : playerName;
             },
-            valueFor: (p) => '→ ' + p.currentTarget,
+            valueFor: (p) => `→ ${p.currentTarget}`,
             // turn.display accumulates across sprint sets
             dartsFor: (s, p, isCurrent) => (isCurrent ? s.turn.display : (p.lastDarts || [])),
             match,

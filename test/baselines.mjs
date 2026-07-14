@@ -67,7 +67,7 @@ try {
 }
 
 if (update || baseline === null) {
-    fs.writeFileSync(BASELINE_FILE, JSON.stringify(current, null, 2) + '\n');
+    fs.writeFileSync(BASELINE_FILE, `${JSON.stringify(current, null, 2)}\n`);
     console.log(`\nBaselines written (${Object.keys(current).length} games) → test/baselines.json`);
 } else {
     for (const type of Object.keys(current)) {
@@ -93,7 +93,7 @@ console.log('');
 if (failures.length > 0) {
     console.log(`FAILURES (${failures.length}):`);
     for (const f of failures) {
-        console.log('  ' + f);
+        console.log(`  ${f}`);
     }
     process.exit(1);
 }

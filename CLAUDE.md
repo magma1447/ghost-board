@@ -5,6 +5,7 @@
 - All tooling runs via Docker: `docker compose -f docker/compose.yaml exec -T app <command>`
 - Never run npm, eslint, or vite directly on the host
 - Lint: `docker compose -f docker/compose.yaml exec -T app npx eslint src/`
+- Lint headless dirs (`test/`, `bin/`, `screenshot-engine/`): `docker compose -f docker/compose.yaml run --rm toolbox npx eslint test bin screenshot-engine` (config: repo-root `eslint.config.mjs`, same rules as the app)
 - Build: `docker compose -f docker/compose.yaml exec -T app npx vite build`
 - Test suite (headless game simulations, run in the toolbox): `docker compose -f docker/compose.yaml run --rm toolbox node test/robustness.mjs`
 - Screenshots (README images): `screenshot-engine/` — see its `README.md`. Needs the stack up (`up -d`, `development` profile starts app + Browserless).

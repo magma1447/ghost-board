@@ -28,7 +28,7 @@ export function createMatchState(legsBestOf, setsBestOf, playerUuids) {
 
 // The match layer is only active when there's more than one leg or set to win.
 export function isMatchPlay(match) {
-    return !!match && (match.legsBestOf > 1 || match.setsBestOf > 1);
+    return Boolean(match && (match.legsBestOf > 1 || match.setsBestOf > 1));
 }
 
 // Index of the player who throws first in the current leg (rotates each leg).

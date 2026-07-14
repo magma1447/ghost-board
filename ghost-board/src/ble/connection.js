@@ -107,8 +107,7 @@ export function createConnection(onHit, onStatus) {
             return;
         }
         try {
-            const props = writeChar.properties || {};
-            if (props.writeWithoutResponse && writeChar.writeValueWithoutResponse) {
+            if (writeChar.properties?.writeWithoutResponse && writeChar.writeValueWithoutResponse) {
                 await writeChar.writeValueWithoutResponse(data);
             } else {
                 await writeChar.writeValue(data);

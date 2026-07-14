@@ -109,7 +109,7 @@ export function createScram({
             resetMarks();
             state.currentPlayerIndex = state.stopperIndex;
             refreshTargets();
-            state.transition = { title: 'Half ' + state.phase, subtitle: 'Swap roles' };
+            state.transition = { title: `Half ${state.phase}`, subtitle: 'Swap roles' };
             return { state, event: 'half', callouts: [] };
         }
 

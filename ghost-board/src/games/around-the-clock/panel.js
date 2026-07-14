@@ -23,7 +23,7 @@ export function createAroundTheClockPanel(container, callbacks) {
         panel.setRound(formatRoundLabel(state.round, state.options.maxRounds), match);
 
         renderScoreboard(panel.scoreboard, state, {
-            valueFor: (p) => '→ ' + formatTarget(p.currentTarget, state),
+            valueFor: (p) => `→ ${formatTarget(p.currentTarget, state)}`,
             match,
         });
 
