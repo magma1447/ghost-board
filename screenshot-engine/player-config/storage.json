@@ -1,9 +1,9 @@
 {
   "ghost-board-settings": {
     "players": [
-      { "uuid": "demo-a", "name": "Ghost" },
-      { "uuid": "demo-b", "name": "Pac" },
-      { "uuid": "demo-c", "name": "Blinky" }
+      { "uuid": "demo-a", "name": "Alpha" },
+      { "uuid": "demo-b", "name": "Bravo" },
+      { "uuid": "demo-c", "name": "Charlie" }
     ],
     "lastPlayers": ["demo-a", "demo-b"],
     "debug": { "mouseInput": true }

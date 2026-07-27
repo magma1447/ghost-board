@@ -17,6 +17,21 @@ export function showTargetLed(state, delayMs) {
         return;
     }
 
+    // A full per-number board paint (colour groups) — e.g. Domination's territory
+    // map, where each number is lit in its owner's colour. Rendered as given; an
+    // empty paint clears the ring.
+    if (state.boardPaint) {
+        const groups = state.boardPaint;
+        targetLedTimeout = setTimeout(() => {
+            if (groups.length > 0) {
+                ledShowSegmentColors(groups);
+            } else {
+                ledsAllOff();
+            }
+        }, delayMs);
+        return;
+    }
+
     // Games with explicit segment targets (Simon Says targets, X01 checkout
     // numbers). An empty list means there's nothing to aim at right now, so
     // clear the ring rather than leaving stale segments lit.

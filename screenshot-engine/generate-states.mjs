@@ -22,9 +22,12 @@ const LOGIC = Object.fromEntries(GAME_LOGIC.map((g) => [g.type, g]));
 
 // Demo roster — names resolve from ghost-board-settings.players via these uuids.
 const ROSTER = [
-    { uuid: 'demo-a', name: 'Ghost' },
-    { uuid: 'demo-b', name: 'Pac' },
-    { uuid: 'demo-c', name: 'Blinky' },
+    { uuid: 'demo-a', name: 'Alpha' },
+    { uuid: 'demo-b', name: 'Bravo' },
+    { uuid: 'demo-c', name: 'Charlie' },
+    { uuid: 'demo-d', name: 'Delta' },
+    { uuid: 'demo-e', name: 'Echo' },
+    { uuid: 'demo-f', name: 'Foxtrot' },
 ];
 
 const RINGS = ['SO', 'SI', 'D', 'T'];
@@ -103,6 +106,7 @@ const SCENARIOS = [
     { shot: 'gameplay-bobs-27', type: 'bobs-27', players: 2, level: 6, darts: 15, seed: 21 },
     { shot: 'gameplay-scram', type: 'scram', players: 2, level: 6, darts: 18, seed: 22 },
     { shot: 'gameplay-killer', type: 'killer', players: 3, level: 6, darts: 18, seed: 23 },
+    { shot: 'gameplay-domination', type: 'domination', players: 4, level: 5, darts: 48, seed: 24 },
 ];
 
 for (const sc of SCENARIOS) {

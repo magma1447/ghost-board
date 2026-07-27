@@ -33,6 +33,8 @@ import { createScramPanel } from '../../games/scram/panel.js';
 import { createScramSetup } from '../../games/scram/setup.js';
 import { createKillerPanel } from '../../games/killer/panel.js';
 import { createKillerSetup } from '../../games/killer/setup.js';
+import { createDominationPanel } from '../../games/domination/panel.js';
+import { createDominationSetup } from '../../games/domination/setup.js';
 
 // UI factories by game type, merged onto the logic descriptors.
 const UI = {
@@ -49,6 +51,7 @@ const UI = {
     'bobs-27': { createPanel: createBobs27Panel, createSetup: createBobs27Setup },
     'scram': { createPanel: createScramPanel, createSetup: createScramSetup },
     'killer': { createPanel: createKillerPanel, createSetup: createKillerSetup },
+    'domination': { createPanel: createDominationPanel, createSetup: createDominationSetup },
 };
 
 // Ordered list of every game (order = recommended play order, from games-logic).

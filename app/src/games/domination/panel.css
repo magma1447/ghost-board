@@ -1,0 +1,70 @@
+/* Domination — colour swatches for each player's territory, the claim-phase
+   list, and dimming for out players. */
+
+/* .game-scoreboard is display:flex, which beats the UA [hidden] rule, so hide
+   it explicitly during the assign phase. */
+.game-scoreboard[hidden] {
+    display: none;
+}
+
+/* A small square in the player's territory colour, before their name. */
+.game-domination-swatch {
+    display: inline-block;
+    width: 0.85em;
+    height: 0.85em;
+    border-radius: 3px;
+    margin-right: 0.5em;
+    vertical-align: -0.08em;
+    flex: none;
+}
+
+.game-domination-assign-strip {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 0.4rem 0.75rem;
+    background: #1e1e1e;
+    border-radius: 4px;
+    color: #ffb74d;
+}
+
+.game-domination-assign-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+}
+
+.game-domination-assign-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0.75rem;
+    background: #1a1a1a;
+    border-radius: 4px;
+    border-left: 3px solid transparent;
+}
+
+.game-domination-assign-row.active {
+    border-left-color: #ffb74d;
+    background: #262626;
+}
+
+.game-domination-assign-name {
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+}
+
+.game-domination-assign-num {
+    color: #888;
+    font-variant-numeric: tabular-nums;
+}
+
+.game-domination-assign-row.active .game-domination-assign-num {
+    color: #ffb74d;
+}
+
+/* Eliminated players stay on the board but faded. */
+.game-domination-out {
+    opacity: 0.45;
+}

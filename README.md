@@ -36,7 +36,7 @@ Ghost Board is a web-based alternative to the official Granboard app. It connect
 
 <table border="0" cellspacing="0">
   <tr>
-    <td width="50%" valign="top"><a href="screenshots/new-game-picker.png"><img src="screenshots/new-game-picker.png" width="100%" alt="New game picker"></a><br><sub>Pick a game — 13 modes, filter by player count or scoring style.</sub></td>
+    <td width="50%" valign="top"><a href="screenshots/new-game-picker.png"><img src="screenshots/new-game-picker.png" width="100%" alt="New game picker"></a><br><sub>Pick a game — 14 modes, filter by player count or scoring style.</sub></td>
     <td width="50%" valign="top"><a href="screenshots/x01-setup.png"><img src="screenshots/x01-setup.png" width="100%" alt="X01 setup"></a><br><sub>Setup — players, match format (legs / sets), and game options.</sub></td>
   </tr>
   <tr>
@@ -73,6 +73,10 @@ Ghost Board is a web-based alternative to the official Granboard app. It connect
   <tr>
     <td width="50%" valign="top"><a href="screenshots/gameplay-simon-says.png"><img src="screenshots/gameplay-simon-says.png" width="100%" alt="Simon Says"></a><br><sub><b>Simon Says</b> — three fresh targets each round; everyone throws at the same numbers.</sub></td>
     <td width="50%" valign="top"><a href="screenshots/gameplay-killer.png"><img src="screenshots/gameplay-killer.png" width="100%" alt="Killer"></a><br><sub><b>Killer</b> — arm up, then knock the lives off your opponents; last one standing wins.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top"><a href="screenshots/gameplay-domination.png"><img src="screenshots/gameplay-domination.png" width="100%" alt="Domination"></a><br><sub><b>Domination</b> — claim a number and take over the board; each player's territory glows in their own colour.</sub></td>
+    <td width="50%" valign="top"></td>
   </tr>
 </table>
 
@@ -260,6 +264,17 @@ Any game can be played as a match rather than a single game:
     - Lives — how many lives each player starts with, and the cap you build up to in Standard, 3–10 (default: 3)
     - Self-kill — once you're a killer, hitting your own number costs you a life; you can knock yourself out (default: on)
     - Straight off — everyone starts already a killer, skipping the arming phase (default: off)
+- **Domination**
+  - Claim a starting number, then take over the board by spreading into **neighbouring** numbers (on the board — 20's neighbours are 5 and 1, not 19/21); the board lights the numbers you can take next, and each player's territory glows in their colour
+  - An empty number is yours with one hit; a number an opponent owns takes two — a single knocks them off it (it goes empty), a second takes it, and a double or treble does both in one dart
+  - Lose your last number and you're out; reach the domination target to win outright, or hold the most territory when the rounds run out
+  - 2–8 players
+  - Options:
+    - Bull — the bull becomes a 21st territory linked to every number, so holding it lets you attack anywhere (default: on)
+    - Domination to win — the share of the board that wins outright, 25–100% (default: 100%)
+    - Max rounds — most territory wins if no one dominates in time (default: 20)
+    - On a tie — draw, or play sudden-death rounds until someone leads (default: draw)
+    - Starting numbers — throw a dart to claim a free number, or have them dealt at random (default: throw for it)
 
 ### Game comparison
 
@@ -278,6 +293,7 @@ Any game can be played as a match rather than a single game:
 | Half It | 1–8 | Yes | Yes | Yes | No | Count up | No |
 | Bob's 27 | 1–8 | Yes¹ | No | Yes | No | Count up | No |
 | Killer | 2–8 | No | No | Yes | No | Elimination | No |
+| Domination | 2–8 | Yes¹ | No | Yes | No | Territory | No |
 
 ¹ Depends on game options.<br>
 ² Unless an instant win ends the game early.

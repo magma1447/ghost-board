@@ -1,0 +1,263 @@
+{
+  "ghost-board-settings": {
+    "players": [
+      {
+        "uuid": "demo-a",
+        "name": "Alpha"
+      },
+      {
+        "uuid": "demo-b",
+        "name": "Bravo"
+      },
+      {
+        "uuid": "demo-c",
+        "name": "Charlie"
+      },
+      {
+        "uuid": "demo-d",
+        "name": "Delta"
+      }
+    ],
+    "lastPlayers": [
+      "demo-a",
+      "demo-b",
+      "demo-c",
+      "demo-d"
+    ],
+    "debug": {
+      "mouseInput": true
+    }
+  },
+  "ghost-board-game": {
+    "type": "domination",
+    "options": {
+      "numPlayers": 4,
+      "playerUuids": [
+        "demo-a",
+        "demo-b",
+        "demo-c",
+        "demo-d"
+      ],
+      "startingPlayerIndex": 0
+    },
+    "state": {
+      "type": "domination",
+      "dartsPerTurn": 3,
+      "options": {
+        "bull": true,
+        "winPercent": 100,
+        "maxRounds": 20,
+        "onDraw": "draw",
+        "numberAssignment": "throw"
+      },
+      "owners": {
+        "1": null,
+        "2": null,
+        "3": 3,
+        "4": null,
+        "5": null,
+        "6": 0,
+        "7": 2,
+        "8": null,
+        "9": 0,
+        "10": null,
+        "11": 1,
+        "12": null,
+        "13": null,
+        "14": 1,
+        "15": 0,
+        "16": 0,
+        "17": null,
+        "18": 0,
+        "19": 2,
+        "20": null,
+        "bull": 0
+      },
+      "totalCells": 21,
+      "winThreshold": 21,
+      "players": [
+        {
+          "uuid": "demo-a",
+          "home": 18,
+          "tiles": 6,
+          "out": false,
+          "lastDarts": [
+            {
+              "ring": "SI",
+              "segment": 15,
+              "hit": true,
+              "points": 0
+            },
+            {
+              "ring": "D",
+              "segment": 9,
+              "hit": true,
+              "points": 0
+            },
+            {
+              "ring": "D",
+              "segment": 16,
+              "hit": true,
+              "points": 0
+            }
+          ]
+        },
+        {
+          "uuid": "demo-b",
+          "home": 14,
+          "tiles": 2,
+          "out": false,
+          "lastDarts": [
+            {
+              "ring": "T",
+              "segment": 5,
+              "hit": false,
+              "points": 0
+            },
+            {
+              "ring": "SO",
+              "segment": 6,
+              "hit": false,
+              "points": 0
+            },
+            {
+              "ring": "SI",
+              "segment": 14,
+              "hit": false,
+              "points": 0
+            }
+          ]
+        },
+        {
+          "uuid": "demo-c",
+          "home": 7,
+          "tiles": 2,
+          "out": false,
+          "lastDarts": [
+            {
+              "ring": "SO",
+              "segment": 5,
+              "hit": false,
+              "points": 0
+            },
+            {
+              "ring": "SO",
+              "segment": 9,
+              "hit": false,
+              "points": 0
+            },
+            {
+              "ring": "T",
+              "segment": 5,
+              "hit": false,
+              "points": 0
+            }
+          ]
+        },
+        {
+          "uuid": "demo-d",
+          "home": 3,
+          "tiles": 1,
+          "out": false,
+          "lastDarts": [
+            {
+              "ring": "SI",
+              "segment": 1,
+              "hit": false,
+              "points": 0
+            },
+            {
+              "ring": "SI",
+              "segment": 18,
+              "hit": false,
+              "points": 0
+            },
+            {
+              "ring": "D",
+              "segment": 9,
+              "hit": false,
+              "points": 0
+            }
+          ]
+        }
+      ],
+      "assignOrder": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "assignPos": 4,
+      "assignIndex": 1,
+      "currentPlayerIndex": 2,
+      "turn": {
+        "darts": [
+          {
+            "ring": "D",
+            "segment": 19,
+            "hit": true,
+            "points": 0
+          },
+          {
+            "ring": "T",
+            "segment": 20,
+            "hit": false,
+            "points": 0
+          }
+        ],
+        "locked": false
+      },
+      "round": 4,
+      "phase": "play",
+      "isGameOver": false,
+      "winner": null,
+      "frontier": [
+        3,
+        16,
+        "bull"
+      ],
+      "targetSegments": [
+        3,
+        16
+      ],
+      "warnSegments": [],
+      "boardPaint": [
+        {
+          "segments": [
+            3,
+            16
+          ],
+          "color": 7
+        },
+        {
+          "segments": [
+            6,
+            9,
+            15,
+            18
+          ],
+          "color": 1
+        },
+        {
+          "segments": [
+            7,
+            19
+          ],
+          "color": 3
+        },
+        {
+          "segments": [
+            11,
+            14
+          ],
+          "color": 5
+        }
+      ],
+      "transition": {
+        "title": "Numbers claimed",
+        "subtitle": "Spread out and conquer"
+      }
+    },
+    "match": null
+  }
+}

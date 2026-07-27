@@ -97,8 +97,32 @@ export function onHit(ring, segment) {
     emitHit(ring, segment);
 }
 
-export function onSwitch() {
-    sweep(LED_COLOR.CYAN);
+// The player-switch sweep. Defaults to cyan; a game can pass its own colour
+// (Domination sweeps in the incoming player's territory colour).
+export function onSwitch(color = LED_COLOR.CYAN) {
+    sweep(color);
+}
+
+// Two-colour handoff sweep for a player switch (Domination): the exact same
+// one-lit-number chase as sweep(), but the first half of the rotation lights in
+// the OUTGOING player's colour and the second half in the INCOMING player's — so
+// the rotation hands off from the current player to the next. Ends with the ring
+// off, like sweep().
+export function sweepHandoff(fromColor, toColor) {
+    stopAnimations();
+    let i = 0;
+    function step() {
+        if (i >= BOARD_ORDER.length) {
+            emitRing(offRing());
+            return;
+        }
+        const ring = offRing();
+        ring[BOARD_ORDER[i] - 1] = i < BOARD_ORDER.length / 2 ? fromColor : toColor;
+        emitRing(ring);
+        i += 1;
+        sweepTimer = setTimeout(step, 40);
+    }
+    step();
 }
 
 // Light each number one at a time in clockwise order (connect / switch anim).

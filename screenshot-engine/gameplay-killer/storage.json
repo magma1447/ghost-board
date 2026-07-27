@@ -3,15 +3,15 @@
     "players": [
       {
         "uuid": "demo-a",
-        "name": "Ghost"
+        "name": "Alpha"
       },
       {
         "uuid": "demo-b",
-        "name": "Pac"
+        "name": "Bravo"
       },
       {
         "uuid": "demo-c",
-        "name": "Blinky"
+        "name": "Charlie"
       }
     ],
     "lastPlayers": [

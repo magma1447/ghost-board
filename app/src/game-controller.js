@@ -16,7 +16,7 @@ import { createPlayer, teamMembersOf, currentMemberUuid, reorderUuids } from './
 import { createAiDriver } from './ai/ai-driver.js';
 import { createUndoStack } from './game-engine/core/undo-stack.js';
 import { calcPoints } from './game-engine/shared/board-score.js';
-import { onHit as ledHit, onSwitch as ledSwitch, allOff as ledsOff, attract as ledsAttract } from './led/controller.js';
+import { onHit as ledHit, onSwitch as ledSwitch, sweepHandoff as ledSweepHandoff, allOff as ledsOff, attract as ledsAttract } from './led/controller.js';
 import { showTargetLed } from './led/targets.js';
 import { playHit, playSwitch, playBust, playWin, playSprint, playCorrect } from './audio/sounds.js';
 import { processCallouts } from './audio/callouts.js';
@@ -215,6 +215,19 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         armNextLeg(what);
     }
 
+    // Player-switch LED sweep. Domination hands off from the outgoing player's
+    // colour to the incoming one; every other game leaves both unset and gets the
+    // default cyan sweep.
+    function switchSweep(state) {
+        // Colours are positive palette indices (or null/undefined when unset).
+        const { switchFromColor, switchColor } = state;
+        if (switchFromColor && switchColor && switchFromColor !== switchColor) {
+            ledSweepHandoff(switchFromColor, switchColor);
+        } else {
+            ledSwitch(switchColor);
+        }
+    }
+
     function handleNextPlayer() {
         if (aiDriver.isThrowing()) {
             return; // ignore a manual advance while the AI is mid-turn
@@ -245,7 +258,6 @@ export function createGameController({ gameArea, board, headline, log, winDispla
         }
         undoHistory.push(); // allow undoing the switch (rolls back the turn)
         playSwitch();
-        ledSwitch();
         board.clearHighlight(); // don't carry the previous player's last hit over
         // The leaving team advances to its next member for its next turn. The
         // snapshot above captured the pre-advance value, so undo rolls it back.
@@ -255,6 +267,9 @@ export function createGameController({ gameArea, board, headline, log, winDispla
             leavingState.teamTurns[leavingUuid] += 1;
         }
         const { state, event, callouts } = game.nextPlayer();
+        // Sweep after advancing, so it can hand off between the outgoing and
+        // incoming players' colours (Domination); other games get the default cyan.
+        switchSweep(state);
         // In match play a win (e.g. Cat and Mouse at the round limit) ends a leg,
         // not the whole match — suppress the generic banner and route it to the
         // match handler instead.
@@ -528,7 +543,7 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                     // no audio
                 } else if (half) {
                     playSwitch();
-                    ledSwitch();
+                    switchSweep(state);
                     board.clearHighlight();
                 } else if (gameEvent === 'bust' || gameEvent === 'miss') {
                     playBust();
@@ -553,7 +568,10 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                     playHit(event.ring);
                     processCallouts(callouts);
                 }
-                showTargetLed(state, 800);
+                // Target-hint games wait 800ms so the hit flash plays before the
+                // hint appears; board-paint games (Domination) show the state
+                // itself on the ring, so repaint promptly after the flash.
+                showTargetLed(state, state.boardPaint ? 150 : 800);
                 // Throw-for (Killer assign phase) shows taken numbers on the ring
                 // only — no lingering cell highlight carried into the next thrower.
                 if (state.phase === 'assign') {
