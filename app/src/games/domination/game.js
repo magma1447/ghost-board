@@ -92,6 +92,10 @@ export function createDomination({
         phase: 'assign',
         isGameOver: false,
         winner: null,
+        // cell → owner index: a player's last number, neutralised but not yet
+        // taken, reverts to them at turn end (see nextPlayer). Eliminating a
+        // player always costs a real capture, never a bare neutralise.
+        pendingRevert: {},
         frontier: [], // cells the current player can attack (drives the highlight)
         targetSegments: [], // numbered frontier cells (the LED ring has no bull arc)
         warnSegments: [], // during assign: numbers already taken
@@ -133,7 +137,9 @@ export function createDomination({
     }
 
     // Move a cell to a new owner (or null = neutral), keeping tile counts and the
-    // `out` flag in step. A player reduced to zero cells during play is out.
+    // `out` flag in step. A player is eliminated only when their LAST number is
+    // TAKEN (owned by an enemy) — merely neutralising it queues a revert instead
+    // (see nextPlayer), so a kill always costs a real capture.
     function setOwner(cell, ownerIdx) {
         const prev = state.owners[cell];
         if (prev === ownerIdx) {
@@ -143,11 +149,21 @@ export function createDomination({
         if (prev !== null) {
             state.players[prev].tiles -= 1;
             if (state.players[prev].tiles <= 0 && state.phase === 'play') {
-                state.players[prev].out = true;
+                if (ownerIdx !== null) {
+                    state.players[prev].out = true; // their last number was taken outright
+                } else {
+                    state.pendingRevert[cell] = prev; // only neutralised — reverts unless claimed this turn
+                }
             }
         }
         if (ownerIdx !== null) {
             state.players[ownerIdx].tiles += 1;
+            // Claiming a number that was a player's neutralised last cell finishes
+            // the capture — that player is out now.
+            if (cell in state.pendingRevert) {
+                state.players[state.pendingRevert[cell]].out = true;
+                delete state.pendingRevert[cell];
+            }
         }
     }
 
@@ -294,6 +310,19 @@ export function createDomination({
         // Colour of the player leaving the turn, captured before we advance — the
         // handoff sweep runs from this to the incoming player's colour.
         const leavingColor = switchColor(state);
+
+        // Revert this turn's neutralised last-cells that weren't claimed — a bare
+        // neutralise doesn't eliminate; the number goes back to its owner as if it
+        // was never hit. Clear the map first so the revert's setOwner doesn't
+        // re-trigger the "claim finishes the capture" path.
+        const pending = state.pendingRevert;
+        state.pendingRevert = {};
+        for (const [cellKey, ownerIdx] of Object.entries(pending)) {
+            const cell = cellKey === 'bull' ? 'bull' : Number(cellKey);
+            if (state.owners[cell] === null) {
+                setOwner(cell, ownerIdx);
+            }
+        }
         stashTurn(state);
 
         // Last player standing (a mid-turn elimination already ends it — this is a

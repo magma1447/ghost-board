@@ -23,7 +23,7 @@ With **Bull** on, the bull is an extra territory connected to *every* number. Ho
 ## Winning
 
 - **Domination to win** — reach that share of the board and you win at once (100% means taking the whole board).
-- Lose your **last** number and you're **out**; the last player left in wins.
+- To knock a player **out** you must **take** their last number, not just neutralise it. Leave their last number merely empty at the end of your turn and it reverts to them, as if you never hit it — so finishing a player always costs a real capture: a double or treble, or two singles in one turn. The last player left in wins.
 - If nobody reaches the target, whoever holds the **most territory** when the round limit is reached wins — a tie is a draw, or plays on to sudden death.
 
 ## Tips
