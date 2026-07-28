@@ -79,5 +79,14 @@
     "scores": [
       1437
     ]
+  },
+  "domination": {
+    "players": 2,
+    "darts": 4,
+    "winner": 0,
+    "scores": [
+      null,
+      null
+    ]
   }
 }

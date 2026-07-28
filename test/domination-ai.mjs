@@ -89,14 +89,18 @@ function check(name, ok, detail) {
     check('assign claims the biggest gap (7/16, with 20 & 6 taken)', frac(d, [7, 16]) >= 0.95, JSON.stringify(d));
 }
 
-// 2. The bull is gated by accuracy. Owning 17 (frontier = 2, 3, bull, all
-//    neutral): a weak AI takes a neighbour, an accurate one goes for the hub.
+// 2. Bull-chasing scales smoothly with skill. Owning 17 (frontier = 2, 3, bull, all
+//    neutral, the bull worth its hub reach): a weak AI rarely gambles on the small
+//    target, an accurate one reliably grabs it, and the appetite climbs in between.
+//    No hard gate — the scatter model's real hit-odds produce the whole ramp.
 {
     const makeFresh = () => forcePlay(game(2, { bull: true }), { 17: 0, 20: 1 }, 0);
-    const weak = aimDist(makeFresh, 5);
-    const sharp = aimDist(makeFresh, 10);
-    check('weak AI (L5) does not gamble on the bull', frac(weak, ['bull']) <= 0.05, JSON.stringify(weak));
-    check('accurate AI (L10) grabs the bull hub', frac(sharp, ['bull']) >= 0.9, JSON.stringify(sharp));
+    const low = frac(aimDist(makeFresh, 2), ['bull']);
+    const mid = frac(aimDist(makeFresh, 6), ['bull']);
+    const high = frac(aimDist(makeFresh, 10), ['bull']);
+    check('a weak AI (L2) rarely gambles on the bull', low <= 0.15, `L2 bull ${low.toFixed(2)}`);
+    check('an accurate AI (L10) grabs the bull hub', high >= 0.9, `L10 bull ${high.toFixed(2)}`);
+    check('bull appetite rises with skill (L2 < L6 < L10)', low < mid && mid < high, `L2 ${low.toFixed(2)} L6 ${mid.toFixed(2)} L10 ${high.toFixed(2)}`);
 }
 
 // 3. Grow rather than fight a non-leader. Bull off; P1 is the leader; the AI's
@@ -178,7 +182,34 @@ function check(name, ok, detail) {
     check('splits attacks between two tied co-leaders (not always the first)', balanced && frac(d, [5, 2]) >= 0.95, JSON.stringify(d));
 }
 
-// 9. Confident-capture aim depends on darts left. Both the treble and the double
+// 9. Finish a kill it started. AI owns 3; P2 holds only 17 (adjacent) and P1 (the
+//    leader) holds 19 and more. The AI neutralises 17 — reducing P2 to zero — so
+//    claiming it this turn eliminates P2, while leaving it reverts P2 back in.
+//    Removing a rival must beat chipping another tile off the leader, at any skill.
+{
+    const makeFresh = () => {
+        const g = forcePlay(game(3, { bull: false }), { 3: 0, 17: 2, 19: 1, 7: 1, 16: 1, 8: 1 }, 0);
+        g.onDart('SO', 17); // neutralise P2's only number → pending revert
+        return g;
+    };
+    check('finishes a kill it started, at low skill (L3)', frac(aimDist(makeFresh, 3), [17]) >= 0.9, JSON.stringify(aimDist(makeFresh, 3)));
+    check('finishes a kill it started, at high skill (L8)', frac(aimDist(makeFresh, 8), [17]) >= 0.9, JSON.stringify(aimDist(makeFresh, 8)));
+}
+
+// 10. Darts left change what's worth aiming at. A single on a 2-hit enemy only
+//     neutralises — real progress with a dart left to finish it, a near-dead-end on
+//     the last dart. So a weak AI goes after the fresh leader cell 19 far less on its
+//     last dart than with darts in hand (preferring completable neutral claims).
+//     AI owns 3 & 20; 19 is the leader P1's; 17, 5, 1 are neutral.
+{
+    const scen = (thrown) => () => forcePlay(game(3, { bull: false }),
+        { 3: 0, 20: 0, 19: 1, 7: 1, 16: 1, 8: 1, 11: 1, 13: 2, 6: 2 }, 0, thrown);
+    const spare = frac(aimDist(scen(0), 3), [19]); // 3 darts in hand
+    const last = frac(aimDist(scen(2), 3), [19]); // last dart, no follow-up
+    check('attacks a 2-hit enemy less on the last dart than with darts in hand', last < spare, `last ${last.toFixed(2)} spare ${spare.toFixed(2)}`);
+}
+
+// 11. Confident-capture aim depends on darts left. Both the treble and the double
 //    capture on a hit; the treble's near-miss lands a single (a neutralise a
 //    spare dart can finish), so it's the aim WITH darts in hand — but on the LAST
 //    dart there's no follow-up, and the double is a surer clean hit, so it wins.
@@ -208,7 +239,7 @@ function check(name, ok, detail) {
     check('on the last dart, a capture aims the double (never the treble)', last.treble === 0 && last.dbl > 0, JSON.stringify(last));
 }
 
-// 10. Skill shows: level 10 beats level 1 across both turn orders.
+// 12. Skill shows: level 10 beats level 1 across both turn orders.
 {
     function play(levels, seed) {
         installSeededRandom(seed);

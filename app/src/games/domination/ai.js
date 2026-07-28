@@ -1,18 +1,25 @@
-// Domination AI — greedy per-dart target scoring.
+// Domination AI — expected-value aim under the dart-scatter model.
 //
-// Each dart, score every attackable cell by the value of OWNING it — a tile,
-// plus bonuses for eliminating a player, denying the current leader, keeping my
-// territory connected, and grabbing the bull hub — then aim at the best. Confident
-// AIs take an enemy number outright in one dart — the treble (whose near-miss
-// still lands a single, a neutralise a spare dart finishes) or, on the last dart
-// with no follow-up, the surer double; timid AIs chip with singles (one hit, so
-// a capture finishes over two darts). During the claim phase it picks a free
-// number with room to grow.
+// Each dart, consider aiming at every attackable cell and pick the aim with the
+// best EXPECTED outcome: simulate many scattered throws per candidate (with the
+// same scatter model the game throws through) and average what the dart actually
+// achieves — capturing an enemy number, claiming a neutral, or neutralising one —
+// counting a stray onto my own cell or off the board as nothing. Because the value
+// is scored over where the dart really lands (not where it was aimed), the low end
+// plays realistically for free: a weak AI that will miss aims where a miss still
+// pays off — into enemy interior when it holds the bull, so a wayward dart still
+// hits a takeable number — and only chases the bull once it's accurate enough to
+// land it. No hand-tuned accuracy factors; the scatter model supplies the odds.
 //
-// The weights are gut-feel starting values, meant to be tuned by play-testing —
-// see the calibration brief in ../../ai/README.md.
+// Each simulated hit is scored by ownValue — a tile, plus bonuses for eliminating
+// a rival, denying a front-runner, and keeping my territory connected. Enemy
+// numbers are aimed at the treble (its near-miss still neutralises), or the double
+// on the last dart; the claim phase picks a free number in the biggest gap.
+//
+// The value weights are gut-feel starting values, meant to be tuned by play-testing
+// (or self-play) — see the calibration brief in ../../ai/README.md.
 
-import { RING_RADIUS, takesRisk } from '../../ai/scatter.js';
+import { RING_RADIUS, applyScatter } from '../../ai/scatter.js';
 import { BOARD_ORDER } from '../../board/segments.js';
 
 const RING_INDEX = new Map(BOARD_ORDER.map((num, i) => [num, i]));
@@ -29,6 +36,16 @@ const W = {
     connect: 0.4, // per ring-neighbour already mine — keeps territory joined up
     border: 0.4, // claiming a neutral that touches an enemy — contests the front
 };
+
+// A single hit only neutralises an enemy number (it takes two to capture it).
+// With a dart still in hand it's partial progress toward the capture, worth a
+// fraction of owning it. On the last dart, with no follow-up to finish, it's a
+// near-dead-end — only a fleeting denial the enemy reclaims — worth far less.
+const NEUTRALISE_FRACTION = 0.5;
+const DEADEND_FRACTION = 0.15;
+
+// Scattered throws simulated per candidate aim when estimating its expected value.
+const MC_SAMPLES = 160;
 
 // Does this cell border an enemy (an owned-by-someone-else neighbour)?
 function bordersEnemy(state, me, cell) {
@@ -54,10 +71,6 @@ function leadingOpponentTiles(state, me) {
     return best;
 }
 
-function isLastCell(state, playerIdx) {
-    return state.players[playerIdx] && state.players[playerIdx].tiles === 1;
-}
-
 // How many of this cell's two ring neighbours I already own. The more, the more a
 // capture extends my own arc rather than stranding an outpost — so the fewer sides
 // an opponent can retake it from. Ring only: the bull touches every number, so
@@ -69,19 +82,20 @@ function friendlyRingNeighbours(state, me, cell) {
     return ringNeighbours(cell).reduce((n, nb) => n + (state.owners[nb] === me ? 1 : 0), 0);
 }
 
-// Rough chance this profile lands the bull — a small (~16 mm) target, so it
-// climbs slowly with skill (near 0 by mid-levels, ~1 when flawless). Used to
-// discount the bull's high value by how likely the AI is to actually hit it, so
-// weak AIs take a sure neighbour instead of blindly gambling on the hub.
-function bullAccuracy(profile) {
-    return Math.max(0, 1 - profile.scatterHorizontal / 25);
+// A double, treble, or double-bull lands two hits at once (enough to take an enemy
+// number outright); anything else is one hit. Mirrors the game's own rule.
+function hitStrength(ring) {
+    return ring === 'D' || ring === 'T' || ring === 'DBULL' ? 2 : 1;
 }
 
-// Rough chance this profile lands a treble — a harder shot than a single, but a
-// miss usually still hits the number as a single (a neutralise), so it's a mild
-// discount with a floor. Used so a sure neighbour beats a low-odds enemy capture.
-function captureAccuracy(profile) {
-    return Math.max(0.2, 1 - profile.scatterHorizontal / 55);
+// Which cell a dart landed on: a number 1–20, 'bull' (only when the bull is in
+// play), or null (off the board, or a bull hit with the bull disabled). Mirrors
+// the game's cellFor; bull-in-play is read from whether it's a cell at all.
+function cellFor(state, ring, segment) {
+    if (ring === 'SBULL' || ring === 'DBULL') {
+        return 'bull' in state.owners ? 'bull' : null;
+    }
+    return segment >= 1 && segment <= 20 ? segment : null;
 }
 
 // Value of ending up owning this cell. `leadTiles` is the front-runner's tile
@@ -99,18 +113,23 @@ function ownValue(state, me, cell, leadTiles) {
         v += W.connect * friendlyRingNeighbours(state, me, cell);
     }
     // A cell I neutralised this turn belongs to its pending owner; claiming it
-    // finishes the capture. Otherwise it's whoever owns it now.
-    const victim = cell in state.pendingRevert ? state.pendingRevert[cell] : state.owners[cell];
+    // finishes the capture (and the kill). Otherwise it's whoever owns it now.
+    const pending = cell in state.pendingRevert;
+    const victim = pending ? state.pendingRevert[cell] : state.owners[cell];
     if (victim !== null && victim !== undefined && victim !== me) {
         // Owning the number is worth the same as any claim (the base +1). No flat
         // capture bonus: in a 3+ player game, weakening a non-leader mostly helps
         // the leader. Only removing a rival (eliminate) or hitting a front-runner
         // (denyLeader — every opponent tied for the lead counts) is worth more
         // than a plain neutral claim.
-        if (isLastCell(state, victim)) {
+        const victimTiles = state.players[victim].tiles;
+        // Owning this eliminates the victim if it leaves them with none: a number
+        // they still hold that's their last, or one I already neutralised this turn
+        // (pending revert, so their count is 0) that claiming would finish off.
+        if (pending ? victimTiles === 0 : victimTiles === 1) {
             v += W.eliminate;
         }
-        if (leadTiles > 0 && state.players[victim].tiles === leadTiles) {
+        if (leadTiles > 0 && victimTiles === leadTiles) {
             v += W.denyLeader;
         }
     } else if (cell !== 'bull' && bordersEnemy(state, me, cell)) {
@@ -119,6 +138,49 @@ function ownValue(state, me, cell, leadTiles) {
         v += W.border;
     }
     return v;
+}
+
+// What a dart that landed at (ring, segment) actually accomplishes for me: ownValue
+// when it captures or claims a cell, a fraction of that when it only neutralises,
+// and nothing when it lands on my own cell, a last number (which reverts), off the
+// board, or anywhere not adjacent to my territory. Averaging this over the scatter
+// is what makes aiming where a miss still lands value come out ahead.
+function outcomeValue(state, me, ring, segment, leadTiles, dartsLeft) {
+    const cell = cellFor(state, ring, segment);
+    if (cell === null || !state.frontier.includes(cell)) {
+        return 0; // off the board, my own cell, or not adjacent — no effect
+    }
+    const owner = state.owners[cell];
+    if (owner === null) {
+        return ownValue(state, me, cell, leadTiles); // neutral (incl. one I neutralised) — one hit claims it, complete
+    }
+    if (hitStrength(ring) >= 2) {
+        return ownValue(state, me, cell, leadTiles); // enemy — a double/treble takes it outright, complete
+    }
+    // A single only neutralises — partial, and only worth it if a later dart can
+    // finish it (see NEUTRALISE_FRACTION vs DEADEND_FRACTION).
+    if (state.players[owner].tiles === 1) {
+        // Their LAST number: a single queues a revert; claiming it next dart is the
+        // kill. Worth chasing only with a dart still in hand — on the last dart it
+        // just reverts, achieving nothing.
+        return dartsLeft >= 2 ? NEUTRALISE_FRACTION * ownValue(state, me, cell, leadTiles) : 0;
+    }
+    const fraction = dartsLeft >= 2 ? NEUTRALISE_FRACTION : DEADEND_FRACTION;
+    return fraction * ownValue(state, me, cell, leadTiles);
+}
+
+// The ring to aim a candidate at: the fat single claims a neutral in one hit; an
+// enemy needs two, so aim the treble (its near-miss still neutralises) — except on
+// the last dart, where the double is a surer clean hit with no follow-up to finish
+// a neutralise. The bull is a point target.
+function aimRadiusFor(state, cell, dartsLeft) {
+    if (cell === 'bull') {
+        return RING_RADIUS.bull;
+    }
+    if (state.owners[cell] === null) {
+        return RING_RADIUS.any;
+    }
+    return dartsLeft === 1 ? RING_RADIUS.double : RING_RADIUS.treble;
 }
 
 // A little symmetric noise so equally-ranked cells don't always tie the same way.
@@ -159,60 +221,36 @@ export function dominationAim(state, profile) {
 
     const me = state.currentPlayerIndex;
     const leadTiles = leadingOpponentTiles(state, me);
-    const risk = takesRisk(profile);
     const dartsLeft = state.dartsPerTurn - state.turn.darts.length;
+    // A flawless profile (level 10) never scatters, so a dart always lands the hit
+    // it aimed at — skip the simulation (it would also burn RNG and shift the
+    // deterministic baselines) and score each cell by the value of taking it.
+    const perfect = profile.scatterHorizontal === 0 && profile.scatterVertical === 0;
 
     let bestAim = null;
     let bestScore = -Infinity;
 
     for (const cell of state.frontier) {
-        const owner = state.owners[cell];
-        const value = ownValue(state, me, cell, leadTiles);
+        const segment = cell === 'bull' ? 25 : cell;
+        const radius = aimRadiusFor(state, cell, dartsLeft);
         let score;
-        let radius;
-
-        if (owner === null) {
-            // Neutral (including a cell I neutralised this turn) — one hit claims it.
-            score = value;
-            radius = cell === 'bull' ? RING_RADIUS.sbull : RING_RADIUS.any;
-        } else if (risk) {
-            // Confident: take the enemy number outright (two hits at once),
-            // discounted by how reliably this profile lands the harder shot.
-            score = value * captureAccuracy(profile);
-            if (cell === 'bull') {
-                radius = RING_RADIUS.bull;
-            } else if (dartsLeft === 1) {
-                // Last dart — no follow-up to finish a neutralise, so aim the
-                // double: the larger ring is a surer clean hit, and its off-board
-                // miss no longer costs us a finishable neutralise.
-                radius = RING_RADIUS.double;
-            } else {
-                // Darts in hand — aim the treble: same capture on a hit, but a
-                // near-miss lands a single (a neutralise the next dart finishes)
-                // instead of the double's off-board overshoot.
-                radius = RING_RADIUS.treble;
-            }
-        } else if (dartsLeft >= 2) {
-            // Timid: a single neutralises now and claims next dart — only worth
-            // starting if we can still finish the capture this turn.
-            score = value * 0.6;
-            radius = cell === 'bull' ? RING_RADIUS.sbull : RING_RADIUS.any;
+        if (perfect) {
+            score = ownValue(state, me, cell, leadTiles);
         } else {
-            // A single can't finish a capture with one dart left — take a
-            // neighbour instead of a fruitless neutralise.
-            continue;
+            // Expected value of this aim: average what the dart really achieves over
+            // many scattered throws, so an aim whose misses still land on takeable
+            // cells beats one whose misses fall on my own territory or off the board.
+            let sum = 0;
+            for (let i = 0; i < MC_SAMPLES; i++) {
+                const hit = applyScatter({ segment, radius }, profile);
+                sum += outcomeValue(state, me, hit.ring, hit.segment, leadTiles, dartsLeft);
+            }
+            score = sum / MC_SAMPLES;
         }
-
-        // Discount the bull by the chance of actually landing it — only accurate
-        // AIs should chase the hub; weaker ones prefer a reliable neighbour.
-        if (cell === 'bull') {
-            score *= bullAccuracy(profile);
-        }
-
         score += jitter();
         if (score > bestScore) {
             bestScore = score;
-            bestAim = { segment: cell === 'bull' ? 25 : cell, radius };
+            bestAim = { segment, radius };
         }
     }
 
