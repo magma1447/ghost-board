@@ -577,6 +577,12 @@ export function createGameController({ gameArea, board, headline, log, winDispla
                 if (state.phase === 'assign') {
                     board.clearHighlight();
                 }
+                // In the claim phase a human's claim may hand the throw-off to an
+                // AI, and the claim→play handoff may put an AI up first — kick the
+                // driver (a no-op while an AI is already throwing or a human is up).
+                if (state.phase === 'assign' || half) {
+                    aiDriver.maybeRunTurn();
+                }
                 persistState();
                 // The transition rolls into a new phase (fresh marks / swapped
                 // roles) — a clean boundary, so undo doesn't reach back across

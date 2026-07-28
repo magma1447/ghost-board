@@ -7,7 +7,7 @@
 - Lint: `docker compose -f docker/compose.yaml exec -T app npx eslint src/`
 - Lint headless dirs (`test/`, `bin/`, `screenshot-engine/`): `docker compose -f docker/compose.yaml run --rm toolbox npx eslint test bin screenshot-engine` (config: repo-root `eslint.config.mjs`, same rules as the app)
 - Build: `docker compose -f docker/compose.yaml exec -T app npx vite build`
-- Test suite (headless game simulations, run in the toolbox): `docker compose -f docker/compose.yaml run --rm toolbox node test/robustness.mjs`
+- Test suite (headless, run in the toolbox — each is a standalone `node test/<file>.mjs`): `robustness.mjs` (every game × options × levels, catches crashes/hangs/illegal states), `baselines.mjs` (level-10 deterministic golden snapshots — regenerate with `HOST_UID=$(id -u) HOST_GID=$(id -g) ... node test/baselines.mjs --update`), `domination-ai.mjs` (Domination AI strategy regression — a failure means a strategic decision changed, so it should be deliberate). E.g. `docker compose -f docker/compose.yaml run --rm toolbox node test/robustness.mjs`
 - Screenshots (README images): `screenshot-engine/` — see its `README.md`. Needs the stack up (`up -d`, `development` profile starts app + Browserless).
 - Toolbox commands that WRITE files (screenshots, test baselines, icon generation) must run as the host user so output isn't root-owned: prefix with `HOST_UID=$(id -u) HOST_GID=$(id -g)` (the toolbox's `user:` reads these; defaults to root when unset).
 

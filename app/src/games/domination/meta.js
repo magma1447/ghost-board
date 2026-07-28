@@ -10,7 +10,7 @@ export const meta = {
     rulesComplexity: 4,
     tags: ['territory', 'tactical'],
     scoringStyle: 'Territory',
-    supportsAi: false,
+    supportsAi: true,
     options: {
         bull: 'When on, the bull is an extra territory connected to every number — hold any number and you can always contest it, hold the bull and you can attack anywhere. It also counts toward the win target.',
         winPercent: 'The share of the board you must hold to win outright, checked after every dart. Lower values make for shorter games; 100% means conquering the whole board.',

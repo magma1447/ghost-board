@@ -88,7 +88,10 @@ export function createAiDriver({ getGameType, isPendingNextLeg, injectEvent, boa
             return null;
         }
         const state = game.getState();
-        const uuid = currentMemberUuid(state, state.currentPlayerIndex);
+        // In a claim-phase throw-off (Domination) the thrower is assignIndex, not
+        // currentPlayerIndex.
+        const idx = state.phase === 'assign' ? state.assignIndex : state.currentPlayerIndex;
+        const uuid = currentMemberUuid(state, idx);
         return uuid ? aiLevelOf(uuid) : null;
     }
 
@@ -110,6 +113,15 @@ export function createAiDriver({ getGameType, isPendingNextLeg, injectEvent, boa
         aiThrowTimer = setTimeout(runAiDart, settings().ai.throwMs);
     }
 
+    // Throw one AI dart through the controller's event sink.
+    function throwOne(state) {
+        const dart = aiThrow(getGameType(), state, currentAiLevel());
+        injectEvent({ type: 'hit', ring: dart.ring, segment: dart.segment, _ai: true, _aimTarget: dart.aimTarget });
+        if (settings().debug.aiMarks && board.showAiThrow) {
+            board.showAiThrow(dart.aim, dart.land);
+        }
+    }
+
     function runAiDart() {
         const game = getGame();
         if (!game) {
@@ -121,6 +133,19 @@ export function createAiDriver({ getGameType, isPendingNextLeg, injectEvent, boa
             stopThrowing(); // the winning dart was already handled
             return;
         }
+        // A human is now up — e.g. a claim advanced the throw-off past this AI.
+        if (currentAiLevel() === null) {
+            stopThrowing();
+            refreshNextButton();
+            return;
+        }
+        // Claim phase (Domination): keep throwing until a free number is landed;
+        // the game advances the throw-off itself, so there's no Next Player press.
+        if (state.phase === 'assign') {
+            throwOne(state);
+            aiThrowTimer = setTimeout(runAiDart, settings().ai.throwMs);
+            return;
+        }
         // Turn's over — all darts thrown, or the turn locked early (an X01 bust
         // leaves fewer darts but no more may be thrown). Advance the same way a
         // human would with the Next Player button.
@@ -129,11 +154,7 @@ export function createAiDriver({ getGameType, isPendingNextLeg, injectEvent, boa
             injectEvent({ type: 'button', _ai: true });
             return;
         }
-        const dart = aiThrow(getGameType(), state, currentAiLevel());
-        injectEvent({ type: 'hit', ring: dart.ring, segment: dart.segment, _ai: true, _aimTarget: dart.aimTarget });
-        if (settings().debug.aiMarks && board.showAiThrow) {
-            board.showAiThrow(dart.aim, dart.land);
-        }
+        throwOne(state);
         aiThrowTimer = setTimeout(runAiDart, settings().ai.throwMs);
     }
 

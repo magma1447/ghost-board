@@ -73,6 +73,7 @@ import { defaults as killerDefaults, fields as killerFields } from '../../games/
 
 import { createDomination } from '../../games/domination/game.js';
 import { meta as dominationMeta } from '../../games/domination/meta.js';
+import { dominationAim } from '../../games/domination/ai.js';
 import { defaults as dominationDefaults, fields as dominationFields } from '../../games/domination/options.js';
 
 // Each entry: { type, label, createGame, meta, defaults, fields, aim? }.
@@ -91,5 +92,5 @@ export const GAME_LOGIC = [
     { type: 'bobs-27', label: "Bob's 27", createGame: createBobs27, meta: bobs27Meta, defaults: bobs27Defaults, fields: bobs27Fields, aim: bobs27Aim },
     { type: 'scram', label: 'Scram', createGame: createScram, meta: scramMeta, defaults: scramDefaults, fields: scramFields },
     { type: 'killer', label: 'Killer', createGame: createKiller, meta: killerMeta, defaults: killerDefaults, fields: killerFields },
-    { type: 'domination', label: 'Domination', createGame: createDomination, meta: dominationMeta, defaults: dominationDefaults, fields: dominationFields },
+    { type: 'domination', label: 'Domination', createGame: createDomination, meta: dominationMeta, defaults: dominationDefaults, fields: dominationFields, aim: dominationAim },
 ];

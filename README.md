@@ -293,7 +293,7 @@ Any game can be played as a match rather than a single game:
 | Half It | 1–8 | Yes | Yes | Yes | No | Count up | No |
 | Bob's 27 | 1–8 | Yes¹ | No | Yes | No | Count up | No |
 | Killer | 2–8 | No | No | Yes | No | Elimination | No |
-| Domination | 2–8 | Yes¹ | No | Yes | No | Territory | No |
+| Domination | 2–8 | Yes¹ | No | Yes | No | Territory | Yes |
 
 ¹ Depends on game options.<br>
 ² Unless an instant win ends the game early.
