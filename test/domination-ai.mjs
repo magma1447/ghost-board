@@ -89,18 +89,20 @@ function check(name, ok, detail) {
     check('assign claims the biggest gap (7/16, with 20 & 6 taken)', frac(d, [7, 16]) >= 0.95, JSON.stringify(d));
 }
 
-// 2. Bull-chasing scales smoothly with skill. Owning 17 (frontier = 2, 3, bull, all
-//    neutral, the bull worth its hub reach): a weak AI rarely gambles on the small
-//    target, an accurate one reliably grabs it, and the appetite climbs in between.
-//    No hard gate — the scatter model's real hit-odds produce the whole ramp.
+// 2. Grab the bull whenever it's reachable. Owning 17 (frontier = 2, 3, bull, all
+//    neutral): holding the hub makes the whole board attackable, and self-play was
+//    emphatic that always taking an available bull wins — so it's a hit-odds FLOOR,
+//    not a gamble to avoid. A weak AI (L2, ~8% odds, below the floor) can't hit it
+//    so takes a neighbour; once competent (L5+) it goes for the bull. (See the
+//    reversal recorded on BULL_THRESHOLD and test/domination-bull-tuning.mjs.)
 {
     const makeFresh = () => forcePlay(game(2, { bull: true }), { 17: 0, 20: 1 }, 0);
     const low = frac(aimDist(makeFresh, 2), ['bull']);
-    const mid = frac(aimDist(makeFresh, 6), ['bull']);
+    const competent = frac(aimDist(makeFresh, 5), ['bull']);
     const high = frac(aimDist(makeFresh, 10), ['bull']);
-    check('a weak AI (L2) rarely gambles on the bull', low <= 0.15, `L2 bull ${low.toFixed(2)}`);
+    check('a weak AI (L2) cannot hit the bull, so takes a neighbour', low <= 0.15, `L2 bull ${low.toFixed(2)}`);
+    check('a competent AI (L5) goes for the bull', competent >= 0.85, `L5 bull ${competent.toFixed(2)}`);
     check('an accurate AI (L10) grabs the bull hub', high >= 0.9, `L10 bull ${high.toFixed(2)}`);
-    check('bull appetite rises with skill (L2 < L6 < L10)', low < mid && mid < high, `L2 ${low.toFixed(2)} L6 ${mid.toFixed(2)} L10 ${high.toFixed(2)}`);
 }
 
 // 3. Grow rather than fight a non-leader. Bull off; P1 is the leader; the AI's
@@ -121,19 +123,24 @@ function check(name, ok, detail) {
     const makeFresh = () => forcePlay(game(3, { bull: false }), { 19: 0, 3: 0, 2: 1, 4: 1, 14: 2, 18: 2 }, 0);
     const d = aimDist(makeFresh, 5);
     check('claims the enemy-bordering neutral over open space', frac(d, [17]) >= 0.9, JSON.stringify(d));
+    // The edge can be small (contest 2, bordering P2, vs open 3): decisive at a
+    // real playing level means it must not flicker on sampling noise between them.
+    const front = () => forcePlay(game(3, { bull: false }), { 17: 0, 20: 1, 1: 1, 18: 1, 4: 1, 13: 2, 6: 2, 10: 2, 15: 2 }, 0);
+    check('a small front-contest edge is decided cleanly, not by noise (L5)', frac(aimDist(front, 5), [2]) >= 0.95, JSON.stringify(aimDist(front, 5)));
 }
 
-// 5. Do attack the leader. Bull off; P1 is the leader and owns the AI's frontier
-//    number 2, with neutral neighbours alongside → an accurate AI takes from the
-//    leader rather than growing into a neutral.
+// 5. Attacking is gated by one-dart capture odds (self-play tuned to ~0.4). P1
+//    leads and owns the AI's frontier cell 2, with neutrals alongside. Taking 2 is
+//    a two-hit capture, so at mid skill (odds < ~0.4) the AI grows into a neutral
+//    instead; only a near-flawless thrower (odds high) takes the leader's number.
 {
     const makeFresh = () => forcePlay(game(3, { bull: false }), {
         17: 0, 16: 0,
         2: 1, 4: 1, 13: 1, 6: 1, 10: 1,
         15: 2, 20: 2,
     }, 0);
-    const d = aimDist(makeFresh, 8);
-    check('takes from the leader over a neutral (L8)', frac(d, [2]) >= 0.8, JSON.stringify(d));
+    check('grows rather than attacking the leader at mid skill (L8)', frac(aimDist(makeFresh, 8), [2]) <= 0.1, JSON.stringify(aimDist(makeFresh, 8)));
+    check('takes the leader once the capture is near-certain (L10)', frac(aimDist(makeFresh, 10), [2]) >= 0.9, JSON.stringify(aimDist(makeFresh, 10)));
 }
 
 // 6. Keep territory connected. AI owns the bull, three contiguous arcs tile the
@@ -185,56 +192,56 @@ function check(name, ok, detail) {
 // 9. Finish a kill it started. AI owns 3; P2 holds only 17 (adjacent) and P1 (the
 //    leader) holds 19 and more. The AI neutralises 17 — reducing P2 to zero — so
 //    claiming it this turn eliminates P2, while leaving it reverts P2 back in.
-//    Removing a rival must beat chipping another tile off the leader, at any skill.
+//    Removing a rival must beat chipping another tile off the leader. (A very weak
+//    AI misjudges it sometimes — that's the intelligence dial — so we assert it at
+//    competent levels, where it should be near-certain.)
 {
     const makeFresh = () => {
         const g = forcePlay(game(3, { bull: false }), { 3: 0, 17: 2, 19: 1, 7: 1, 16: 1, 8: 1 }, 0);
         g.onDart('SO', 17); // neutralise P2's only number → pending revert
         return g;
     };
-    check('finishes a kill it started, at low skill (L3)', frac(aimDist(makeFresh, 3), [17]) >= 0.9, JSON.stringify(aimDist(makeFresh, 3)));
-    check('finishes a kill it started, at high skill (L8)', frac(aimDist(makeFresh, 8), [17]) >= 0.9, JSON.stringify(aimDist(makeFresh, 8)));
+    check('finishes a kill it started (L5)', frac(aimDist(makeFresh, 5), [17]) >= 0.9, JSON.stringify(aimDist(makeFresh, 5)));
+    check('finishes a kill it started (L8)', frac(aimDist(makeFresh, 8), [17]) >= 0.9, JSON.stringify(aimDist(makeFresh, 8)));
 }
 
-// 10. Darts left change what's worth aiming at. A single on a 2-hit enemy only
-//     neutralises — real progress with a dart left to finish it, a near-dead-end on
-//     the last dart. So a weak AI goes after the fresh leader cell 19 far less on its
-//     last dart than with darts in hand (preferring completable neutral claims).
-//     AI owns 3 & 20; 19 is the leader P1's; 17, 5, 1 are neutral.
+// 10. Grow over a low-odds attack, even on a co-leader. The board a play-tester
+//     flagged: P1 (20..4) and P2 (13..15) are tied for the lead; the AI (2, 17) can
+//     take P2's 15 (a two-hit capture) or claim the neutral 3. At mid skill the
+//     one-dart odds are well under the ~0.4 threshold, so it grows into 3 rather
+//     than trading a +1-1 that only lifts P1 — the attack pays off only near-flawless.
 {
-    const scen = (thrown) => () => forcePlay(game(3, { bull: false }),
-        { 3: 0, 20: 0, 19: 1, 7: 1, 16: 1, 8: 1, 11: 1, 13: 2, 6: 2 }, 0, thrown);
-    const spare = frac(aimDist(scen(0), 3), [19]); // 3 darts in hand
-    const last = frac(aimDist(scen(2), 3), [19]); // last dart, no follow-up
-    check('attacks a 2-hit enemy less on the last dart than with darts in hand', last < spare, `last ${last.toFixed(2)} spare ${spare.toFixed(2)}`);
+    const makeFresh = () => forcePlay(game(3, { bull: false }),
+        { 2: 0, 17: 0, 20: 1, 1: 1, 18: 1, 4: 1, 13: 2, 6: 2, 10: 2, 15: 2 }, 0);
+    check('grows (3) rather than attacking a co-leader at low odds (L5)', frac(aimDist(makeFresh, 5), [3]) >= 0.9, JSON.stringify(aimDist(makeFresh, 5)));
+    check('attacks the co-leader (15) only when the capture is near-certain (L10)', frac(aimDist(makeFresh, 10), [15]) >= 0.9, JSON.stringify(aimDist(makeFresh, 10)));
 }
 
-// 11. Confident-capture aim depends on darts left. Both the treble and the double
-//    capture on a hit; the treble's near-miss lands a single (a neutralise a
-//    spare dart can finish), so it's the aim WITH darts in hand — but on the LAST
-//    dart there's no follow-up, and the double is a surer clean hit, so it wins.
-//    AI (0) owns 20; P1 (1) is the leader and owns 20's neighbour 5 → confident
-//    AI takes 5.
+// 11. Capture-ring choice depends on darts left. Both the treble and the double
+//    capture on a hit; the treble's near-miss lands a single (a neutralise a spare
+//    dart can finish), so it's the aim WITH darts in hand — but on the LAST dart
+//    there's no follow-up, and the double is a surer clean hit, so it wins. AI (0)
+//    owns 20; its only frontier is P1's 5 and 1 (both enemy, no neutral escape), so
+//    it must capture — and the ring it aims tells us which rule fired.
 {
-    // How a confident L8 AI aims at the enemy 5 with `thrown` darts already used.
-    function captureAims(thrown) {
-        const makeFresh = () => forcePlay(game(2, { bull: false }), { 20: 0, 5: 1, 12: 1, 9: 1, 14: 1 }, 0, thrown);
+    function captureRing(thrown) {
+        const makeFresh = () => forcePlay(game(2, { bull: false }), { 20: 0, 5: 1, 1: 1, 12: 1, 9: 1, 14: 1 }, 0, thrown);
         installSeededRandom(SEED);
         let treble = 0;
         let dbl = 0;
         for (let i = 0; i < N; i++) {
             const a = dominationAim(makeFresh().getState(), AI_PROFILES[8]);
-            if (a.segment === 5 && a.radius === RING_RADIUS.treble) {
+            if (a.radius === RING_RADIUS.treble) {
                 treble += 1;
             }
-            if (a.segment === 5 && a.radius === RING_RADIUS.double) {
+            if (a.radius === RING_RADIUS.double) {
                 dbl += 1;
             }
         }
         return { treble, dbl };
     }
-    const spare = captureAims(0); // 3 darts left
-    const last = captureAims(2); // 1 dart left
+    const spare = captureRing(0); // 3 darts left
+    const last = captureRing(2); // 1 dart left
     check('with darts in hand, a capture aims the treble (never the double)', spare.dbl === 0 && spare.treble > 0, JSON.stringify(spare));
     check('on the last dart, a capture aims the double (never the treble)', last.treble === 0 && last.dbl > 0, JSON.stringify(last));
 }

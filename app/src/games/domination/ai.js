@@ -1,25 +1,28 @@
-// Domination AI — expected-value aim under the dart-scatter model.
+// Domination AI — expected-value aim over the dart-scatter odds.
 //
-// Each dart, consider aiming at every attackable cell and pick the aim with the
-// best EXPECTED outcome: simulate many scattered throws per candidate (with the
-// same scatter model the game throws through) and average what the dart actually
-// achieves — capturing an enemy number, claiming a neutral, or neutralising one —
-// counting a stray onto my own cell or off the board as nothing. Because the value
-// is scored over where the dart really lands (not where it was aimed), the low end
-// plays realistically for free: a weak AI that will miss aims where a miss still
-// pays off — into enemy interior when it holds the bull, so a wayward dart still
-// hits a takeable number — and only chases the bull once it's accurate enough to
-// land it. No hand-tuned accuracy factors; the scatter model supplies the odds.
+// Each dart, score every attackable cell by its EXPECTED outcome under the scatter
+// — where the dart really lands, not where it was aimed — then grow into the best
+// free cell unless a good-odds enemy capture is worth attacking (see
+// ATTACK_THRESHOLD). The odds of landing on each cell come from ../../ai/aim-odds.js
+// (computed once per aim+level and cached); here we just score each possible
+// landing with ownValue and let that engine weigh them by the thrower's judgement.
+// Because value is over the real landing spread, the low end plays realistically
+// for free: a weak AI aims where a miss still pays off — into enemy interior when
+// it holds the bull, so a wayward dart still hits a takeable number — and only
+// chases the bull once it's accurate enough to land it. No hand-tuned accuracy
+// factors; the scatter odds supply them, and the thrower's confidence supplies how
+// sharply it reads those odds (a beginner misjudges, a pro decides exactly).
 //
-// Each simulated hit is scored by ownValue — a tile, plus bonuses for eliminating
-// a rival, denying a front-runner, and keeping my territory connected. Enemy
-// numbers are aimed at the treble (its near-miss still neutralises), or the double
-// on the last dart; the claim phase picks a free number in the biggest gap.
+// Each landing is scored by ownValue — a tile, plus bonuses for eliminating a
+// rival, denying a front-runner, and keeping my territory connected. Enemy numbers
+// are aimed at the treble (its near-miss still neutralises), or the double on the
+// last dart; the claim phase picks a free number in the biggest gap.
 //
 // The value weights are gut-feel starting values, meant to be tuned by play-testing
 // (or self-play) — see the calibration brief in ../../ai/README.md.
 
-import { RING_RADIUS, applyScatter } from '../../ai/scatter.js';
+import { RING_RADIUS } from '../../ai/scatter.js';
+import { expectedAimValue, captureChance, bullHitChance } from '../../ai/aim-odds.js';
 import { BOARD_ORDER } from '../../board/segments.js';
 
 const RING_INDEX = new Map(BOARD_ORDER.map((num, i) => [num, i]));
@@ -37,15 +40,13 @@ const W = {
     border: 0.4, // claiming a neutral that touches an enemy — contests the front
 };
 
-// A single hit only neutralises an enemy number (it takes two to capture it).
-// With a dart still in hand it's partial progress toward the capture, worth a
-// fraction of owning it. On the last dart, with no follow-up to finish, it's a
-// near-dead-end — only a fleeting denial the enemy reclaims — worth far less.
-const NEUTRALISE_FRACTION = 0.5;
-const DEADEND_FRACTION = 0.15;
-
-// Scattered throws simulated per candidate aim when estimating its expected value.
-const MC_SAMPLES = 160;
+// A single hit only neutralises an enemy number (it takes two to capture it), and
+// a neutralise is cheap: it's temporary (the enemy reclaims it), and finishing it
+// over two darts is a +1-1 when two darts on neutrals would be +2. So it's worth
+// little — meaning an attack pays off mainly when you can CAPTURE in one dart (a
+// treble/double), which the odds decide. Even less on the last dart (can't finish).
+const NEUTRALISE_FRACTION = 0.15;
+const DEADEND_FRACTION = 0.05;
 
 // Does this cell border an enemy (an owned-by-someone-else neighbour)?
 function bordersEnemy(state, me, cell) {
@@ -214,7 +215,27 @@ function assignAim(state) {
     return { segment: best, radius: RING_RADIUS.any };
 }
 
-export function dominationAim(state, profile) {
+// Attack an enemy number only when the odds of taking it in ONE dart (a double or
+// treble) clear this — otherwise grow into a free cell. Attacking over two darts is
+// a +1-1 when two darts on free cells would be +2, so it only pays when you can
+// capture cleanly. The value was tuned by self-play: three L5 AIs — always-attack,
+// always-grow, and this odds-threshold — played thousands of full 3-player games.
+// Always-attacking won the LEAST (~24%), always-growing did well (~37%), and the
+// threshold won the most at ~0.4 (a plateau across 0.3–0.5) — so ~40% one-dart odds,
+// well below the ~70% we'd have guessed. See test/domination-attack-tuning.mjs.
+const ATTACK_THRESHOLD = 0.4;
+
+// Go for the (neutral) bull whenever the odds of hitting it clear this floor.
+// Holding the hub makes the whole board attackable, and self-play was emphatic:
+// always taking an available bull won ~46-72% of games, never taking it ~10-15%,
+// AT L5 — so grabbing it is right even at low skill, and the threshold is only a
+// floor ("is a hit plausible at all", so the very lowest levels don't chuck darts
+// at an unhittable centre), not an expected-value contest. A floor of ~0.1 matched
+// always-bull at L5 while sparing L1-L2 the futile attempt. See
+// test/domination-bull-tuning.mjs.
+const BULL_THRESHOLD = 0.1;
+
+export function dominationAim(state, profile, options = {}) {
     if (state.phase === 'assign') {
         return assignAim(state);
     }
@@ -222,38 +243,68 @@ export function dominationAim(state, profile) {
     const me = state.currentPlayerIndex;
     const leadTiles = leadingOpponentTiles(state, me);
     const dartsLeft = state.dartsPerTurn - state.turn.darts.length;
-    // A flawless profile (level 10) never scatters, so a dart always lands the hit
-    // it aimed at — skip the simulation (it would also burn RNG and shift the
-    // deterministic baselines) and score each cell by the value of taking it.
-    const perfect = profile.scatterHorizontal === 0 && profile.scatterVertical === 0;
+    // Score a landing (ring, segment) by what it achieves on the current board.
+    const valueOf = (ring, segment) => outcomeValue(state, me, ring, segment, leadTiles, dartsLeft);
 
-    let bestAim = null;
-    let bestScore = -Infinity;
+    // Sort frontier aims into three kinds, each ranked by expected value under the
+    // scatter odds (see aim-odds.js): an enemy capture (with its one-dart odds), a
+    // free numbered cell (sure growth), and the neutral bull (a hard central target,
+    // with its hit odds). A tiny jitter breaks ties. Policies below choose between
+    // them, gating the two hard targets — enemy, bull — on their odds.
+    let bestEnemy = null;
+    let bestEnemyScore = -Infinity;
+    let bestEnemyChance = 0;
+    let bestSafe = null;
+    let bestSafeScore = -Infinity;
+    let bull = null;
+    let bullChance = 0;
 
     for (const cell of state.frontier) {
-        const segment = cell === 'bull' ? 25 : cell;
-        const radius = aimRadiusFor(state, cell, dartsLeft);
-        let score;
-        if (perfect) {
-            score = ownValue(state, me, cell, leadTiles);
-        } else {
-            // Expected value of this aim: average what the dart really achieves over
-            // many scattered throws, so an aim whose misses still land on takeable
-            // cells beats one whose misses fall on my own territory or off the board.
-            let sum = 0;
-            for (let i = 0; i < MC_SAMPLES; i++) {
-                const hit = applyScatter({ segment, radius }, profile);
-                sum += outcomeValue(state, me, hit.ring, hit.segment, leadTiles, dartsLeft);
-            }
-            score = sum / MC_SAMPLES;
+        const aim = { segment: cell === 'bull' ? 25 : cell, radius: aimRadiusFor(state, cell, dartsLeft) };
+        const owner = state.owners[cell];
+        if (cell === 'bull' && (owner === null || owner === undefined)) {
+            // The bull is chosen by its hit-odds floor below, not expected value.
+            bull = aim;
+            bullChance = bullHitChance(aim, profile);
+            continue;
         }
-        score += jitter();
-        if (score > bestScore) {
-            bestScore = score;
-            bestAim = { segment, radius };
+        const score = expectedAimValue(aim, profile, valueOf) + jitter();
+        if (owner !== null && owner !== undefined && owner !== me) {
+            if (score > bestEnemyScore) {
+                bestEnemyScore = score;
+                bestEnemy = aim;
+                bestEnemyChance = captureChance(aim, profile, aim.segment);
+            }
+        } else if (score > bestSafeScore) {
+            bestSafeScore = score;
+            bestSafe = aim;
         }
     }
 
+    // Growth target: the best sure cell to claim — but strongly prefer grabbing the
+    // (neutral) bull whenever we can realistically hit it, since holding the hub makes
+    // the whole board attackable. Self-play showed always-taking an available bull
+    // wins big and never-taking loses badly (even at low skill), so the threshold is
+    // just a floor — "is a hit plausible at all" — not an expected-value contest.
+    // (options.bullPolicy overrides for tuning: 'bull' always, 'noBull' never, a
+    // number is a custom odds floor.)
+    let growth = bestSafe;
+    if (bull) {
+        const bullPolicy = options.bullPolicy ?? BULL_THRESHOLD;
+        const takeBull = bullPolicy === 'bull' || (bullPolicy !== 'noBull' && bullChance >= bullPolicy);
+        if (takeBull || growth === null) {
+            growth = bull;
+        }
+    }
+
+    // Attack vs grow. (options.attackPolicy overrides for tuning: 'attack' always
+    // takes an enemy, 'neutral' always grows, a number is a custom odds threshold.)
+    const attackPolicy = options.attackPolicy ?? ATTACK_THRESHOLD;
+    const attack = attackPolicy === 'attack'
+        || (attackPolicy !== 'neutral' && bestEnemy && bestEnemyChance >= attackPolicy);
+    if (attack && bestEnemy) {
+        return bestEnemy;
+    }
     // Nothing worth throwing at (rare) — a deliberate miss.
-    return bestAim || { segment: 20, radius: RING_RADIUS.out };
+    return growth || bestEnemy || bull || { segment: 20, radius: RING_RADIUS.out };
 }
