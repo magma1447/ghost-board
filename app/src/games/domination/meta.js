@@ -7,7 +7,7 @@ export const meta = {
     aka: [],
     players: { min: 2, max: 8 },
     playSkill: 3,
-    rulesComplexity: 4,
+    rulesComplexity: 3,
     tags: ['territory', 'tactical'],
     scoringStyle: 'Territory',
     supportsAi: true,
