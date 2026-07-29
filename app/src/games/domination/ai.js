@@ -1,9 +1,13 @@
 // Domination AI — expected-value aim over the dart-scatter odds.
 //
 // Each dart, score every attackable cell by its EXPECTED outcome under the scatter
-// — where the dart really lands, not where it was aimed — then grow into the best
-// free cell unless a good-odds enemy capture is worth attacking (see
-// ATTACK_THRESHOLD). The odds of landing on each cell come from ../../ai/aim-odds.js
+// — where the dart really lands, not where it was aimed — then decide in strict
+// priority: (1) engage the bull whenever hittable — grab it if neutral, strip it
+// from an enemy holder (BULL_THRESHOLD) — since holding the hub makes the whole
+// board attackable; (2) attack an enemy number when the capture odds clear the
+// threshold, which drops when only one opponent remains (ATTACK_THRESHOLD /
+// SOLO_ATTACK_THRESHOLD); (3) otherwise grow into the best free cell. Each cutoff
+// is self-play tuned. The odds of landing on each cell come from ../../ai/aim-odds.js
 // (computed once per aim+level and cached); here we just score each possible
 // landing with ownValue and let that engine weigh them by the thrower's judgement.
 // Because value is over the real landing spread, the low end plays realistically
@@ -225,6 +229,16 @@ function assignAim(state) {
 // well below the ~70% we'd have guessed. See test/domination-attack-tuning.mjs.
 const ATTACK_THRESHOLD = 0.4;
 
+// With only ONE opponent left, attack far more readily: shrinking your sole rival
+// is pure gain — no third player benefits from a +1-1, and it drives toward the
+// elimination that wins outright. 2-player self-play (head-to-head, all seatings)
+// was stark: aggression (this floor of ~0 — attack whenever there's a target, once
+// the bull is handled) beat the 0.4 threshold ~65% at L5 and ~80% at L8 with the
+// bull off, and was ~even with it on; the same aggression LOSES in 3-player (~28%
+// vs a 33% fair share). So it's applied by opponents *remaining*, kicking in the
+// moment a bigger game comes down to two — while 3+ keeps the 0.4 above.
+const SOLO_ATTACK_THRESHOLD = 0;
+
 // Go for the (neutral) bull whenever the odds of hitting it clear this floor.
 // Holding the hub makes the whole board attackable, and self-play was emphatic:
 // always taking an available bull won ~46-72% of games, never taking it ~10-15%,
@@ -258,6 +272,8 @@ export function dominationAim(state, profile, options = {}) {
     let bestSafeScore = -Infinity;
     let bull = null;
     let bullChance = 0;
+    let heldBull = null; // an enemy-held bull — contested below (strip its reach)
+    let heldBullChance = 0;
 
     for (const cell of state.frontier) {
         const aim = { segment: cell === 'bull' ? 25 : cell, radius: aimRadiusFor(state, cell, dartsLeft) };
@@ -266,6 +282,13 @@ export function dominationAim(state, profile, options = {}) {
             // The bull is chosen by its hit-odds floor below, not expected value.
             bull = aim;
             bullChance = bullHitChance(aim, profile);
+            continue;
+        }
+        if (cell === 'bull') {
+            // An enemy-held bull — handled by the bull logic (contested), never the
+            // enemy-number attack path, so it stays gated by the bull hit-odds floor.
+            heldBull = aim;
+            heldBullChance = bullHitChance(aim, profile);
             continue;
         }
         const score = expectedAimValue(aim, profile, valueOf) + jitter();
@@ -281,30 +304,35 @@ export function dominationAim(state, profile, options = {}) {
         }
     }
 
-    // Growth target: the best sure cell to claim — but strongly prefer grabbing the
-    // (neutral) bull whenever we can realistically hit it, since holding the hub makes
-    // the whole board attackable. Self-play showed always-taking an available bull
-    // wins big and never-taking loses badly (even at low skill), so the threshold is
-    // just a floor — "is a hit plausible at all" — not an expected-value contest.
-    // (options.bullPolicy overrides for tuning: 'bull' always, 'noBull' never, a
-    // number is a custom odds floor.)
-    let growth = bestSafe;
-    if (bull) {
-        const bullPolicy = options.bullPolicy ?? BULL_THRESHOLD;
-        const takeBull = bullPolicy === 'bull' || (bullPolicy !== 'noBull' && bullChance >= bullPolicy);
-        if (takeBull || growth === null) {
-            growth = bull;
-        }
+    // Decide in strict priority: engage the bull, then attack, then grow.
+
+    // 1. The bull is the strongest square — engage it first whenever it's in reach.
+    //    Grab it if neutral, or strip it from an enemy holder (a single bull kills
+    //    their board-wide reach, a double takes the hub). Self-play was emphatic both
+    //    ways: always taking an available bull beats never-taking ~46-72% to ~10-15%,
+    //    and contesting a held bull beats ignoring it ~57% to ~21%. It shares one
+    //    hit-odds floor ("is a hit plausible", not an EV contest). It goes before the
+    //    attack so aggressive play doesn't skip the hub. (options.bullPolicy: 'bull'
+    //    always / 'noBull' never / number floor; options.contestBull: held-bull floor.)
+    const bullPolicy = options.bullPolicy ?? BULL_THRESHOLD;
+    if (bull && (bullPolicy === 'bull' || (bullPolicy !== 'noBull' && bullChance >= bullPolicy))) {
+        return bull;
+    }
+    if (heldBull && heldBullChance >= (options.contestBull ?? BULL_THRESHOLD)) {
+        return heldBull;
     }
 
-    // Attack vs grow. (options.attackPolicy overrides for tuning: 'attack' always
-    // takes an enemy, 'neutral' always grows, a number is a custom odds threshold.)
-    const attackPolicy = options.attackPolicy ?? ATTACK_THRESHOLD;
+    // 2. Attack an enemy number when the one-dart capture odds clear the threshold —
+    //    which drops sharply when only ONE opponent remains (see SOLO_ATTACK_THRESHOLD).
+    //    (options.attackPolicy overrides: 'attack' always / 'neutral' never / number.)
+    const opponentsLeft = state.players.filter((p, i) => i !== me && !p.out).length;
+    const attackPolicy = options.attackPolicy ?? (opponentsLeft <= 1 ? SOLO_ATTACK_THRESHOLD : ATTACK_THRESHOLD);
     const attack = attackPolicy === 'attack'
         || (attackPolicy !== 'neutral' && bestEnemy && bestEnemyChance >= attackPolicy);
     if (attack && bestEnemy) {
         return bestEnemy;
     }
-    // Nothing worth throwing at (rare) — a deliberate miss.
-    return growth || bestEnemy || bull || { segment: 20, radius: RING_RADIUS.out };
+
+    // 3. Grow into the best free cell. (Fallbacks cover a rare all-hard-target board.)
+    return bestSafe || bestEnemy || bull || heldBull || { segment: 20, radius: RING_RADIUS.out };
 }

@@ -105,6 +105,18 @@ function check(name, ok, detail) {
     check('an accurate AI (L10) grabs the bull hub', high >= 0.9, `L10 bull ${high.toFixed(2)}`);
 }
 
+// 2b. Contest an ENEMY-HELD bull, don't ignore it. Same board but P1 now holds the
+//     bull; the AI owns 17 with neutrals 2, 3 free. Hitting the bull strips P1's
+//     board-wide reach (or takes it), so a competent AI goes for it rather than
+//     quietly growing. Self-play: a contester beats two ignorers ~57% to ~21%.
+{
+    const makeFresh = () => forcePlay(game(2, { bull: true }), { 17: 0, bull: 1, 20: 1 }, 0);
+    const low = frac(aimDist(makeFresh, 2), ['bull']);
+    const competent = frac(aimDist(makeFresh, 5), ['bull']);
+    check('a weak AI (L2) cannot hit the held bull, so grows instead', low <= 0.15, `L2 bull ${low.toFixed(2)}`);
+    check('a competent AI (L5) contests the enemy-held bull', competent >= 0.85, `L5 bull ${competent.toFixed(2)}`);
+}
+
 // 3. Grow rather than fight a non-leader. Bull off; P1 is the leader; the AI's
 //    frontier is {2 (P2, a non-leader), 8 (neutral)} → take the free 8.
 {
@@ -141,6 +153,17 @@ function check(name, ok, detail) {
     }, 0);
     check('grows rather than attacking the leader at mid skill (L8)', frac(aimDist(makeFresh, 8), [2]) <= 0.1, JSON.stringify(aimDist(makeFresh, 8)));
     check('takes the leader once the capture is near-certain (L10)', frac(aimDist(makeFresh, 10), [2]) >= 0.9, JSON.stringify(aimDist(makeFresh, 10)));
+}
+
+// 5b. …but with ONE opponent left, attack readily. Now 1v1: AI owns 17,16, so its
+//     frontier is 3 (the sole opponent P1's, adjacent to 17) plus neutrals 19,8,7.
+//     Shrinking your only rival is pure gain (no third party benefits) and drives
+//     toward elimination, so at mid skill it attacks 3 rather than growing into a
+//     neutral — the opposite of the 3-player case. Self-play (2p) tuned the solo
+//     floor to ~0 (aggression wins ~65% bull-off, and loses in 3p — see #5).
+{
+    const makeFresh = () => forcePlay(game(2, { bull: false }), { 17: 0, 16: 0, 3: 1, 4: 1, 13: 1, 6: 1 }, 0);
+    check('with one opponent left, attacks the rival at mid skill (L5)', frac(aimDist(makeFresh, 5), [3]) >= 0.9, JSON.stringify(aimDist(makeFresh, 5)));
 }
 
 // 6. Keep territory connected. AI owns the bull, three contiguous arcs tile the
