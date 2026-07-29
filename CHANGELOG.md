@@ -2,6 +2,11 @@
 
 Notable changes to Ghost Board, newest first. Version numbers follow [semantic versioning](https://semver.org/): new features bump the middle number, fixes bump the last.
 
+## 0.10.0 — 2026-07-29
+
+### Added
+- Added game: **Domination** — a territory battle for 2–8 players. Claim a starting number, then take over your neighbours' numbers to spread around the board; hold enough of it to win outright, or the most territory when the round limit is reached. Turn on the bull as a central hub that borders every number. Plays against AI.
+
 ## 0.9.1 — 2026-07-14
 
 ### Fixed
